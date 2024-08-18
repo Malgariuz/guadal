@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Locales</title>
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+    <div id="header">
+        <span id="estado-usuario"></span>
+        <button id="boton-mapa" onclick="irAlMapa()">Ir al Mapa</button>
+    </div>
+
+    <!-- Formulario para agregar locales -->
+    <div id="agregar-local">
+        <input type="text" id="nombre-local" placeholder="Nombre del Local o Persona" required>
+        <input type="text" id="direccion" placeholder="Dirección" required>
+        <input type="text" id="numero-finca" placeholder="Número de Finca" required>
+        <select id="factura" required>
+            <option value="" disabled selected>Seleccionar Factura</option>
+            <option value="A">Factura A</option>
+            <option value="Otra">Otra</option>
+        </select>
+        <input type="number" id="tasa" placeholder="Monto de la Tasa (opcional)">
+        <button onclick="agregarLocal()">Agregar Local</button>
+    </div>
+
+    <!-- Lista de locales -->
+    <div id="lista-locales"></div>
+
+    <!-- Contadores -->
+    <div id="contadores">
+        <span id="total-locales"></span>
+        <span id="total-dinero"></span>
+        <span id="locales-desinfectados"></span>
+    </div>
+
+    <script src="scripts/scripts.js"></script>
+</body>
+</html>

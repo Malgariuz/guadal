@@ -1,0 +1,91 @@
+/* Estilos generales */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  padding: 20px;
+}
+
+/* Estado del usuario */
+#estado-usuario {
+  font-weight: bold;
+}
+
+/* Estilos del botón de mapa */
+#boton-mapa {
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+#boton-mapa:hover {
+  background-color: #0056b3;
+}
+
+/* Estilos para la sección de agregar local */
+#agregar-local {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+#agregar-local input,
+#agregar-local select {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+#agregar-local button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+}
+#agregar-local button:hover {
+  background-color: #218838;
+}
+
+/* Estilos de los locales */
+.local {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.local:not(.realizado):not(.problema) {
+  background-color: #e0e0e0;
+}
+.local.realizado {
+  background-color: #28a745;
+  color: white;
+}
+.local.problema {
+  background-color: #ffc107;
+  color: black;
+}
+.local label {
+  flex-grow: 1;
+}
+.local select {
+  padding: 5px;
+}
+
+/* Estilos de los contadores */
+#contadores {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+#total-locales, #total-dinero, #locales-desinfectados {
+  font-weight: bold;
+}
