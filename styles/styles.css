@@ -171,6 +171,132 @@ body {
   }
 }
 
+/* Estilos para dispositivos móviles (hasta 480px) */
+@media (max-width: 480px) {
+  .local {
+    padding: 15px;
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+
+  .local label {
+    margin-bottom: 10px;
+  }
+
+  #agregar-local input,
+  #agregar-local select,
+  #agregar-local button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  #contadores {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #contadores div {
+    margin-bottom: 10px;
+  }
+}
+
+/* Estilos para móviles grandes y tablets en orientación vertical (481px a 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .local {
+    padding: 20px;
+    margin-bottom: 20px;
+    font-size: 16px;
+  }
+
+  .local label {
+    margin-bottom: 15px;
+  }
+
+  #agregar-local {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #agregar-local input,
+  #agregar-local select,
+  #agregar-local button {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  #contadores {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #contadores div {
+    margin-bottom: 15px;
+  }
+}
+
+/* Estilos para tablets en orientación horizontal (769px a 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .local {
+    padding: 25px;
+    margin-bottom: 25px;
+    font-size: 18px;
+  }
+
+  .local label {
+    margin-bottom: 20px;
+  }
+
+  #agregar-local {
+    flex-direction: row;
+    gap: 15px;
+  }
+
+  #agregar-local input,
+  #agregar-local select,
+  #agregar-local button {
+    flex-grow: 1;
+    margin-bottom: 0;
+  }
+
+  #contadores {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #contadores div {
+    margin-bottom: 20px;
+  }
+}
+
+/* Estilos para dispositivos de escritorio pequeños (1025px a 1280px) */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .local {
+    padding: 30px;
+    margin-bottom: 30px;
+    font-size: 20px;
+  }
+
+  .local label {
+    margin-bottom: 25px;
+  }
+
+  #agregar-local {
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  #agregar-local input,
+  #agregar-local select,
+  #agregar-local button {
+    margin-bottom: 0;
+  }
+
+  #contadores {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
 
 .vista-previa {
   opacity: 0.6;
