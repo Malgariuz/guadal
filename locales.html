@@ -90,6 +90,77 @@
 <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-app.js"></script>
 <!-- Firebase Firestore -->
 <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-firestore.js"></script>
+<script>
+// Inicializa Firebase
+
+
+// Funciones para Firestore
+async function agregarLocalFirestore(local) {
+  try {
+    const docRef = await addDoc(collection(db, "locales"), local);
+    console.log("Documento agregado con ID: ", docRef.id);
+  } catch (e) {
+    console.error("Error añadiendo el documento: ", e);
+  }
+}
+
+async function obtenerLocalesFirestore() {
+  try {
+    const querySnapshot = await getDocs(collection(db, "locales"));
+    const locales = [];
+    querySnapshot.forEach((doc) => {
+      locales.push({ id: doc.id, ...doc.data() });
+    });
+    return locales;
+  } catch (e) {
+    console.error("Error obteniendo documentos: ", e);
+  }
+}
+
+async function actualizarLocalFirestore(id, updatedLocal) {
+  try {
+    const localRef = doc(db, "locales", id);
+    await updateDoc(localRef, updatedLocal);
+    console.log("Documento actualizado con ID: ", id);
+  } catch (e) {
+    console.error("Error actualizando el documento: ", e);
+  }
+}
+
+async function eliminarLocalFirestore(id) {
+  try {
+    await deleteDoc(doc(db, "locales", id));
+    console.log("Documento eliminado con ID: ", id);
+  } catch (e) {
+    console.error("Error eliminando el documento: ", e);
+  }
+}
+
+// Ejemplo de uso
+document.addEventListener('DOMContentLoaded', async () => {
+  // Agregar un local (sólo para prueba, asegúrate de tener los datos correctos)
+  await agregarLocalFirestore({
+    nombre: "local 1",
+    direccion: "dirección ejemplo",
+    costo: 2500,
+    factura: "A",
+    estado: "no-listo",
+    numeroFinca: "1234"
+  });
+
+  // Obtener y mostrar locales
+  const locales = await obtenerLocalesFirestore();
+  console.log("Locales obtenidos: ", locales);
+
+  // Actualizar un local (reemplaza 'id_del_local' con el ID real del documento)
+  await actualizarLocalFirestore('id_del_local', {
+    estado: "realizado"
+  });
+
+  // Eliminar un local (reemplaza 'id_del_local' con el ID real del documento)
+  await eliminarLocalFirestore('id_del_local');
+});
+</script>
 
 </body>
 </html>
