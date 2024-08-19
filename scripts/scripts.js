@@ -292,6 +292,10 @@ function accesoVistaPrevia() {
     window.location.href = 'locales.html'; // Redirige a locales.html
 }
 
+// Función para abrir el mapa en una nueva ventana
+function irAlMapa() {
+    window.open('map/map.html', '_blank');
+}
 
  // Exponer funciones globalmente
  window.autenticarUsuario = autenticarUsuario;
@@ -301,5 +305,6 @@ function accesoVistaPrevia() {
  window.verDetalles = verDetalles;
  window.eliminarLocal = eliminarLocal;
  window.guardarLocales = guardarLocales;
+ window.irAlMapa = irAlMapa;
 
 
