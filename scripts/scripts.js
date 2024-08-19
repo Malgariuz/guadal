@@ -214,14 +214,32 @@ function actualizarContadores() {
         }
     });
 
-    document.getElementById
     document.getElementById('total-locales').textContent = `Total de locales: ${totalLocales}`;
     document.getElementById('total-dinero').textContent = `Total dinero: $${totalDinero}`;
     document.getElementById('locales-desinfectados').textContent = `Locales desinfectados: ${localesDesinfectados}`;
+}
+
+// Función para mostrar u ocultar opciones de factura
+function mostrarOpcionesFactura(select) {
+    const facturaAInput = document.getElementById('monto-factura-a');
+    const tasaOpciones = document.getElementById('tasa-opcion');
+
+    if (select.value === 'A') {
+        facturaAInput.style.display = 'block';
+        facturaAInput.disabled = false;
+        tasaOpciones.style.display = 'block';
+        tasaOpciones.querySelector('#tasa').disabled = false;
+    } else {
+        facturaAInput.style.display = 'none';
+        facturaAInput.disabled = true;
+        tasaOpciones.style.display = 'none';
+        tasaOpciones.querySelector('#tasa').disabled = true;
+    }
 }
 
 // Inicializar la página
 document.addEventListener('DOMContentLoaded', () => {
     verificarAutenticacion();
     cargarLocales();
-    actualizarContadores();});
+    actualizarContadores();
+});

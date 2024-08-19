@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Locales</title>
     <link rel="stylesheet" href="styles/styles.css">
+    
 </head>
 <body>
     <div id="header" class="centrado">
@@ -17,14 +18,16 @@
         <input type="text" id="nombre-local" placeholder="Nombre del Local o Persona" required>
         <input type="text" id="direccion" placeholder="Dirección" required>
         <input type="text" id="numero-finca" placeholder="Número de Finca" required>
-        <select id="factura" required>
+        <select id="factura" required onchange="mostrarOpcionesFactura(this)">
             <option value="" disabled selected>Seleccionar Factura</option>
             <option value="A">Factura A</option>
-            <option value="Otra">Otra</option>
+            <option value="B">Factura B</option>
+            <option value="otra">Otra</option>
         </select>
-        <div class="tasa-opciones">
+        <input type="number" id="monto-factura-a" placeholder="Monto Factura A" style="display:none;" disabled>
+        <div class="tasa-opciones" id="tasa-opcion" style="display:none;">
             <label for="tasa-check">Tasa:</label>
-            <input type="checkbox" id="tasa-check">
+            <input type="checkbox" id="tasa-check" checked disabled>
             <input type="number" id="tasa" placeholder="Monto de la Tasa" disabled>
         </div>
         <select id="mes" required>
@@ -32,13 +35,24 @@
             <option value="enero">Enero</option>
             <option value="febrero">Febrero</option>
             <option value="marzo">Marzo</option>
-            <!-- Agrega los otros meses -->
+            <option value="abril">Abril</option>
+            <option value="mayo">Mayo</option>
+            <option value="junio">Junio</option>
+            <option value="julio">Julio</option>
+            <option value="agosto">Agosto</option>
+            <option value="septiembre">Septiembre</option>
+            <option value="octubre">Octubre</option>
+            <option value="noviembre">Noviembre</option>
+            <option value="diciembre">Diciembre</option>
         </select>
         <button onclick="agregarLocal()">Agregar Local</button>
     </div>
 
     <!-- Lista de locales -->
     <div id="lista-locales"></div>
+
+    <!-- Lista de locales realizados -->
+    <div id="lista-locales-realizados"></div>
 
     <!-- Contadores -->
     <div id="contadores">
@@ -49,5 +63,28 @@
     </div>
 
     <script src="scripts/scripts.js"></script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyA_W6iFuTLoWVf0VExW7QTy9VJlXnMUOS0",
+          authDomain: "malgariuz.firebaseapp.com",
+          projectId: "malgariuz",
+          storageBucket: "malgariuz.appspot.com",
+          messagingSenderId: "18994913717",
+          appId: "1:18994913717:web:be2e0b0e5d63211d6bb9fc",
+          measurementId: "G-56D4TMG32S"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+      </script>
 </body>
 </html>

@@ -28,6 +28,7 @@ body {
   background-color: #007bff;
   color: white;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 #boton-mapa:hover {
   background-color: #0056b3;
@@ -55,6 +56,7 @@ body {
   background-color: #28a745;
   color: white;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 #agregar-local button:hover {
   background-color: #218838;
@@ -85,6 +87,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 .local:not(.realizado):not(.problema) {
   background-color: #e0e0e0;
@@ -115,6 +118,7 @@ body {
   background-color: #007bff;
   color: white;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 .local button:hover {
   background-color: #0056b3;
@@ -123,6 +127,7 @@ body {
 /* Estilos del botón de eliminar */
 .local .btn-eliminar {
   background-color: #dc3545;
+  transition: background-color 0.3s ease;
 }
 .local .btn-eliminar:hover {
   background-color: #c82333;
