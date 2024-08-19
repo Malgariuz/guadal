@@ -22,7 +22,18 @@
             <option value="A">Factura A</option>
             <option value="Otra">Otra</option>
         </select>
-        <input type="number" id="tasa" placeholder="Monto de la Tasa (opcional)">
+        <div class="tasa-opciones">
+            <label for="tasa-check">Tasa:</label>
+            <input type="checkbox" id="tasa-check">
+            <input type="number" id="tasa" placeholder="Monto de la Tasa" disabled>
+        </div>
+        <select id="mes" required>
+            <option value="" disabled selected>Seleccionar Mes</option>
+            <option value="enero">Enero</option>
+            <option value="febrero">Febrero</option>
+            <option value="marzo">Marzo</option>
+            <!-- Agrega los otros meses -->
+        </select>
         <button onclick="agregarLocal()">Agregar Local</button>
     </div>
 
@@ -33,9 +44,10 @@
     <div id="contadores">
         <span id="total-locales"></span>
         <span id="total-dinero"></span>
+        <span id="total-tasas"></span>
         <span id="locales-desinfectados"></span>
     </div>
 
-    <script  src="scripts/scripts.js"></script>
+    <script src="scripts/scripts.js"></script>
 </body>
 </html>

@@ -60,6 +60,22 @@ body {
   background-color: #218838;
 }
 
+/* Estilos específicos para la opción de tasa */
+.tasa-opciones {
+  display: flex;
+  align-items: center;
+}
+#tasa-check {
+  margin-right: 10px;
+}
+#tasa {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
 /* Estilos de los locales */
 .local {
   margin-bottom: 10px;
@@ -72,6 +88,7 @@ body {
 }
 .local:not(.realizado):not(.problema) {
   background-color: #e0e0e0;
+  color: black; /* Cambiar color de texto para "No Listo" */
 }
 .local.realizado {
   background-color: #28a745;
@@ -118,6 +135,33 @@ body {
   margin-bottom: 20px;
 }
 
-#total-locales, #total-dinero, #locales-desinfectados {
+#total-locales, #total-dinero, #total-tasas, #locales-desinfectados {
   font-weight: bold;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  #agregar-local, #contadores {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #agregar-local input,
+  #agregar-local select,
+  #agregar-local button,
+  #tasa {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .local {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .local button {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 10px;
+  }
 }

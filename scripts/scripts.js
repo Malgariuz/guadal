@@ -65,7 +65,7 @@ function cargarLocales() {
         localDiv.classList.add('local');
         localDiv.setAttribute('data-id', local.id);
         localDiv.setAttribute('data-costo', local.costo);
-        localDiv.setAttribute('data-factura', local.factura);
+        localDiv.setAttribute('data-factura', local.factura === 'otra' ? 'B' : local.factura);
         localDiv.setAttribute('data-direccion', local.direccion);
         localDiv.setAttribute('data-nombre', local.nombre);
         localDiv.setAttribute('data-numero-finca', local.numeroFinca); // Agregar el número de finca
@@ -120,7 +120,7 @@ function agregarLocal() {
     localDiv.classList.add('local');
     localDiv.setAttribute('data-id', generarId());
     localDiv.setAttribute('data-costo', 2500 + tasa);
-    localDiv.setAttribute('data-factura', `#${factura}`);
+    localDiv.setAttribute('data-factura', factura === 'otra' ? 'B' : factura);
     localDiv.setAttribute('data-direccion', direccion);
     localDiv.setAttribute('data-nombre', nombreLocal);
     localDiv.setAttribute('data-numero-finca', numeroFinca); // Agregar el número de finca
@@ -214,6 +214,7 @@ function actualizarContadores() {
         }
     });
 
+    document.getElementById
     document.getElementById('total-locales').textContent = `Total de locales: ${totalLocales}`;
     document.getElementById('total-dinero').textContent = `Total dinero: $${totalDinero}`;
     document.getElementById('locales-desinfectados').textContent = `Locales desinfectados: ${localesDesinfectados}`;
