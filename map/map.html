@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa con Información de Locales</title>
+    <link rel="stylesheet" href="map.css">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet" />
+</head>
+<body>
+    <div id='map'></div> <!-- Solo esta instancia debe permanecer -->
+    <div class="menu">
+        <div class="hamburger-menu" id="hamburger-menu">☰</div>
+        <div class="sidebar" id="sidebar">
+            <a href="index.html">Inicio</a>
+            <a href="map.html">Mapa</a>
+            <!-- Agrega más enlaces según sea necesario -->
+            <button id="add-local-btn">Añadir Local</button>
+        </div>
+    </div>
+
+    <script src="map.js"></script>
+</body>
+</html>
