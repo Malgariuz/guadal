@@ -33,6 +33,8 @@
      }
  }
 
+ 
+
  // Redirige a la página de inicio si no está autenticado
  function redirigirSiNoAutenticado() {
      if (window.location.pathname !== '/index.html' && window.location.pathname !== '/map/map.html') {
@@ -71,52 +73,68 @@
  }
 
  // Función para cargar los locales desde Firebase
- async function cargarLocales() {
-     const listaLocales = document.getElementById('lista-locales');
-     listaLocales.innerHTML = ''; // Limpiar la lista antes de cargar
+async function cargarLocales() {
+    const listaLocales = document.getElementById('lista-locales');
+    const lineaSeparadora = document.getElementById('linea-separadora');
+    listaLocales.innerHTML = ''; // Limpiar la lista antes de cargar
 
-     const snapshot = await get(child(ref(db), 'locales'));
-     if (snapshot.exists()) {
-         const locales = snapshot.val() || [];
-         
-         // Ordenar para mover los realizados al final
-         locales.sort((a, b) => a.estado === 'realizado' ? 1 : -1);
+    const snapshot = await get(child(ref(db), 'locales'));
+    if (snapshot.exists()) {
+        const locales = snapshot.val() || [];
 
-         locales.forEach(local => {
-             const localDiv = document.createElement('div');
-             localDiv.classList.add('local');
-             localDiv.setAttribute('data-id', local.id);
-             localDiv.setAttribute('data-costo', local.costo);
-             localDiv.setAttribute('data-factura', local.factura === 'otra' ? 'B' : local.factura);
-             localDiv.setAttribute('data-direccion', local.direccion);
-             localDiv.setAttribute('data-nombre', local.nombre);
-             localDiv.setAttribute('data-numero-finca', local.numeroFinca); // Agregar el número de finca
+        // Ordenar para mover los realizados al final
+        locales.sort((a, b) => a.estado === 'realizado' ? 1 : -1);
 
-             localDiv.innerHTML = `
-                 <label>${local.nombre} - ${local.direccion} - ${local.numeroFinca}</label>
-                 <select onchange="cambiarEstado(this)">
-                     <option value="no-listo" ${local.estado === 'no-listo' ? 'selected' : ''}>No Listo</option>
-                     <option value="realizado" ${local.estado === 'realizado' ? 'selected' : ''}>Realizado</option>
-                     <option value="problema" ${local.estado === 'problema' ? 'selected' : ''}>Problema</option>
-                 </select>
-                 <button onclick="verDetalles(this)">Ver Detalles</button>
-                 <input type="checkbox" class="check-realizado" ${local.estado === 'realizado' ? 'checked' : ''} disabled>
-                 <button class="btn-eliminar" onclick="eliminarLocal(${local.id})">Eliminar</button>
-             `;
+        let seMostroSeparador = false; // Para saber si ya se mostró la línea separadora
 
-             if (local.estado === 'realizado') {
-                 localDiv.classList.add('realizado');
-             } else if (local.estado === 'problema') {
-                 localDiv.classList.add('problema');
-             }
+        locales.forEach(local => {
+            const localDiv = document.createElement('div');
+            localDiv.classList.add('local');
+            localDiv.setAttribute('data-id', local.id);
+            localDiv.setAttribute('data-costo', local.costo);
+            localDiv.setAttribute('data-factura', local.factura === 'otra' ? 'B' : local.factura);
+            localDiv.setAttribute('data-direccion', local.direccion);
+            localDiv.setAttribute('data-nombre', local.nombre);
+            localDiv.setAttribute('data-numero-finca', local.numeroFinca); // Agregar el número de finca
 
-             listaLocales.appendChild(localDiv);
-         });
-         actualizarContadores();
-     } else {
-         console.log("No data available");
-     }
- }
+            localDiv.innerHTML = `
+                <label>${local.nombre} - ${local.direccion} - ${local.numeroFinca}</label>
+                <select onchange="cambiarEstado(this)">
+                    <option value="no-listo" ${local.estado === 'no-listo' ? 'selected' : ''}>No Listo</option>
+                    <option value="realizado" ${local.estado === 'realizado' ? 'selected' : ''}>Realizado</option>
+                    <option value="problema" ${local.estado === 'problema' ? 'selected' : ''}>Problema</option>
+                </select>
+                <button onclick="verDetalles(this)">Ver Detalles</button>
+                <input type="checkbox" class="check-realizado" ${local.estado === 'realizado' ? 'checked' : ''} disabled>
+                <button class="btn-eliminar" onclick="eliminarLocal(${local.id})">Eliminar</button>
+            `;
+
+            // Aplicar clase y estilo según el estado
+            if (local.estado === 'realizado') {
+                localDiv.classList.add('realizado');
+                // Mostrar la línea separadora si no se ha mostrado
+                if (!seMostroSeparador) {
+                    listaLocales.appendChild(lineaSeparadora);
+                    lineaSeparadora.style.display = 'block';
+                    seMostroSeparador = true;
+                }
+            } else if (local.estado === 'problema') {
+                localDiv.classList.add('problema');
+            }
+
+            listaLocales.appendChild(localDiv);
+        });
+
+        // Ocultar la línea separadora si no hay locales "realizados"
+        if (!seMostroSeparador) {
+            lineaSeparadora.style.display = 'none';
+        }
+
+        actualizarContadores();
+    } else {
+        console.log("No data available");
+    }
+}
 
  // Función para agregar un nuevo local a la lista
  async function agregarLocal() {
@@ -202,36 +220,41 @@
  }
 
  // Función para cambiar el estado de un local
- async function cambiarEstado(select) {
-     const localDiv = select.parentNode;
-     const id = parseInt(localDiv.getAttribute('data-id'));
+async function cambiarEstado(select) {
+    const localDiv = select.parentNode;
+    const id = parseInt(localDiv.getAttribute('data-id'));
 
-     const snapshot = await get(child(ref(db), 'locales'));
-     let locales = snapshot.exists() ? snapshot.val() : [];
-     const local = locales.find(local => local.id === id);
+    const snapshot = await get(child(ref(db), 'locales'));
+    let locales = snapshot.exists() ? snapshot.val() : [];
+    const local = locales.find(local => local.id === id);
 
-     if (local) {
-         local.estado = select.value;
-         await set(ref(db, 'locales'), locales);
-     }
+    if (local) {
+        local.estado = select.value;
+        await set(ref(db, 'locales'), locales);
+    }
 
-     // Marcar el div como realizado si corresponde
-     if (local.estado === 'realizado') {
-         localDiv.classList.add('realizado');
-         localDiv.querySelector('.check-realizado').checked = true;
-     } else {
-         localDiv.classList.remove('realizado');
-         localDiv.querySelector('.check-realizado').checked = false;
-     }
+    // Marcar el div como realizado si corresponde
+    if (local.estado === 'realizado') {
+        localDiv.classList.add('realizado');
+        localDiv.querySelector('.check-realizado').checked = true;
+        localDiv.style.borderTop = '1px solid black'; // Línea separadora para realizado
+        localDiv.style.marginTop = '10px'; // Espaciado con los locales anteriores
+    } else {
+        localDiv.classList.remove('realizado');
+        localDiv.querySelector('.check-realizado').checked = false;
+        localDiv.style.borderTop = ''; // Quitar la línea separadora
+        localDiv.style.marginTop = ''; // Quitar el espaciado
+    }
 
-     if (local.estado === 'problema') {
-         localDiv.classList.add('problema');
-     } else {
-         localDiv.classList.remove('problema');
-     }
+    if (local.estado === 'problema') {
+        localDiv.classList.add('problema');
+    } else {
+        localDiv.classList.remove('problema');
+    }
 
-     actualizarContadores();
- }
+    actualizarContadores();
+}
+
 
  // Función para ver los detalles de un local
  function verDetalles(boton) {
@@ -263,10 +286,20 @@
      cargarLocales();
  });
 
+ // Función para acceso en modo vista previa
+function accesoVistaPrevia() {
+    localStorage.setItem('autenticado', 'vista-previa');
+    window.location.href = 'locales.html'; // Redirige a locales.html
+}
+
+
  // Exponer funciones globalmente
  window.autenticarUsuario = autenticarUsuario;
+ window.accesoVistaPrevia = accesoVistaPrevia;
  window.agregarLocal = agregarLocal;
  window.cambiarEstado = cambiarEstado;
  window.verDetalles = verDetalles;
  window.eliminarLocal = eliminarLocal;
  window.guardarLocales = guardarLocales;
+
+

@@ -170,3 +170,23 @@ body {
     margin-top: 10px;
   }
 }
+
+
+.vista-previa {
+  opacity: 0.6;
+}
+
+.vista-previa input,
+.vista-previa select,
+.vista-previa button {
+  cursor: not-allowed;
+}
+
+
+#linea-separadora {
+  border: 0;
+  height: 1px;
+  background-color: #cc0606; /* Color de la línea */
+  margin: 20px 0; /* Espaciado superior e inferior */
+}
+
