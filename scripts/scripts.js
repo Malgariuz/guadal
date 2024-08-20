@@ -52,6 +52,11 @@
      }
  }
 
+
+
+
+ 
+
  // Función para generar un identificador único
  function generarId(locales) {
      return locales.length > 0 ? Math.max(...locales.map(local => local.id)) + 1 : 1;
@@ -306,5 +311,3 @@ function irAlMapa() {
  window.eliminarLocal = eliminarLocal;
  window.guardarLocales = guardarLocales;
  window.irAlMapa = irAlMapa;
-
-
