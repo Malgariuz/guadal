@@ -40,6 +40,8 @@ map.on('mousemove', function (e) {
 
 
 
+
+
 // Inicializar Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyA_W6iFuTLoWVf0VExW7QTy9VJlXnMUOS0",
@@ -288,60 +290,7 @@ async function cambiarEstadoEnMapa(id, nuevoEstado) {
 
 
 
-// Funcionalidad de búsqueda
-document.getElementById('search-button').addEventListener('click', async () => {
-    const query = document.getElementById('search-input').value;
-    const mapCenter = map.getCenter(); // Obtén el centro actual del mapa
-    const [centerLng, centerLat] = [mapCenter.lng, mapCenter.lat];
-  
-    // Añadir parámetro de proximidad para ajustar la búsqueda a la región visible
-    const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?proximity=${centerLng},${centerLat}&access_token=${mapboxgl.accessToken}`);
-    const data = await response.json();
-  
-    // Verificar si se obtuvieron resultados
-    if (data.features && data.features.length > 0) {
-      // Obtener el resultado más relevante
-      const bestResult = data.features[0];
-      const [lng, lat] = bestResult.center;
-  
-      // Limpiar marcador anterior si existe
-      if (map.getLayer('end')) {
-        map.removeLayer('end');
-        map.removeSource('end');
-      }
-  
-      // Añadir nuevo marcador y ruta
-      const end = [lng, lat];
-      const endMarker = {
-        type: 'FeatureCollection',
-        features: [
-          {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'Point',
-              coordinates: end
-            }
-          }
-        ]
-      };
-      map.addLayer({
-        id: 'end',
-        type: 'circle',
-        source: {
-          type: 'geojson',
-          data: endMarker
-        },
-        paint: {
-          'circle-radius': 10,
-          'circle-color': '#f30'
-        }
-      });
-      getRoute(end);
-    } else {
-      alert('No se encontraron resultados para la dirección proporcionada.');
-    }
-  });
+
 
 // Funcionalidad de la barra lateral
 document.getElementById('hamburger-menu').addEventListener('click', () => {
