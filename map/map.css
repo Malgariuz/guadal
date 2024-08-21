@@ -76,3 +76,114 @@ body, html {
   font-size: 14px;
   z-index: 1001; /* Asegúrate de que esté sobre otros elementos */
 }
+
+/* queries
+/* Para dispositivos muy pequeños (menos de 320px) */
+@media only screen and (max-width: 320px) {
+  #search-bar {
+    top: 70px;
+  }
+
+  .hamburger-menu {
+    font-size: 16px;
+  }
+
+  #search-input {
+    width: 200px;
+  }
+
+  .sidebar {
+    width: 150px;
+  }
+
+  #editor-coordenadas {
+    font-size: 12px;
+  }
+
+  #meses-bar {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* Para dispositivos pequeños (entre 321px y 480px) */
+@media only screen and (min-width: 321px) and (max-width: 480px) {
+  #search-bar {
+    top: 60px;
+  }
+
+  .hamburger-menu {
+    font-size: 18px;
+  }
+
+  #search-input {
+    width: 250px;
+  }
+
+  .sidebar {
+    width: 200px;
+  }
+
+  #editor-coordenadas {
+    font-size: 14px;
+  }
+
+  #meses-bar {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* Para dispositivos medianos (entre 481px y 768px) */
+@media only screen and (min-width: 481px) and (max-width: 768px) {
+  #search-bar {
+    top: 50px;
+  }
+
+  .hamburger-menu {
+    font-size: 20px;
+  }
+
+  #search-input {
+    width: 275px;
+  }
+
+  .sidebar {
+    width: 225px;
+  }
+
+  #editor-coordenadas {
+    font-size: 16px;
+  }
+
+  #meses-bar {
+    flex-wrap: wrap;
+  }
+}
+
+/* Para dispositivos grandes (entre 769px y 1024px) */
+@media only screen and (min-width: 769px) and (max-width: 1024px) {
+  #search-bar {
+    top: 40px;
+  }
+
+  .hamburger-menu {
+    font-size: 22px;
+  }
+
+  #search-input {
+    width: 300px;
+  }
+
+  .sidebar {
+    width: 250px;
+  }
+
+  #editor-coordenadas {
+    font-size: 18px;
+  }
+
+  #meses-bar {
+    flex-wrap: wrap;
+  }
+}
