@@ -9,34 +9,15 @@ body, html {
   height: 100%;
 }
 
-.left-sidebar {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 250px;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  padding: 10px;
-  z-index: 1;
-}
 
-.right-sidebar {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 300px;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 10px;
-  display: none;
-  z-index: 2;
-}
 
 .hamburger-menu {
   cursor: pointer;
   font-size: 24px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1001; /* Para asegurar que el menú esté sobre el mapa */
 }
 
 #search-bar {
@@ -56,19 +37,15 @@ body, html {
   padding: 5px 10px;
   cursor: pointer;
 }
+
 .menu {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 1000;
   width: 100%;
-  background-color: #333;
   color: white;
   padding: 10px;
-}
-
-.hamburger-menu {
-  cursor: pointer;
 }
 
 .sidebar {
@@ -86,4 +63,16 @@ body, html {
 
 .sidebar.open {
   display: block;
+}
+
+
+#coordenadas {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 1001; /* Asegúrate de que esté sobre otros elementos */
 }

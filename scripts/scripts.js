@@ -311,3 +311,4 @@ function irAlMapa() {
  window.eliminarLocal = eliminarLocal;
  window.guardarLocales = guardarLocales;
  window.irAlMapa = irAlMapa;
+

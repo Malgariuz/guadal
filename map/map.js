@@ -8,6 +8,38 @@ const map = new mapboxgl.Map({
   zoom: 12
 });
 
+map.addControl(new MapboxGeocoder({
+  accessToken: mapboxgl.accessToken
+}));
+map.addControl(new mapboxgl.NavigationControl());
+map.addControl(new mapboxgl.FullscreenControl());
+const geolocateControl = new mapboxgl.GeolocateControl({
+  positionOptions: {
+      enableHighAccuracy: true
+  },
+  trackUserLocation: true
+});
+
+map.addControl(geolocateControl);
+
+let userLocation = null;
+
+geolocateControl.on('geolocate', (event) => {
+  userLocation = [event.coords.longitude, event.coords.latitude];
+});
+
+map.on('mousemove', function (e) {
+  document.getElementById('coordenadas').innerHTML =
+      JSON.stringify(e.lngLat);
+});
+
+
+
+
+
+
+
+
 // Inicializar Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyA_W6iFuTLoWVf0VExW7QTy9VJlXnMUOS0",
@@ -52,57 +84,65 @@ const start = [-65.466666666667, -33.666666666667]; // Villa Mercedes
 
 
 map.on('click', (event) => {
-    const coords = Object.keys(event.lngLat).map((key) => event.lngLat[key]);
-    const end = {
+  const coords = Object.keys(event.lngLat).map((key) => event.lngLat[key]);
+  const end = {
       type: 'FeatureCollection',
       features: [
-        {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'Point',
-            coordinates: coords
-          }
-        }
-      ]
-    };
-    if (map.getLayer('end')) {
-      map.getSource('end').setData(end);
-    } else {
-      map.addLayer({
-        id: 'end',
-        type: 'circle',
-        source: {
-          type: 'geojson',
-          data: {
-            type: 'FeatureCollection',
-            features: [
-              {
-                type: 'Feature',
-                properties: {},
-                geometry: {
+          {
+              type: 'Feature',
+              properties: {},
+              geometry: {
                   type: 'Point',
                   coordinates: coords
-                }
               }
-            ]
           }
-        },
-        paint: {
-          'circle-radius': 10,
-          'circle-color': '#f30'
-        }
+      ]
+  };
+
+  if (map.getLayer('end')) {
+      map.getSource('end').setData(end);
+  } else {
+      map.addLayer({
+          id: 'end',
+          type: 'circle',
+          source: {
+              type: 'geojson',
+              data: {
+                  type: 'FeatureCollection',
+                  features: [
+                      {
+                          type: 'Feature',
+                          properties: {},
+                          geometry: {
+                              type: 'Point',
+                              coordinates: coords
+                          }
+                      }
+                  ]
+              }
+          },
+          paint: {
+              'circle-radius': 10,
+              'circle-color': '#f30'
+          }
       });
-    }
-    getRoute(coords);
-  });
+  }
+
+  getRoute(coords);
+});
 
 // Crear una función para hacer una solicitud de direcciones
 async function getRoute(end) {
+  if (!userLocation) {
+    console.error("Ubicación del usuario no disponible");
+    return;
+  }
+
   const query = await fetch(
-    `https://api.mapbox.com/directions/v5/mapbox/cycling/${start[0]},${start[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`,
+    `https://api.mapbox.com/directions/v5/mapbox/driving/${userLocation[0]},${userLocation[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&overview=full&access_token=${mapboxgl.accessToken}`,
     { method: 'GET' }
   );
+
   const json = await query.json();
   const data = json.routes[0];
   const route = data.geometry.coordinates;
@@ -114,6 +154,7 @@ async function getRoute(end) {
       coordinates: route
     }
   };
+
   if (map.getSource('route')) {
     map.getSource('route').setData(geojson);
   } else {
@@ -143,7 +184,7 @@ async function getRoute(end) {
   for (const step of steps) {
     tripInstructions += `<li>${step.maneuver.instruction}</li>`;
   }
-  instructions.innerHTML = `<p><strong>Duración del viaje: ${Math.floor(data.duration / 60)} min 🚴 </strong></p><ol>${tripInstructions}</ol>`;
+  instructions.innerHTML = `<p><strong>Duración del viaje: ${Math.floor(data.duration / 60)} min 🚗 </strong></p><ol>${tripInstructions}</ol>`;
 }
 
 map.on('load', async () => {
@@ -175,6 +216,77 @@ map.on('load', async () => {
     }
   });
 });
+
+
+
+
+
+
+
+
+// Función para filtrar locales por mes
+async function filtrarPorMes(mes) {
+  const snapshot = await get(child(ref(db), 'locales'));
+  if (snapshot.exists()) {
+      const locales = snapshot.val() || [];
+      const localesFiltrados = locales.filter(local => {
+          // Supongamos que tienes una fecha en el formato `dd/MM/yyyy`
+          const fecha = local.fecha; // Asegúrate de que la fecha esté guardada en cada local
+          const mesLocal = new Date(fecha).toLocaleString('es-ES', { month: 'long' });
+          return mesLocal.toLowerCase() === mes.toLowerCase();
+      });
+      // Mostrar solo los locales filtrados
+      cargarLocalesFiltrados(localesFiltrados);
+  }
+}
+
+// Función para cargar los locales filtrados en la página
+function cargarLocalesFiltrados(localesFiltrados) {
+  // Aquí puedes reutilizar la lógica de `cargarLocales`,
+  // pero con `localesFiltrados` en lugar de `locales`
+  const listaLocales = document.getElementById('lista-locales');
+  listaLocales.innerHTML = '';  // Limpia la lista actual
+
+  localesFiltrados.forEach(local => {
+      // Crear elementos HTML para cada local filtrado
+      const localElement = document.createElement('div');
+      localElement.className = 'local-item';
+      localElement.textContent = `${local.nombre} - ${local.direccion}`;
+      listaLocales.appendChild(localElement);
+  });
+}
+
+
+
+function actualizarEstadoMapa(local) {
+  const color = local.estado === 'realizado' ? 'green' :
+                local.estado === 'problema' ? 'red' : 'blue';
+
+  const marker = L.marker([local.latitud, local.longitud], {
+      color: color
+  }).addTo(map);
+
+  marker.on('click', function() {
+      cambiarEstadoEnMapa(local.id, nuevoEstado);
+  });
+}
+
+async function cambiarEstadoEnMapa(id, nuevoEstado) {
+  const snapshot = await get(child(ref(db), 'locales'));
+  let locales = snapshot.exists() ? snapshot.val() : [];
+  const local = locales.find(local => local.id === id);
+
+  if (local) {
+      local.estado = nuevoEstado;
+      await set(ref(db, 'locales'), locales);
+      cargarLocales();  // Recargar la lista de locales
+  }
+}
+
+
+
+
+
 
 // Funcionalidad de búsqueda
 document.getElementById('search-button').addEventListener('click', async () => {
@@ -236,7 +348,6 @@ document.getElementById('hamburger-menu').addEventListener('click', () => {
   const sidebar = document.getElementById('sidebar');
   sidebar.classList.toggle('open');
 });
-
 // Modificaciones adicionales
 
 // Añadir nuevos locales
