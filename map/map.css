@@ -77,6 +77,85 @@ body, html {
   z-index: 1001; /* Asegúrate de que esté sobre otros elementos */
 }
 
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+
+
+.hamburger-menu {
+  cursor: pointer;
+  font-size: 24px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1001; /* Para asegurar que el menú esté sobre el mapa */
+}
+
+#search-bar {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+}
+
+#search-input {
+  padding: 5px;
+  width: 300px;
+}
+
+#search-button {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  color: white;
+  padding: 10px;
+}
+
+.sidebar {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 250px;
+  background: linear-gradient(to bottom, #38096e, #491855);
+  z-index: 999;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar.open {
+  display: block;
+}
+
+
+#coordenadas {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 1001; /* Asegúrate de que esté sobre otros elementos */
+}
+
 /* Para dispositivos muy pequeños (menos de 320px) */
 @media only screen and (max-width: 320px) {
   #search-bar {
@@ -110,6 +189,146 @@ body, html {
   }
 }
 
+/* Para dispositivos pequeños (entre 321px y 480px) */
+@media only screen and (min-width: 321px) and (max-width: 480px) {
+  #search-bar {
+    top: 60px;
+  }
+
+  .hamburger-menu {
+    font-size: 18px;
+  }
+
+  #search-input {
+    width: 250px;
+  }
+
+  .sidebar {
+    width: 200px;
+    display: none; /* Asegúrate de que la barra lateral no se muestre por defecto */
+  }
+
+  .sidebar.open {
+    display: block; /* Mostrar la barra lateral solo cuando esté abierta */
+  }
+
+  #editor-coordenadas {
+    font-size: 14px;
+  }
+
+  #meses-bar {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* Para dispositivos medianos (entre 481px y 768px) */
+@media only screen and (min-width: 481px) and (max-width: 768px) {
+  #search-bar {
+    top: 50px;
+  }
+
+  .hamburger-menu {
+    font-size: 20px;
+  }
+
+  #search-input {
+    width: 275px;
+  }
+
+  .sidebar {
+    width: 225px;
+    display: none; /* Asegúrate de que la barra lateral no se muestre por defecto */
+  }
+
+  .sidebar.open {
+    display: block; /* Mostrar la barra lateral solo cuando esté abierta */
+  }
+
+  #editor-coordenadas {
+    font-size: 16px;
+  }
+
+  #meses-bar {
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+}
+
+/* Para dispositivos grandes (entre 769px y 1024px) */
+@media only screen and (min-width: 769px) and (max-width: 1024px) {
+  #search-bar {
+    top: 40px;
+  }
+
+  .hamburger-menu {
+    font-size: 22px;
+  }
+
+  #search-input {
+    width: 300px;
+  }
+
+  .sidebar {
+    width: 250px;
+    display: none; /* Asegúrate de que la barra lateral no se muestre por defecto */
+  }
+
+  .sidebar.open {
+    display: block; /* Mostrar la barra lateral solo cuando esté abierta */
+  }
+
+  #editor-coordenadas {
+    font-size: 18px;
+  }
+
+  #meses-bar {
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+}
+
+
+
+ /* Estilos generales */
+ #locales-list {
+  display: none; /* Inicialmente oculto */
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #3f3c3c; /* Fondo gris claro */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.local-item {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  background-color: #363333; /* Fondo blanco */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.local-item:hover {
+  background-color: #e0e0e0; /* Cambia de color al pasar el mouse */
+}
+
+.start-route-btn {
+  background-color: #3887be;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.start-route-btn:hover {
+  background-color: #285a8e;
+}
 /* Para dispositivos pequeños (entre 321px y 480px) */
 @media only screen and (min-width: 321px) and (max-width: 480px) {
   #search-bar {
