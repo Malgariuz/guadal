@@ -1,6 +1,11 @@
 // Configuración de Mapbox y Firebase
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFsZ2FyaXV6IiwiYSI6ImNsenpoa3A1ZTB3em0ybW9xMmc0ZjNmMHEifQ.MeeRQSZk5zgeosIbPG3LCg';
 
+
+// Importar las funciones necesarias de los SDKs
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getDatabase, ref, set, get, child, update, remove } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+
 const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/streets-v12',
@@ -33,15 +38,6 @@ map.on('mousemove', function (e) {
       JSON.stringify(e.lngLat);
 });
 
-
-
-
-
-
-
-
-
-
 // Inicializar Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyA_W6iFuTLoWVf0VExW7QTy9VJlXnMUOS0",
@@ -54,25 +50,39 @@ const firebaseConfig = {
     measurementId: "G-56D4TMG32S"
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
+/** @type {import("https://malgariuz-default-rtdb.firebaseio.com/").Database} */
+const db = getDatabase(app);
 
-db.ref('locales').on('value', (snapshot) => {
-    const locales = snapshot.val();
-    for (const id in locales) {
-        const local = locales[id];
-        const coords = local.coordinates; // Suponiendo que las coordenadas están almacenadas en el formato [lng, lat]
-        
-        // Validación de las coordenadas
-        if (Array.isArray(coords) && coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
-            const color = local.state === 'problema' ? '#ffc107' : '#3887be';
-            new mapboxgl.Marker({ color })
-                .setLngLat(coords)
-                .addTo(map);
-        } else {
-            console.error(`Coordenadas inválidas para el local ${id}:`, coords);
+// Función para obtener el próximo ID secuencial
+async function obtenerProximoId() {
+  const snapshot = await get(child(ref(db), 'locales'));
+  const locales = snapshot.exists() ? snapshot.val() : {};
+  const ids = Object.keys(locales).map(Number);
+  return ids.length > 0 ? Math.max(...ids) + 1 : 0; // Retorna el próximo ID secuencial
+}
+
+const localesRef = ref(db, 'locales');
+get(localesRef).then((snapshot) => {
+    if (snapshot.exists()) {
+        const locales = snapshot.val();
+        for (const id in locales) {
+            const local = locales[id];
+            const coords = local.coordinates; // Suponiendo que las coordenadas están almacenadas en el formato [lng, lat]
+
+            // Validación de las coordenadas
+            if (Array.isArray(coords) && coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+                const color = local.state === 'problema' ? '#ffc107' : '#3887be';
+                new mapboxgl.Marker({ color })
+                    .setLngLat(coords)
+                    .addTo(map);
+            } else {
+                console.error(`Coordenadas inválidas para el local ${id}:`, coords);
+            }
         }
     }
+}).catch((error) => {
+    console.error("Error al obtener los datos:", error);
 });
 
 // Configuración del mapa
@@ -83,7 +93,6 @@ const bounds = [
 map.setMaxBounds(bounds);
 
 const start = [-65.466666666667, -33.666666666667]; // Villa Mercedes
-
 
 map.on('click', (event) => {
   const coords = Object.keys(event.lngLat).map((key) => event.lngLat[key]);
@@ -219,13 +228,6 @@ map.on('load', async () => {
   });
 });
 
-
-
-
-
-
-
-
 // Función para filtrar locales por mes
 async function filtrarPorMes(mes) {
   const snapshot = await get(child(ref(db), 'locales'));
@@ -244,29 +246,24 @@ async function filtrarPorMes(mes) {
 
 // Función para cargar los locales filtrados en la página
 function cargarLocalesFiltrados(localesFiltrados) {
-  // Aquí puedes reutilizar la lógica de `cargarLocales`,
-  // pero con `localesFiltrados` en lugar de `locales`
   const listaLocales = document.getElementById('lista-locales');
   listaLocales.innerHTML = '';  // Limpia la lista actual
 
   localesFiltrados.forEach(local => {
-      // Crear elementos HTML para cada local filtrado
-      const localElement = document.createElement('div');
-      localElement.className = 'local-item';
-      localElement.textContent = `${local.nombre} - ${local.direccion}`;
-      listaLocales.appendChild(localElement);
+    const localElement = document.createElement('div');
+    localElement.className = 'local-item';
+    localElement.textContent = `${local.name} - ${local.address}`;
+    listaLocales.appendChild(localElement);
   });
 }
-
-
 
 function actualizarEstadoMapa(local) {
   const color = local.estado === 'realizado' ? 'green' :
                 local.estado === 'problema' ? 'red' : 'blue';
 
-  const marker = L.marker([local.latitud, local.longitud], {
+  const marker = new mapboxgl.Marker({
       color: color
-  }).addTo(map);
+  }).setLngLat([local.latitud, local.longitud]).addTo(map);
 
   marker.on('click', function() {
       cambiarEstadoEnMapa(local.id, nuevoEstado);
@@ -274,61 +271,132 @@ function actualizarEstadoMapa(local) {
 }
 
 async function cambiarEstadoEnMapa(id, nuevoEstado) {
-  const snapshot = await get(child(ref(db), 'locales'));
-  let locales = snapshot.exists() ? snapshot.val() : [];
-  const local = locales.find(local => local.id === id);
+  const snapshot = await get(child(ref(db), `locales/${id}`));
+  if (snapshot.exists()) {
+    const local = snapshot.val();
+    local.state = nuevoEstado;
 
-  if (local) {
-      local.estado = nuevoEstado;
-      await set(ref(db, 'locales'), locales);
-      cargarLocales();  // Recargar la lista de locales
+    const updates = {};
+    updates[`/locales/${id}`] = local;
+    await update(ref(db), updates);
+
+    // Recarga los marcadores en el mapa
+    cargarLocales([local]);
   }
 }
 
-
-
-
-
-
-
-
-// Funcionalidad de la barra lateral
-document.getElementById('hamburger-menu').addEventListener('click', () => {
+document.addEventListener('DOMContentLoaded', () => {
+  // Añadir escuchadores de eventos para los botones de filtro
+  const filtroJulio = document.getElementById('filtro-julio');
+  const filtroAgosto = document.getElementById('filtro-agosto');
+  const hamburgerMenu = document.getElementById('hamburger-menu');
   const sidebar = document.getElementById('sidebar');
-  sidebar.classList.toggle('open');
+
+  if (filtroJulio) {
+      filtroJulio.addEventListener('click', () => filtrarPorMes('julio'));
+  } else {
+      console.error('El elemento con ID "filtro-julio" no se encuentra en el DOM.');
+  }
+
+  if (filtroAgosto) {
+      filtroAgosto.addEventListener('click', () => filtrarPorMes('agosto'));
+  } else {
+      console.error('El elemento con ID "filtro-agosto" no se encuentra en el DOM.');
+  }
+
+  // Funcionalidad de la barra lateral
+  if (hamburgerMenu && sidebar) {
+      hamburgerMenu.addEventListener('click', () => {
+          sidebar.classList.toggle('open');
+      });
+  } else {
+      console.error('Los elementos con ID "hamburger-menu" o "sidebar" no se encuentran en el DOM.');
+  }
 });
 // Modificaciones adicionales
 
 // Añadir nuevos locales
+// Función para activar el clic en el mapa y capturar coordenadas
+
+// Añadir nuevos locales
+// Añadir nuevos locales
 document.getElementById('add-local-button').addEventListener('click', async () => {
   const localName = prompt('Ingrese el nombre del local:');
   const localAddress = prompt('Ingrese la dirección del local:');
+  let lat, lng;
 
   if (localName && localAddress) {
-    const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(localAddress)}.json?access_token=${mapboxgl.accessToken}`);
-    const data = await response.json();
-    const [lng, lat] = data.features[0].center;
+      const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(localAddress)}.json?access_token=${mapboxgl.accessToken}`);
+      const data = await response.json();
+      [lng, lat] = data.features[0].center;
 
-    // Añadir a Firebase
-    const newLocalRef = db.ref('locales').push();
-    newLocalRef.set({
-      name: localName,
-      address: localAddress,
-      coordinates: [lng, lat],
-      state: 'pending'
-    });
+      // Temporalmente cambiar las funciones del cursor y clic del mapa
+      map.getCanvas().style.cursor = 'crosshair';
 
-    // Añadir marcador al mapa
-    new mapboxgl.Marker({ color: '#3887be' })
-      .setLngLat([lng, lat])
-      .addTo(map);
+      const clickHandler = (e) => {
+          // Capturar las coordenadas del clic
+          lat = e.lngLat.lat;
+          lng = e.lngLat.lng;
+
+          // Añadir marcador al mapa
+          new mapboxgl.Marker({ color: '#3887be' })
+              .setLngLat([lng, lat])
+              .addTo(map);
+
+          // Restaurar funciones normales del mapa
+          map.off('click', clickHandler);
+          map.getCanvas().style.cursor = '';
+      };
+
+      // Escuchar el clic en el mapa
+      map.on('click', clickHandler);
+
+      // Opción para ingresar manualmente las coordenadas
+      const manualEntry = confirm('¿Desea ingresar las coordenadas manualmente?');
+      if (manualEntry) {
+          lat = prompt('Ingrese la latitud:', lat);
+          lng = prompt('Ingrese la longitud:', lng);
+
+          // Añadir marcador al mapa con coordenadas manuales
+          new mapboxgl.Marker({ color: '#3887be' })
+              .setLngLat([lng, lat])
+              .addTo(map);
+
+          // Restaurar funciones normales del mapa
+          map.off('click', clickHandler);
+          map.getCanvas().style.cursor = '';
+      }
+
+      // Obtener el próximo ID secuencial
+      const newId = await obtenerProximoId();
+
+      // Añadir a Firebase en el formato adecuado
+      const newLocalRef = ref(db, `locales/${newId}`);
+      await set(newLocalRef, {
+          id: newId,
+          direccion: localAddress,
+          nombre: localName,
+          estado: "no-listo",
+          coordinates: [lng, lat],
+          costo: 2500 + tasa, // Valor por defecto o calculado
+          factura: 'A', // Valor por defecto o seleccionado
+          numeroFinca: '', // Valor por defecto o ingresado
+          
+      });
+
   } else {
-    alert('Debe ingresar el nombre y la dirección del local.');
+      alert('Debe ingresar el nombre y la dirección del local.');
   }
 });
 
+
+
+
+
+
 // Escuchar cambios en Firebase y actualizar el estado de los locales
-db.ref('locales').on('child_changed', (snapshot) => {
+
+localesRef.on('child_changed', (snapshot) => {
   const local = snapshot.val();
   const coords = local.coordinates;
 

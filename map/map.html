@@ -15,14 +15,12 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
-    <div id="map" style="width: 100%; height: 100vh;">
-        
-    </div>
+    <div id="map" style="width: 100%; height: 100vh;"></div>
     <pre id='coordenadas'></pre>
     <div class="menu">
         <div class="hamburger-menu" id="hamburger-menu">☰</div>
         <div class="sidebar" id="sidebar">
-            <a href="index.html">Inicio</a>
+            <a href="/locales.html">Inicio</a>
             <a href="map.html">Mapa</a>
             <div id="editor-coordenadas">
                 <h3>Editar Coordenadas</h3>
@@ -32,7 +30,27 @@
                 <input type="text" id="longitud">
                 <button onclick="guardarCoordenadas()">Guardar Coordenadas</button>
             </div>
-            
+            <div id="add-local-form" style="display: none;">
+                <h3>Añadir Local</h3>
+                <label for="local-name">Nombre del Local:</label>
+                <input type="text" id="local-name">
+                <label for="local-address">Dirección:</label>
+                <input type="text" id="local-address">
+                <label for="costo">Costo:</label>
+                <input type="number" id="costo">
+                <label for="factura">Tipo de Factura:</label>
+                <select id="factura">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                </select>
+                <label for="numero-finca">Número de Finca:</label>
+                <input type="text" id="numero-finca">
+                <label for="coordinates">coordinates:</label>
+                <input type="text" id="coordinates">
+                <button id="terminar-button" style="display: none;">Terminar</button>
+                
+            </div>
+            <button id="add-local-button">Añadir Local</button>
         </div>
     </div>
     <div id="instructions-content" style="background-color: white; padding: 10px; position: absolute; bottom: 10%; left: 10px; z-index: 1; max-width: 300px;"></div>

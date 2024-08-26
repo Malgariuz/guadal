@@ -7,39 +7,44 @@
     <link rel="stylesheet" href="styles/styles.css">
     
 </head>
+<header>
+    <div class="header-container">
+        <h1>Selecciona un Mes</h1>
+        <nav>
+            <ul class="month-list">
+                <li><a href="#" data-month="01">Enero</a></li>
+                <li><a href="#" data-month="02">Febrero</a></li>
+                <li><a href="#" data-month="03">Marzo</a></li>
+                <li><a href="#" data-month="04">Abril</a></li>
+                <li><a href="#" data-month="05">Mayo</a></li>
+                <li><a href="#" data-month="06">Junio</a></li>
+                <li><a href="#" data-month="07">Julio</a></li>
+                <li><a href="#" data-month="08">Agosto</a></li>
+                <li><a href="#" data-month="09">Septiembre</a></li>
+                <li><a href="#" data-month="10">Octubre</a></li>
+                <li><a href="#" data-month="11">Noviembre</a></li>
+                <li><a href="#" data-month="12">Diciembre</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
 <body>
-  <div class="month-selector">
-    <label for="mes">Selecciona el mes:</label>
-    <select id="mes" name="mes">
-        <option value="enero">Enero</option>
-        <option value="febrero">Febrero</option>
-        <option value="marzo">Marzo</option>
-        <option value="abril">Abril</option>
-        <option value="mayo">Mayo</option>
-        <option value="junio">Junio</option>
-        <option value="julio">Julio</option>
-        <option value="agosto">Agosto</option>
-        <option value="septiembre">Septiembre</option>
-        <option value="octubre">Octubre</option>
-        <option value="noviembre">Noviembre</option>
-        <option value="diciembre">Diciembre</option>
-    </select>
-</div>
     <div id="header" class="centrado">
         <span id="estado-usuario"></span>
         <button id="boton-mapa" onclick="irAlMapa()">Ir al Mapa</button>
+        <button id="desinfectados" >Desinfectados</button>
     </div>
 
     <!-- Formulario para agregar locales -->
     <div id="agregar-local">
         <input type="text" id="nombre-local" placeholder="Nombre del Local o Persona" required>
         <input type="text" id="direccion" placeholder="Dirección" required>
+        <input type="text" id="coordinates" placeholder="coordinates">
         <input type="text" id="numero-finca" placeholder="Número de Finca" required>
         <select id="factura" required onchange="mostrarOpcionesFactura(this)">
             <option value="" disabled selected>Seleccionar Factura</option>
             <option value="A">Factura A</option>
             <option value="B">Factura B</option>
-            <option value="otra">Otra</option>
         </select>
         <input type="number" id="monto-factura-a" placeholder="Monto Factura A" style="display:none;" disabled>
         <div class="tasa-opciones" id="tasa-opcion" style="display:none;">
@@ -47,27 +52,13 @@
             <input type="checkbox" id="tasa-check" checked disabled>
             <input type="number" id="tasa" placeholder="Monto de la Tasa" disabled>
         </div>
-        <select id="mes" required>
-            <option value="" disabled selected>Seleccionar Mes</option>
-            <option value="enero">Enero</option>
-            <option value="febrero">Febrero</option>
-            <option value="marzo">Marzo</option>
-            <option value="abril">Abril</option>
-            <option value="mayo">Mayo</option>
-            <option value="junio">Junio</option>
-            <option value="julio">Julio</option>
-            <option value="agosto">Agosto</option>
-            <option value="septiembre">Septiembre</option>
-            <option value="octubre">Octubre</option>
-            <option value="noviembre">Noviembre</option>
-            <option value="diciembre">Diciembre</option>
-        </select>
         <button onclick="agregarLocal()">Agregar Local</button>
-    </div>
-
+    
+    <div id="seccion-pendientes">
     <!-- Lista de locales -->
     <div id="lista-locales"></div>
-
+    </div>
+    <hr id="linea-separadora">
     <!-- Lista de locales realizados -->
     <div id="lista-locales-realizados"></div>
 
@@ -107,78 +98,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-app.js"></script>
 <!-- Firebase Firestore -->
 <script src="https://www.gstatic.com/firebasejs/9.8.1/firebase-firestore.js"></script>
-<script>
-// Inicializa Firebase
 
-
-// Funciones para Firestore
-async function agregarLocalFirestore(local) {
-  try {
-    const docRef = await addDoc(collection(db, "locales"), local);
-    console.log("Documento agregado con ID: ", docRef.id);
-  } catch (e) {
-    console.error("Error añadiendo el documento: ", e);
-  }
-}
-
-async function obtenerLocalesFirestore() {
-  try {
-    const querySnapshot = await getDocs(collection(db, "locales"));
-    const locales = [];
-    querySnapshot.forEach((doc) => {
-      locales.push({ id: doc.id, ...doc.data() });
-    });
-    return locales;
-  } catch (e) {
-    console.error("Error obteniendo documentos: ", e);
-  }
-}
-
-async function actualizarLocalFirestore(id, updatedLocal) {
-  try {
-    const localRef = doc(db, "locales", id);
-    await updateDoc(localRef, updatedLocal);
-    console.log("Documento actualizado con ID: ", id);
-  } catch (e) {
-    console.error("Error actualizando el documento: ", e);
-  }
-}
-
-async function eliminarLocalFirestore(id) {
-  try {
-    await deleteDoc(doc(db, "locales", id));
-    console.log("Documento eliminado con ID: ", id);
-  } catch (e) {
-    console.error("Error eliminando el documento: ", e);
-  }
-}
-
-// Ejemplo de uso
-document.addEventListener('DOMContentLoaded', async () => {
-  // Agregar un local (sólo para prueba, asegúrate de tener los datos correctos)
-  await agregarLocalFirestore({
-    nombre: "local 1",
-    direccion: "dirección ejemplo",
-    costo: 2500,
-    factura: "A",
-    estado: "no-listo",
-    numeroFinca: "1234"
-  });
-
-  // Obtener y mostrar locales
-  const locales = await obtenerLocalesFirestore();
-  console.log("Locales obtenidos: ", locales);
-
-  // Actualizar un local (reemplaza 'id_del_local' con el ID real del documento)
-  await actualizarLocalFirestore('id_del_local', {
-    estado: "realizado"
-  });
-
-  // Eliminar un local (reemplaza 'id_del_local' con el ID real del documento)
-  await eliminarLocalFirestore('id_del_local');
-});
-</script>
-<hr id="linea-separadora" style="display: none;">
 
 </body>
 </html>
