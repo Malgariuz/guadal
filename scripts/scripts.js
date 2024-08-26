@@ -186,6 +186,7 @@ async function agregarLocal() {
     };
 
     locales.push(nuevoLocal);
+    location.reload()
 
     await set(ref(db, 'locales'), locales);
 
@@ -225,19 +226,28 @@ async function agregarLocal() {
 
     // Actualizar los contadores
     actualizarContadores();
+
 }
 
 
 
-// Función para eliminar un local
+// Función para eliminar un local y reorganizar los IDs
 async function eliminarLocal(localId) {
     const snapshot = await get(child(ref(db), 'locales'));
     const locales = snapshot.exists() ? snapshot.val() : [];
 
-    const nuevoLocales = locales.filter(local => local.id !== localId);
+    // Filtra para eliminar el local deseado
+    const localesActualizados = locales.filter(local => local.id !== localId);
 
-    await set(ref(db, 'locales'), nuevoLocales);
+    // Reorganiza los IDs de los locales restantes
+    for (let i = 0; i < localesActualizados.length; i++) {
+        localesActualizados[i].id = i;  // Asigna nuevos IDs secuenciales
+    }
 
+    // Guarda los locales actualizados en Firebase
+    await set(ref(db, 'locales'), localesActualizados);
+
+    // Recargar la lista de locales y limpiar el formulario
     cargarLocales();
     limpiarFormulario();
 }

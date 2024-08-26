@@ -61,6 +61,7 @@ const db = getDatabase(app);
 
 
 
+
 async function seleccionarRutasInteligentes() {
   if (!userLocation) {
     console.error("Ubicación del usuario no disponible");
@@ -130,6 +131,46 @@ async function obtenerProximoId() {
   const ids = Object.keys(locales).map(Number);
   return ids.length > 0 ? Math.max(...ids) + 1 : 0; // Retorna el próximo ID secuencial
 }
+
+
+
+
+
+
+
+
+// Función para reorganizar los IDs de los locales
+async function reorganizarIds() {
+  const snapshot = await get(child(ref(db), 'locales'));
+  const locales = snapshot.exists() ? snapshot.val() : {};
+
+  // Obtener los locales en un array y ordenarlos por su ID actual
+  const localesArray = Object.entries(locales).sort(([idA], [idB]) => Number(idA) - Number(idB));
+
+  // Crear un nuevo objeto para almacenar los locales con sus nuevos IDs
+  const nuevosLocales = {};
+  for (let i = 0; i < localesArray.length; i++) {
+    const [id, local] = localesArray[i];
+    nuevosLocales[i] = local;
+  }
+
+  // Actualizar la base de datos con los nuevos IDs
+  await set(ref(db, 'locales'), nuevosLocales);
+}
+
+// Llamar a reorganizarIds() después de eliminar un local
+async function eliminarLocal(id) {
+  await remove(ref(db, `locales/${id}`));
+  await reorganizarIds(); // Reorganiza los IDs después de la eliminación
+}
+
+
+
+
+
+
+
+
 
 const localesRef = ref(db, 'locales');
 get(localesRef).then((snapshot) => {
@@ -409,38 +450,51 @@ document.getElementById('add-local-button').addEventListener('click', () => {
   map.on('click', clickHandler);
 
   // Manejar el botón "Terminar"
-  document.getElementById('terminar-button').addEventListener('click', async () => {
-    const localName = document.getElementById('local-name').value;
-    const localAddress = document.getElementById('local-address').value;
-    const costo = document.getElementById('costo').value;
-    const factura = document.getElementById('factura').value;
-    const numeroFinca = document.getElementById('numero-finca').value;
-    const coordinates = document.getElementById('coordinates').value.split(',').map(Number);
+  // Completar la funcionalidad para el botón "Terminar"
+document.getElementById('terminar-button').addEventListener('click', async () => {
+  const localName = document.getElementById('local-name').value;
+  const localAddress = document.getElementById('local-address').value;
+  const costo = document.getElementById('costo').value;
+  const factura = document.getElementById('factura').value;
+  const numeroFinca = document.getElementById('numero-finca').value;
+  const coordinates = document.getElementById('coordinates').value.split(',').map(Number);
 
-    if (localName && localAddress && coordinates.length === 2) {
-      // Obtener el próximo ID secuencial
-      const newId = await obtenerProximoId();
+  if (localName && localAddress && coordinates.length === 2) {
+    // Obtener el próximo ID secuencial
+    const newId = await obtenerProximoId();
 
-      // Añadir a Firebase en el formato adecuado
-      const newLocalRef = ref(db, `locales/${newId}`);
-      await set(newLocalRef, {
-        id: newId,
-        direccion: localAddress,
-        nombre: localName,
-        estado: "no-listo",
-        coordinates: coordinates,
-        costo: costo,
-        factura: factura,
-        numeroFinca: numeroFinca
-      });
+    // Añadir a Firebase en el formato adecuado
+    const newLocalRef = ref(db, `locales/${newId}`);
+    await set(newLocalRef, {
+      id: newId,
+      direccion: localAddress,
+      nombre: localName,
+      estado: "no-listo",
+      coordinates: coordinates,
+      costo: costo,
+      factura: factura,
+      numeroFinca: numeroFinca
+    });
 
-      // Ocultar el formulario y el botón "Terminar"
-      document.getElementById('add-local-form').style.display = 'none';
-      document.getElementById('terminar-button').style.display = 'none';
-    } else {
-      alert('Debe completar todos los campos del formulario.');
-    }
-  });
+    // Ocultar el formulario y el botón "Terminar"
+    document.getElementById('add-local-form').style.display = 'none';
+    document.getElementById('terminar-button').style.display = 'none';
+
+    // Limpiar el formulario
+    document.getElementById('local-name').value = '';
+    document.getElementById('local-address').value = '';
+    document.getElementById('costo').value = '';
+    document.getElementById('factura').value = '';
+    document.getElementById('numero-finca').value = '';
+    document.getElementById('coordinates').value = '';
+
+    // Recargar la lista de locales para mostrar el nuevo local
+    location.reload();
+  } else {
+    alert('Por favor, completa todos los campos y selecciona una ubicación en el mapa.');
+  }
+});
+
 });
 
 
@@ -450,66 +504,86 @@ document.getElementById('add-local-button').addEventListener('click', () => {
 
 document.getElementById('desplegar-lista').addEventListener('click', async () => {
   const listaLocalesDiv = document.getElementById('locales-list');
+  
   if (listaLocalesDiv.style.display === 'none' || listaLocalesDiv.style.display === '') {
-      listaLocalesDiv.style.display = 'block'; // Mostrar la lista
+    listaLocalesDiv.style.display = 'block'; // Mostrar la lista
 
-      const snapshot = await get(localesRef);
-      if (snapshot.exists()) {
-          const locales = snapshot.val();
-          listaLocalesDiv.innerHTML = '';  // Limpiar la lista
+    const snapshot = await get(localesRef);
+    
+    if (snapshot.exists()) {
+      const locales = snapshot.val();
+      listaLocalesDiv.innerHTML = '';  // Limpiar la lista
 
-          Object.values(locales).forEach(local => {
-              // Crear el contenedor del local
-              const localItem = document.createElement('div');
-              localItem.className = 'local-item';
+      Object.values(locales).forEach(local => {
+        // Crear el contenedor del local
+        const localItem = document.createElement('div');
+        localItem.className = 'local-item';
+        localItem.setAttribute('data-id', local.id); // Añadir data-id al div
 
-              // Añadir la información del local
-              localItem.innerHTML = `
-                  <h4 style="margin: 0 0 5px 0;">${local.nombre}</h4>
-                  <p style="margin: 5px 0;">Dirección: ${local.direccion}</p>
-                  <p style="margin: 5px 0;">Costo: ${local.costo}</p>
-                  <p style="margin: 5px 0;">Tipo de Factura: ${local.factura}</p>
-                  <p style="margin: 5px 0;">Número de Finca: ${local.numeroFinca}</p>
-                  <p style="margin: 5px 0;">Estado Actual: ${local.estado}</p>
-                  <button class="start-route-btn">Iniciar Recorrido</button>
-                  <button class="update-status-btn">Actualizar Estado</button>
-                  <select class="status-select" style="display:none;">
-                      <option value="no-listo">No Listo</option>
-                      <option value="problema">Problema</option>
-                      <option value="realizado">Realizado</option>
-                  </select>
-              `;
+        // Añadir la información del local
+        localItem.innerHTML = `
+          <h4 style="margin: 0 0 5px 0;">${local.nombre}</h4>
+          <p style="margin: 5px 0;">Dirección: ${local.direccion}</p>
+          <p style="margin: 5px 0;">Costo: ${local.costo}</p>
+          <p style="margin: 5px 0;">Tipo de Factura: ${local.factura}</p>
+          <p style="margin: 5px 0;">Número de Finca: ${local.numeroFinca}</p>
+          <p style="margin: 5px 0;">Estado Actual: ${local.estado}</p>
+          <button class="start-route-btn">Iniciar Recorrido</button>
+          <button class="update-status-btn">Actualizar Estado</button>
+          <select class="status-select" style="display:none;">
+            <option value="no-listo" ${local.estado === 'no-listo' ? 'selected' : ''}>No Listo</option>
+            <option value="problema" ${local.estado === 'problema' ? 'selected' : ''}>Problema</option>
+            <option value="realizado" ${local.estado === 'realizado' ? 'selected' : ''}>Realizado</option>
+          </select>
+          <button class="save-status-btn" style="display:none;">Terminar</button>
+        `;
 
-              // Añadir evento de clic para generar la ruta
-              localItem.querySelector('.start-route-btn').addEventListener('click', () => {
-                  getRoute(local.coordinates);
-              });
+        // Mostrar/ocultar el menú de estado y el botón "Terminar"
+        const updateStatusBtn = localItem.querySelector('.update-status-btn');
+        const statusSelect = localItem.querySelector('.status-select');
+        const saveStatusBtn = localItem.querySelector('.save-status-btn');
 
-              // Añadir evento para mostrar/ocultar el menú de estado y actualizar el estado
-              const updateStatusBtn = localItem.querySelector('.update-status-btn');
-              const statusSelect = localItem.querySelector('.status-select');
+        updateStatusBtn.addEventListener('click', () => {
+          statusSelect.style.display = 'block';
+          saveStatusBtn.style.display = 'block';
+        });
 
-              updateStatusBtn.addEventListener('click', () => {
-                  statusSelect.style.display = statusSelect.style.display === 'none' ? 'block' : 'none';
-              });
+        // Añadir evento para cambiar el estado y guardar en Firebase
+        saveStatusBtn.addEventListener('click', async () => {
+          const selectedStatus = statusSelect.value;
+          const localId = localItem.getAttribute('data-id');
 
-              statusSelect.addEventListener('change', async (e) => {
-                  const nuevoEstado = e.target.value;
-                  await update(ref(database, `locales/${local.id}`), { estado: nuevoEstado });
-                  alert(`Estado actualizado a: ${nuevoEstado}`);
-                  statusSelect.style.display = 'none';
-              });
+          // Actualizar solo el campo "estado" en la entrada existente de Firebase
+          const localRef = ref(db, `locales/${localId}`);
+          await update(localRef, { estado: selectedStatus });
 
-              // Añadir el local al contenedor
-              listaLocalesDiv.appendChild(localItem);
-          });
-      } else {
-          console.error('No se encontraron locales en la base de datos.');
-      }
+          alert(`Estado actualizado a: ${selectedStatus}`);
+          location.reload(); // Recargar la página después de guardar
+        });
+
+        // Evento para mostrar la ruta desde la ubicación actual al local seleccionado
+        const startRouteBtn = localItem.querySelector('.start-route-btn');
+        startRouteBtn.addEventListener('click', async () => {
+          const { coordinates } = local;
+          const [lng, lat] = coordinates;
+
+          // Suponiendo que ya tienes una función `getRoute` definida que toma el punto de inicio y fin
+          getRoute([lng, lat]);
+        });
+
+        // Añadir el local al contenedor
+        listaLocalesDiv.appendChild(localItem);
+      });
+    } else {
+      console.error('No se encontraron locales en la base de datos.');
+    }
   } else {
-      listaLocalesDiv.style.display = 'none'; // Ocultar la lista
+    listaLocalesDiv.style.display = 'none'; // Ocultar la lista
   }
 });
+
+
+
 
 
 
