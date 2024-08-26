@@ -20,8 +20,7 @@
     <div class="menu">
         <div class="hamburger-menu" id="hamburger-menu">☰</div>
         <div class="sidebar" id="sidebar">
-            <a href="/locales.html">Inicio</a>
-            <a href="map.html">Mapa</a>
+            <a href="https://malgariuz.github.io/guadal/locales.html">Inicio</a>
          
             <div id="add-local-form" style="display: none;">
                 <h3>Añadir Local</h3>
@@ -44,13 +43,23 @@
                 
             </div>
             <button id="add-local-button">Añadir Local</button>
-            <button id="rutas-inteligentes-button">Rutas Inteligentes</button>
+            <button id="rutas-inteligentes-button"  style="display: none;">Rutas Inteligentes</button>
             <button id="desplegar-lista">Desplegar Lista</button>
             <button id="desinfectados">Mostrar Solo Desinfectados</button>
-            <div id="locales-list"></div>
+            <div id="filtro-locales">
+                <h3>Ordenar Locales</h3>
+                <select id="filtro-selector">
+                    <option value="finca">Por Número de Finca (Menor a Mayor)</option>
+                    <option value="cercania">Por Local más Cercano</option>
+                    <option value="alfabetico">Por Orden Alfabético</option>
+                </select>
+            </div>
+            <div id="locales-list">
+                
+            </div>
 
 
-            <button id="findNearestButton">Encontrar Locales Más Cercanos No Realizados</button>
+           
         </div>
     </div>
     <div id="instructions-content" style="background-color: white; padding: 10px; position: absolute; bottom: 10%; left: 10px; z-index: 1; max-width: 300px;"></div>

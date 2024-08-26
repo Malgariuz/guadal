@@ -586,6 +586,124 @@ document.getElementById('desplegar-lista').addEventListener('click', async () =>
 
 
 
+document.getElementById('filtro-selector').addEventListener('change', ordenarLocales);
+
+async function ordenarLocales() {
+    const criterio = document.getElementById('filtro-selector').value;
+    const listaLocalesDiv = document.getElementById('locales-list');
+    listaLocalesDiv.innerHTML = '';  // Limpiar la lista actual
+
+    // Obtener los locales de Firebase
+    const snapshot = await get(ref(db, 'locales'));
+    if (snapshot.exists()) {
+        let locales = Object.values(snapshot.val());
+
+        // Filtrar para que solo se muestren los locales que no están en estado "realizado"
+        locales = locales.filter(local => local.estado !== 'realizado');
+
+        // Ordenar según el criterio seleccionado
+        switch (criterio) {
+            case 'finca':
+                locales.sort((a, b) => a.numeroFinca - b.numeroFinca);
+                break;
+            case 'cercania':
+                if (userLocation) {
+                    locales.sort((a, b) => calcularDistancia(a.coordinates, userLocation) - calcularDistancia(b.coordinates, userLocation));
+                } else {
+                    console.error("Ubicación del usuario no disponible");
+                }
+                break;
+            case 'alfabetico':
+                locales.sort((a, b) => a.nombre.localeCompare(b.nombre));
+                break;
+        }
+
+        // Mostrar los locales ordenados
+        locales.forEach(local => {
+            const localElement = document.createElement('div');
+            localElement.className = 'local-item';
+            localElement.setAttribute('data-id', local.id);
+
+            // Crear contenido del local
+            localElement.innerHTML = `
+                <p><strong>${local.nombre}</strong></p>
+                <p>Dirección: ${local.direccion}</p>
+                <p>Costo: ${local.costo || 'No disponible'}</p>
+                <p>Tipo de Factura: ${local.tipoFactura || 'No disponible'}</p>
+                <p>Número de Finca: ${local.numeroFinca}</p>
+                <p>Estado Actual: ${local.estado}</p>
+                <button class="start-route-btn">Iniciar Recorrido</button>
+                <button class="update-status-btn">Actualizar Estado</button>
+                <select class="status-select" style="display:none;">
+                    <option value="no-listo" ${local.estado === 'no-listo' ? 'selected' : ''}>No Listo</option>
+                    <option value="problema" ${local.estado === 'problema' ? 'selected' : ''}>Problema</option>
+                    <option value="realizado" ${local.estado === 'realizado' ? 'selected' : ''}>Realizado</option>
+                </select>
+                <button class="save-status-btn" style="display:none;">Terminar</button>
+            `;
+
+            // Añadir el local al contenedor
+            listaLocalesDiv.appendChild(localElement);
+
+            // Configurar eventos para los botones dentro de cada local
+            const updateStatusBtn = localElement.querySelector('.update-status-btn');
+            const statusSelect = localElement.querySelector('.status-select');
+            const saveStatusBtn = localElement.querySelector('.save-status-btn');
+
+            updateStatusBtn.addEventListener('click', () => {
+                statusSelect.style.display = 'block';
+                saveStatusBtn.style.display = 'block';
+            });
+
+            saveStatusBtn.addEventListener('click', async () => {
+                const selectedStatus = statusSelect.value;
+                const localId = localElement.getAttribute('data-id');
+
+                const localRef = ref(db, `locales/${localId}`);
+                await update(localRef, { estado: selectedStatus });
+
+                alert(`Estado actualizado a: ${selectedStatus}`);
+                location.reload(); // Recargar la página después de guardar
+            });
+
+            const startRouteBtn = localElement.querySelector('.start-route-btn');
+            startRouteBtn.addEventListener('click', async () => {
+                const { coordinates } = local;
+                const [lng, lat] = coordinates;
+
+                // Suponiendo que ya tienes una función `getRoute` definida que toma el punto de inicio y fin
+                getRoute([lng, lat]);
+            });
+        });
+    }
+}
+
+// Función auxiliar para calcular la distancia entre dos puntos
+function calcularDistancia(coord1, coord2) {
+    const [lng1, lat1] = coord1;
+    const [lng2, lat2] = coord2;
+    const R = 6371e3; // Radio de la Tierra en metros
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lng2 - lng1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // Distancia en metros
+}
+
+
+
+
+
+
+
+
+
 
 
 
