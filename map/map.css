@@ -248,186 +248,126 @@ button:hover {
 }
 
 
-/* Responsive Design Adjustments */
-/* Dispositivos menores a 1366x768 */
-@media only screen and (max-width: 1366px) and (max-height: 768px) {
-  
+/* Dispositivos menores a 768x1024 */
+@media only screen and (max-width: 768px) and (max-height: 1024px) {
   .sidebar {
-    width: 230px;
+    width: 50%;
   }
 
   .hamburger-menu {
-    font-size: 22px;
+    font-size: 28px;
   }
 
   #search-input {
-    width: 280px;
-  }
-
-  #locales-list {
-    max-height: 300px;
-    padding: 14px;
-  }
-
-  .start-route-btn, .update-status-btn, .save-status-btn {
-    padding: 8px 10px;
-    font-size: 14px;
-  }
-
-  .status-select {
-    padding: 6px;
-    font-size: 14px;
-  }
-}
-
-/* Dispositivos menores a 1024x768 */
-@media only screen and (max-width: 1024px) and (max-height: 768px) {
-  #instructions-content {
-    display: none;
-  }
-  
-  #meses-bar {
-    display: none;
-  }
-
-  .sidebar {
-    width: 210px;
-  }
-
-  .hamburger-menu {
-    font-size: 20px;
-  }
-
-  #search-input {
-    width: 250px;
+    width: 80%;
   }
 
   #locales-list {
     max-height: 250px;
-    padding: 12px;
+    padding: 15px;
   }
 
   .start-route-btn, .update-status-btn, .save-status-btn {
-    padding: 7px 9px;
-    font-size: 13px;
-  }
-
-  .status-select {
-    padding: 5px;
-    font-size: 13px;
-  }
-}
-
-/* Dispositivos menores a 768x1024 */
-@media only screen and (max-width: 768px) and (max-height: 1024px) {
-  #instructions-content {
-    display: none;
-  }
-
-  #meses-bar {
-    display: none;
-  }
-
-  
-  .sidebar {
-    width: 190px;
-  }
-
-  .hamburger-menu {
-    font-size: 18px;
-  }
-
-  #search-input {
-    width: 220px;
-  }
-
-  #locales-list {
-    max-height: 200px;
     padding: 10px;
-  }
-
-  .start-route-btn, .update-status-btn, .save-status-btn {
-    padding: 6px 8px;
-    font-size: 12px;
+    font-size: 14px;
   }
 
   .status-select {
-    padding: 4px;
-    font-size: 12px;
+    padding: 8px;
+    font-size: 14px;
   }
 }
 
 /* Dispositivos menores a 480x800 */
 @media only screen and (max-width: 480px) and (max-height: 800px) {
-  #instructions-content {
-    display: none;
-  }
-  
-  #meses-bar {
-    display: none;
-  }
-
   .sidebar {
-    width: 170px;
+    width: 60%; /* Ocupa más del 50% */
   }
 
   .hamburger-menu {
-    font-size: 16px;
+    font-size: 32px; /* Aumenta el tamaño del menú */
   }
 
   #search-input {
-    width: 180px;
+    width: 80%;
   }
 
   #locales-list {
-    max-height: 150px;
-    padding: 8px;
+    max-height: 200px;
+    padding: 15px;
   }
 
   .start-route-btn, .update-status-btn, .save-status-btn {
-    padding: 5px 7px;
-    font-size: 11px;
+    padding: 10px;
+    font-size: 13px;
   }
 
   .status-select {
-    padding: 3px;
-    font-size: 11px;
+    padding: 7px;
+    font-size: 13px;
   }
 }
 
 /* Dispositivos menores a 360x640 */
 @media only screen and (max-width: 360px) and (max-height: 640px) {
-  #instructions-content {
-    display: none;
-  }
-  
   .sidebar {
-    width: 150px;
+    width: 70%; /* Ocupa aún más espacio en pantalla pequeña */
   }
 
   .hamburger-menu {
-    font-size: 14px;
+    font-size: 36px; /* Aumenta aún más el tamaño del menú */
   }
 
   #search-input {
-    width: 160px;
+    width: 90%;
+  }
+
+  #locales-list {
+    max-height: 150px;
+    padding: 10px;
+  }
+
+  .start-route-btn, .update-status-btn, .save-status-btn {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .status-select {
+    padding: 6px;
+    font-size: 12px;
+  }
+}
+
+/* Dispositivos menores a 320x568 */
+@media only screen and (max-width: 320px) and (max-height: 568px) {
+  .sidebar {
+    width: 80%; /* Sidebar ocupa aún más de la pantalla */
+  }
+
+  .hamburger-menu {
+    font-size: 40px; /* Tamaño máximo para el menú */
+  }
+
+  #search-input {
+    width: 100%;
   }
 
   #locales-list {
     max-height: 120px;
-    padding: 6px;
+    padding: 8px;
   }
 
   .start-route-btn, .update-status-btn, .save-status-btn {
-    padding: 4px 6px;
-    font-size: 10px;
+    padding: 6px;
+    font-size: 11px;
   }
 
   .status-select {
-    padding: 2px;
-    font-size: 10px;
+    padding: 5px;
+    font-size: 11px;
   }
 }
+
 
 
 
