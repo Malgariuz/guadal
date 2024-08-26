@@ -54,6 +54,75 @@ const app = initializeApp(firebaseConfig);
 /** @type {import("https://malgariuz-default-rtdb.firebaseio.com/").Database} */
 const db = getDatabase(app);
 
+
+
+
+
+
+
+
+async function seleccionarRutasInteligentes() {
+  if (!userLocation) {
+    console.error("Ubicación del usuario no disponible");
+    return;
+  }
+
+  // Obtener los locales de Firebase
+  const snapshot = await get(localesRef);
+  if (snapshot.exists()) {
+    const locales = snapshot.val();
+    const localesNoListos = Object.values(locales).filter(local => local.estado === 'no-listo');
+    
+    // Ordenar locales por distancia desde la ubicación del usuario
+    localesNoListos.sort((a, b) => {
+      const distanciaA = calcularDistancia(userLocation, a.coordinates);
+      const distanciaB = calcularDistancia(userLocation, b.coordinates);
+      return distanciaA - distanciaB;
+    });
+
+    // Seleccionar los locales más cercanos
+    const localesCercanos = localesNoListos.slice(0, 3); // Por ejemplo, seleccionar los 3 más cercanos
+
+    // Obtener la ruta al primer local más cercano
+    if (localesCercanos.length > 0) {
+      const primerLocal = localesCercanos[0];
+      getRoute(primerLocal.coordinates);
+    }
+  }
+}
+
+
+
+function mostrarLocalesInteligentes() {
+  // Suponiendo que tienes una lista de locales cargada de Firebase
+  var locales = obtenerLocales(); // Reemplazar con tu método para obtener los locales desde Firebase
+  
+  // Filtrar los locales que no estén listos
+  var localesNoListos = locales.filter(function(local) {
+      return local.estado === 'no listo';
+  });
+
+  // Ordenar locales por proximidad a la posición del usuario
+  localesNoListos.sort(function(a, b) {
+      return calcularDistancia(a.coordenadas, posicionUsuario) - calcularDistancia(b.coordenadas, posicionUsuario);
+  });
+
+  // Limpiar la lista actual de locales
+  var listaLocalesDiv = document.getElementById('locales-list');
+  listaLocalesDiv.innerHTML = '';
+
+  // Mostrar los locales filtrados y ordenados
+  localesNoListos.forEach(function(local) {
+      var localItem = document.createElement('div');
+      localItem.textContent = local.nombre + ' - ' + local.direccion;
+      listaLocalesDiv.appendChild(localItem);
+  });
+}
+
+
+
+
+
 // Función para obtener el próximo ID secuencial
 async function obtenerProximoId() {
   const snapshot = await get(child(ref(db), 'locales'));
@@ -72,7 +141,12 @@ get(localesRef).then((snapshot) => {
 
             // Validación de las coordenadas
             if (Array.isArray(coords) && coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
-                const color = local.state === 'problema' ? '#ffc107' : '#3887be';
+                // Determinar el color del marcador según el estado del local
+                const color = local.estado === 'no-listo' ? '#A9A9A9' :   // Gris oscuro para 'no listo'
+                              local.estado === 'problema' ? '#ffc107' :  // Dorado para 'problema'
+                              local.estado === 'realizado' ? 'green' : // Verde para 'realizado'
+                              'red';  // Rojo como color por defecto para cualquier otro estado no definido
+
                 new mapboxgl.Marker({ color })
                     .setLngLat(coords)
                     .addTo(map);
@@ -84,6 +158,7 @@ get(localesRef).then((snapshot) => {
 }).catch((error) => {
     console.error("Error al obtener los datos:", error);
 });
+
 
 // Configuración del mapa
 const bounds = [
@@ -198,35 +273,7 @@ async function getRoute(end) {
   instructions.innerHTML = `<p><strong>Duración del viaje: ${Math.floor(data.duration / 60)} min 🚗 </strong></p><ol>${tripInstructions}</ol>`;
 }
 
-map.on('load', async () => {
-  getRoute(start);
 
-  // Añadir punto de inicio al mapa
-  map.addLayer({
-    id: 'point',
-    type: 'circle',
-    source: {
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: [
-          {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'Point',
-              coordinates: start
-            }
-          }
-        ]
-      }
-    },
-    paint: {
-      'circle-radius': 10,
-      'circle-color': '#3887be'
-    }
-  });
-});
 
 // Función para filtrar locales por mes
 async function filtrarPorMes(mes) {
@@ -312,7 +359,19 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
       console.error('Los elementos con ID "hamburger-menu" o "sidebar" no se encuentran en el DOM.');
   }
+
+
+  const rutasInteligentesButton = document.getElementById('rutas-inteligentes-button');
+  if (rutasInteligentesButton) {
+    rutasInteligentesButton.addEventListener('click', seleccionarRutasInteligentes);
+  } else {
+    console.error('El botón de rutas inteligentes no se encuentra en el DOM.');
+  }
 });
+
+
+document.getElementById('rutas-inteligentes-button').addEventListener('click', seleccionarRutasInteligentes);
+
 // Modificaciones adicionales
 
 // Añadir nuevos locales
@@ -320,74 +379,139 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Añadir nuevos locales
 // Añadir nuevos locales
-document.getElementById('add-local-button').addEventListener('click', async () => {
-  const localName = prompt('Ingrese el nombre del local:');
-  const localAddress = prompt('Ingrese la dirección del local:');
-  let lat, lng;
+document.getElementById('add-local-button').addEventListener('click', () => {
+  // Mostrar el formulario y el botón "Terminar"
+  document.getElementById('add-local-form').style.display = 'block';
+  document.getElementById('terminar-button').style.display = 'inline';
 
-  if (localName && localAddress) {
-      const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(localAddress)}.json?access_token=${mapboxgl.accessToken}`);
-      const data = await response.json();
-      [lng, lat] = data.features[0].center;
+  // Temporalmente cambiar las funciones del cursor y clic del mapa
+  map.getCanvas().style.cursor = 'crosshair';
 
-      // Temporalmente cambiar las funciones del cursor y clic del mapa
-      map.getCanvas().style.cursor = 'crosshair';
+  const clickHandler = (e) => {
+    // Capturar las coordenadas del clic
+    const lat = e.lngLat.lat;
+    const lng = e.lngLat.lng;
 
-      const clickHandler = (e) => {
-          // Capturar las coordenadas del clic
-          lat = e.lngLat.lat;
-          lng = e.lngLat.lng;
+    // Añadir marcador al mapa con estado "no-listo" (color gris oscuro)
+    const marker = new mapboxgl.Marker({ color: '#6c757d' })
+      .setLngLat([lng, lat])
+      .addTo(map);
 
-          // Añadir marcador al mapa
-          new mapboxgl.Marker({ color: '#3887be' })
-              .setLngLat([lng, lat])
-              .addTo(map);
+    // Restaurar funciones normales del mapa
+    map.off('click', clickHandler);
+    map.getCanvas().style.cursor = '';
 
-          // Restaurar funciones normales del mapa
-          map.off('click', clickHandler);
-          map.getCanvas().style.cursor = '';
-      };
+    // Guardar las coordenadas en el formulario para la entrada manual
+    document.getElementById('coordinates').value = `${lng}, ${lat}`;
+  };
 
-      // Escuchar el clic en el mapa
-      map.on('click', clickHandler);
+  // Escuchar el clic en el mapa
+  map.on('click', clickHandler);
 
-      // Opción para ingresar manualmente las coordenadas
-      const manualEntry = confirm('¿Desea ingresar las coordenadas manualmente?');
-      if (manualEntry) {
-          lat = prompt('Ingrese la latitud:', lat);
-          lng = prompt('Ingrese la longitud:', lng);
+  // Manejar el botón "Terminar"
+  document.getElementById('terminar-button').addEventListener('click', async () => {
+    const localName = document.getElementById('local-name').value;
+    const localAddress = document.getElementById('local-address').value;
+    const costo = document.getElementById('costo').value;
+    const factura = document.getElementById('factura').value;
+    const numeroFinca = document.getElementById('numero-finca').value;
+    const coordinates = document.getElementById('coordinates').value.split(',').map(Number);
 
-          // Añadir marcador al mapa con coordenadas manuales
-          new mapboxgl.Marker({ color: '#3887be' })
-              .setLngLat([lng, lat])
-              .addTo(map);
-
-          // Restaurar funciones normales del mapa
-          map.off('click', clickHandler);
-          map.getCanvas().style.cursor = '';
-      }
-
+    if (localName && localAddress && coordinates.length === 2) {
       // Obtener el próximo ID secuencial
       const newId = await obtenerProximoId();
 
       // Añadir a Firebase en el formato adecuado
       const newLocalRef = ref(db, `locales/${newId}`);
       await set(newLocalRef, {
-          id: newId,
-          direccion: localAddress,
-          nombre: localName,
-          estado: "no-listo",
-          coordinates: [lng, lat],
-          costo: 2500 + tasa, // Valor por defecto o calculado
-          factura: 'A', // Valor por defecto o seleccionado
-          numeroFinca: '', // Valor por defecto o ingresado
-          
+        id: newId,
+        direccion: localAddress,
+        nombre: localName,
+        estado: "no-listo",
+        coordinates: coordinates,
+        costo: costo,
+        factura: factura,
+        numeroFinca: numeroFinca
       });
 
+      // Ocultar el formulario y el botón "Terminar"
+      document.getElementById('add-local-form').style.display = 'none';
+      document.getElementById('terminar-button').style.display = 'none';
+    } else {
+      alert('Debe completar todos los campos del formulario.');
+    }
+  });
+});
+
+
+
+
+
+
+document.getElementById('desplegar-lista').addEventListener('click', async () => {
+  const listaLocalesDiv = document.getElementById('locales-list');
+  if (listaLocalesDiv.style.display === 'none' || listaLocalesDiv.style.display === '') {
+      listaLocalesDiv.style.display = 'block'; // Mostrar la lista
+
+      const snapshot = await get(localesRef);
+      if (snapshot.exists()) {
+          const locales = snapshot.val();
+          listaLocalesDiv.innerHTML = '';  // Limpiar la lista
+
+          Object.values(locales).forEach(local => {
+              // Crear el contenedor del local
+              const localItem = document.createElement('div');
+              localItem.className = 'local-item';
+
+              // Añadir la información del local
+              localItem.innerHTML = `
+                  <h4 style="margin: 0 0 5px 0;">${local.nombre}</h4>
+                  <p style="margin: 5px 0;">Dirección: ${local.direccion}</p>
+                  <p style="margin: 5px 0;">Costo: ${local.costo}</p>
+                  <p style="margin: 5px 0;">Tipo de Factura: ${local.factura}</p>
+                  <p style="margin: 5px 0;">Número de Finca: ${local.numeroFinca}</p>
+                  <p style="margin: 5px 0;">Estado Actual: ${local.estado}</p>
+                  <button class="start-route-btn">Iniciar Recorrido</button>
+                  <button class="update-status-btn">Actualizar Estado</button>
+                  <select class="status-select" style="display:none;">
+                      <option value="no-listo">No Listo</option>
+                      <option value="problema">Problema</option>
+                      <option value="realizado">Realizado</option>
+                  </select>
+              `;
+
+              // Añadir evento de clic para generar la ruta
+              localItem.querySelector('.start-route-btn').addEventListener('click', () => {
+                  getRoute(local.coordinates);
+              });
+
+              // Añadir evento para mostrar/ocultar el menú de estado y actualizar el estado
+              const updateStatusBtn = localItem.querySelector('.update-status-btn');
+              const statusSelect = localItem.querySelector('.status-select');
+
+              updateStatusBtn.addEventListener('click', () => {
+                  statusSelect.style.display = statusSelect.style.display === 'none' ? 'block' : 'none';
+              });
+
+              statusSelect.addEventListener('change', async (e) => {
+                  const nuevoEstado = e.target.value;
+                  await update(ref(database, `locales/${local.id}`), { estado: nuevoEstado });
+                  alert(`Estado actualizado a: ${nuevoEstado}`);
+                  statusSelect.style.display = 'none';
+              });
+
+              // Añadir el local al contenedor
+              listaLocalesDiv.appendChild(localItem);
+          });
+      } else {
+          console.error('No se encontraron locales en la base de datos.');
+      }
   } else {
-      alert('Debe ingresar el nombre y la dirección del local.');
+      listaLocalesDiv.style.display = 'none'; // Ocultar la lista
   }
 });
+
+
 
 
 

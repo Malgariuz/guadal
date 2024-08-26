@@ -22,14 +22,7 @@
         <div class="sidebar" id="sidebar">
             <a href="/locales.html">Inicio</a>
             <a href="map.html">Mapa</a>
-            <div id="editor-coordenadas">
-                <h3>Editar Coordenadas</h3>
-                <label for="latitud">Latitud:</label>
-                <input type="text" id="latitud">
-                <label for="longitud">Longitud:</label>
-                <input type="text" id="longitud">
-                <button onclick="guardarCoordenadas()">Guardar Coordenadas</button>
-            </div>
+         
             <div id="add-local-form" style="display: none;">
                 <h3>Añadir Local</h3>
                 <label for="local-name">Nombre del Local:</label>
@@ -45,12 +38,20 @@
                 </select>
                 <label for="numero-finca">Número de Finca:</label>
                 <input type="text" id="numero-finca">
+                <label for="numero-finca">Número de Finca:</label>
+                <input type="text" id="numero-finca">
                 <label for="coordinates">coordinates:</label>
                 <input type="text" id="coordinates">
                 <button id="terminar-button" style="display: none;">Terminar</button>
                 
             </div>
             <button id="add-local-button">Añadir Local</button>
+            <button id="rutas-inteligentes-button">Rutas Inteligentes</button>
+            <button id="desplegar-lista">Desplegar Lista</button>
+            <div id="locales-list"></div>
+
+
+            <button id="findNearestButton">Encontrar Locales Más Cercanos No Realizados</button>
         </div>
     </div>
     <div id="instructions-content" style="background-color: white; padding: 10px; position: absolute; bottom: 10%; left: 10px; z-index: 1; max-width: 300px;"></div>

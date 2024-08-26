@@ -55,7 +55,7 @@ body, html {
   left: 0;
   height: 100%;
   width: 250px;
-  background: linear-gradient(to bottom, #333, #555);
+  background: linear-gradient(to bottom, #38096e, #491855);
   z-index: 999;
   padding: 20px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
@@ -207,4 +207,46 @@ body, html {
     flex-wrap: wrap;
     justify-content: space-around;
   }
+}
+
+
+
+ /* Estilos generales */
+ #locales-list {
+  display: none; /* Inicialmente oculto */
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #3f3c3c; /* Fondo gris claro */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.local-item {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  background-color: #363333; /* Fondo blanco */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.local-item:hover {
+  background-color: #e0e0e0; /* Cambia de color al pasar el mouse */
+}
+
+.start-route-btn {
+  background-color: #3887be;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.start-route-btn:hover {
+  background-color: #285a8e;
 }
