@@ -257,7 +257,9 @@ button:hover {
     width: 100%;
     height: calc(100vh - 80px); /* Ajuste de altura para considerar la barra de búsqueda y el menú */
   }
-  
+  #instructions-content{
+    display: none;
+  }
   .sidebar {
     width: 50%;
   }
@@ -283,7 +285,9 @@ button:hover {
     width: 100%;
     height: calc(100vh - 60px); /* Ajuste de altura para dispositivos más pequeños */
   }
-
+  #instructions-content{
+    display: none;
+  }
   .sidebar {
     width: 60%;
   }
@@ -308,7 +312,9 @@ button:hover {
     width: 100%;
     height: calc(100vh - 50px); /* Ajuste de altura para dispositivos más pequeños */
   }
-
+  #instructions-content{
+    display: none;
+  }
   .sidebar {
     width: 70%;
   }
