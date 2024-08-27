@@ -183,7 +183,7 @@ get(localesRef).then((snapshot) => {
             // Validación de las coordenadas
             if (Array.isArray(coords) && coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
                 // Determinar el color del marcador según el estado del local
-                const color = local.estado === 'no-listo' ? '#A9A9A9' :   // Gris oscuro para 'no listo'
+                const color = local.estado === 'no-listo' ? '#5f5f5f' :   // Gris oscuro para 'no listo'
                               local.estado === 'problema' ? '#ffc107' :  // Dorado para 'problema'
                               local.estado === 'realizado' ? 'green' : // Verde para 'realizado'
                               'red';  // Rojo como color por defecto para cualquier otro estado no definido
