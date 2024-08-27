@@ -624,9 +624,11 @@ async function ordenarLocales() {
         // Ordenar según el criterio seleccionado
         switch (criterio) {
             case 'finca':
+                // Ordenar por número de finca de menor a mayor
                 locales.sort((a, b) => a.numeroFinca - b.numeroFinca);
                 break;
             case 'cercania':
+                // Ordenar por cercanía a la ubicación del usuario
                 if (userLocation) {
                     locales.sort((a, b) => calcularDistancia(a.coordinates, userLocation) - calcularDistancia(b.coordinates, userLocation));
                 } else {
@@ -634,6 +636,7 @@ async function ordenarLocales() {
                 }
                 break;
             case 'alfabetico':
+                // Ordenar alfabéticamente por nombre
                 locales.sort((a, b) => a.nombre.localeCompare(b.nombre));
                 break;
         }
@@ -734,7 +737,6 @@ function calcularDistancia(coord1, coord2) {
 
     return R * c; // Distancia en metros
 }
-
 
 
 
