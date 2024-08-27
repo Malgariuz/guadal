@@ -11,6 +11,7 @@ body, html {
   height: 100%;
 }
 
+
 #instructions-content{
   color: black;
 }
@@ -255,6 +256,9 @@ button:hover {
   .hamburger-menu {
     font-size: 24px; /* Aumenta el tamaño de la hamburguesa para facilitar su uso */
   }
+  #coordenadas {
+    display: none;
+  }
   #instructions-content{
     display: none;
   }
@@ -309,6 +313,9 @@ button:hover {
   #instructions-content{
     display: none;
   }
+  #coordenadas {
+    display: none;
+  }
   
   #map {
     width: 100%;
@@ -360,7 +367,9 @@ button:hover {
   #instructions-content{
     display: none;
   }
-  
+  #coordenadas {
+    display: none;
+  }
   #map {
     width: 100%;
     height: 100%;

@@ -57,9 +57,25 @@ function autenticarUsuario(clave) {
 
 
 // Función para generar un identificador único
+// Función para generar un identificador único basado en la posición disponible
 function generarId(locales) {
-    return locales.length > 0 ? Math.max(...locales.map(local => local.id)) + 1 : 1;
+    if (locales.length === 0) {
+        return 0; // Si no hay locales, comienza desde 0
+    }
+
+    const ids = locales.map(local => local.id).sort((a, b) => a - b);
+
+    // Encuentra el primer hueco en la secuencia de IDs
+    for (let i = 0; i < ids.length; i++) {
+        if (ids[i] !== i) {
+            return i; // Retorna el primer ID faltante en la secuencia
+        }
+    }
+
+    return ids.length; // Si no hay huecos, retorna el siguiente ID en la secuencia
 }
+
+
 
 // Función para guardar los locales en Firebase
 // Función para guardar los locales en Firebase

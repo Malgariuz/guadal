@@ -528,6 +528,7 @@ document.getElementById('desplegar-lista').addEventListener('click', async () =>
           <p style="margin: 5px 0;">Tipo de Factura: ${local.factura}</p>
           <p style="margin: 5px 0;">Número de Finca: ${local.numeroFinca}</p>
           <p style="margin: 5px 0;">Estado Actual: ${local.estado}</p>
+          <button class="show-location-btn">Mostrar en Mapa</button>
           <button class="start-route-btn">Iniciar Recorrido</button>
           <button class="update-status-btn">Actualizar Estado</button>
           <select class="status-select" style="display:none;">
@@ -571,6 +572,24 @@ document.getElementById('desplegar-lista').addEventListener('click', async () =>
           getRoute([lng, lat]);
         });
 
+        // Añadir el nuevo evento para mostrar la ubicación en el mapa
+        const showLocationBtn = localItem.querySelector('.show-location-btn');
+        showLocationBtn.addEventListener('click', () => {
+          const { coordinates } = local;
+          const [lng, lat] = coordinates;
+
+          // Mostrar la ubicación en el mapa
+          new mapboxgl.Marker({ color: 'inherit' })  // Puedes personalizar el color o el estilo del marcador
+            .setLngLat([lng, lat])
+            .addTo(map);
+
+          // Centrar el mapa en la ubicación del local
+          map.flyTo({
+            center: [lng, lat],
+            essential: true // Este parámetro asegura que el vuelo sea esencial
+          });
+        });
+
         // Añadir el local al contenedor
         listaLocalesDiv.appendChild(localItem);
       });
@@ -581,6 +600,7 @@ document.getElementById('desplegar-lista').addEventListener('click', async () =>
     listaLocalesDiv.style.display = 'none'; // Ocultar la lista
   }
 });
+
 
 
 
@@ -632,6 +652,7 @@ async function ordenarLocales() {
                 <p>Tipo de Factura: ${local.tipoFactura || 'No disponible'}</p>
                 <p>Número de Finca: ${local.numeroFinca}</p>
                 <p>Estado Actual: ${local.estado}</p>
+                <button class="show-location-btn">Mostrar en Mapa</button>
                 <button class="start-route-btn">Iniciar Recorrido</button>
                 <button class="update-status-btn">Actualizar Estado</button>
                 <select class="status-select" style="display:none;">
@@ -674,6 +695,24 @@ async function ordenarLocales() {
                 // Suponiendo que ya tienes una función `getRoute` definida que toma el punto de inicio y fin
                 getRoute([lng, lat]);
             });
+
+            // Añadir el evento para mostrar la ubicación en el mapa
+            const showLocationBtn = localElement.querySelector('.show-location-btn');
+            showLocationBtn.addEventListener('click', () => {
+                const { coordinates } = local;
+                const [lng, lat] = coordinates;
+
+                // Mostrar la ubicación en el mapa
+                new mapboxgl.Marker({ color: 'red' })  // Puedes personalizar el color o el estilo del marcador
+                    .setLngLat([lng, lat])
+                    .addTo(map);
+
+                // Centrar el mapa en la ubicación del local
+                map.flyTo({
+                    center: [lng, lat],
+                    essential: true // Este parámetro asegura que el vuelo sea esencial
+                });
+            });
         });
     }
 }
@@ -695,6 +734,7 @@ function calcularDistancia(coord1, coord2) {
 
     return R * c; // Distancia en metros
 }
+
 
 
 
