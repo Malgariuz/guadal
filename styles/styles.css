@@ -1,64 +1,68 @@
 /* Estilos generales */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #2c3e50, #34495e);
   padding: 20px;
   margin: 0;
-  color: white;
+  color: #ecf0f1;
+  line-height: 1.6;
+  /*margin-top: 10%; /* Añadir margen superior para evitar que el contenido quede oculto detrás del header */
 }
 
-
-
 header {
-  background-color: #333;
-  color: #fff;
-  padding: 10px 0;
-  position: fixed;
+  background-color: rgba(51, 51, 51, 0.9);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  position: relative;
   top: 0;
   width: 100%;
   z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .header-container {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  padding: 0 20px;
+  padding: 0 30px;
 }
 
 h1 {
-  margin: 0;
-  font-size: 1.5em;
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 600;
 }
 
 nav {
   flex-grow: 1;
   text-align: right;
 }
-
 .month-list {
   list-style: none;
-  margin: 0;
   padding: 0;
+  margin: 0;
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .month-list li {
-  margin: 0 10px;
+  margin: 5px;
 }
 
 .month-list a {
-  color: #fff;
+  display: block;
+  padding: 10px 15px;
+  color: white;
+  background-color: #555;
   text-decoration: none;
-  font-size: 1em;
-  padding: 5px 10px;
   border-radius: 5px;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease;
 }
 
 .month-list a:hover {
-  background-color: #555;
+  background-color: #777;
 }
 
 .month-list a:active {
@@ -76,57 +80,71 @@ nav {
 /* Estado del usuario */
 #estado-usuario {
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  font-size: 1.2em;
 }
 
 /* Estilos del botón de mapa */
-#boton-mapa {
+#boton-mapa, #desinfectados {
   margin-bottom: 20px;
-  padding: 10px 20px;
+  padding: 12px 25px;
   border: none;
-  border-radius: 4px;
-  background-color: #007bff;
+  border-radius: 50px;
+  background-color: #3498db;
   color: white;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: 1em;
+  font-weight: 500;
+  transition: background-color 0.3s, transform 0.3s;
 }
 
-#boton-mapa:hover {
-  background-color: #0056b3;
+#boton-mapa:hover, #desinfectados:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
 }
+
+
+
 
 /* Estilos para la sección de agregar local */
-#seccion-pendientes{
-  width: 100%;
-}
+#seccion-pendientes,
 #lista-locales {
   width: 100%;
 }
+
 #agregar-local {
   margin-bottom: 20px;
   display: flex;
-  gap: 10px;
+  gap: 15px;
   flex-wrap: wrap;
 }
 #agregar-local input,
 #agregar-local select {
   flex-grow: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 12px;
+  border: 1px solid #bdc3c7;
+  border-radius: 8px;
   margin-bottom: 10px;
+  background-color: #ecf0f1;
+  color: #2c3e50;
+  font-size: 1em;
 }
+
 #agregar-local button {
-  padding: 10px 20px;
+  padding: 12px 25px;
   border: none;
-  border-radius: 4px;
-  background-color: #28a745;
+  border-radius: 50px;
+  background-color: #2ecc71;
   color: white;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: 1em;
+  font-weight: 500;
+  transition: background-color 0.3s, transform 0.3s;
 }
+
 #agregar-local button:hover {
-  background-color: #218838;
+  background-color: #11502b;
+  transform: scale(1.05);
 }
 
 /* Estilos específicos para la opción de tasa */
@@ -134,27 +152,31 @@ nav {
   display: flex;
   align-items: center;
 }
+
 #tasa-check {
   margin-right: 10px;
 }
+
 #tasa {
   flex-grow: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 12px;
+  border: 1px solid #bdc3c7;
+  border-radius: 8px;
   margin-bottom: 10px;
+  background-color: #ecf0f1;
+  color: #2c3e50;
 }
 
 /* Estilos de los locales */
 .local {
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  margin-bottom: 15px;
+  padding: 15px;
+  border: 1px solid #bdc3c7;
+  border-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s, color 0.3s, transform 0.3s;
 }
 .local:not(.realizado):not(.problema) {
   background-color: #e0e0e0;
@@ -170,34 +192,40 @@ nav {
 }
 .local label {
   flex-grow: 1;
+  margin-right: 10px;
 }
 .local select {
-  padding: 5px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #bdc3c7;
 }
 .local .check-realizado {
   order: -1; /* Mover el checkbox al principio */
 }
 .local button {
   margin-left: 10px;
-  padding: 5px 10px;
+  padding: 8px 20px;
   border: none;
-  border-radius: 4px;
-  background-color: #007bff;
+  border-radius: 50px;
+  background-color: #3498db;
   color: white;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s, transform 0.3s;
 }
 .local button:hover {
-  background-color: #0056b3;
+  background-color: #2980b9;
+  transform: scale(1.05);
 }
 
 /* Estilos del botón de eliminar */
 .local .btn-eliminar {
-  background-color: #dc3545;
-  transition: background-color 0.3s ease;
+  background-color: #e74c3c;
+  transition: background-color 0.3s, transform 0.3s;
 }
+
 .local .btn-eliminar:hover {
-  background-color: #c82333;
+  background-color: #c0392b;
+  transform: scale(1.05);
 }
 
 /* Estilos de los contadores */
@@ -205,10 +233,35 @@ nav {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
+  padding: 10px 20px;
+  background-color: rgba(52, 73, 94, 0.8);
+  border-radius: 10px;
 }
 
 #total-locales, #total-dinero, #total-tasas, #locales-desinfectados {
   font-weight: bold;
+  font-size: 1.2em;
+}
+
+
+
+
+/* Estilo para que los select tengan un ancho uniforme */
+select {
+  width: 100%;
+  box-sizing: border-box; /* Asegura que el padding se incluya en el ancho */
+  max-width: 300px; /* Puedes ajustar el max-width según sea necesario */
+  padding: 12px;
+  border: 1px solid #bdc3c7;
+  border-radius: 8px;
+  background-color: #ecf0f1;
+  color: #2c3e50;
+  font-size: 1em;
+  transition: border-color 0.3s ease;
+}
+
+select:focus {
+  border-color: #3498db; /* Cambia el color del borde al seleccionar */
 }
 
 /* Estilos responsivos */
@@ -239,128 +292,150 @@ nav {
 }
 
 /* Estilos para dispositivos móviles (hasta 480px) */
-@media (max-width: 480px) {
-  .local {
+/* Estilos responsivos */
+@media (max-width: 1024px) {
+  /* Header */
+  .header-container {
+    padding: 0 20px;
+  }
+
+  h1 {
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
+
+  /* Botones */
+  button {
+    padding: 10px 20px;
+    font-size: 0.9em;
+  }
+
+  /* Selectores */
+  select {
+    padding: 10px;
+    font-size: 0.9em;
+  }
+
+  /* General layout adjustments */
+  body {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Header */
+  header {
     padding: 15px;
-    margin-bottom: 15px;
-    font-size: 14px;
   }
 
-  .local label {
-    margin-bottom: 10px;
-  }
-
-  #agregar-local input,
-  #agregar-local select,
-  #agregar-local button {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-
-  #contadores {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  #contadores div {
-    margin-bottom: 10px;
-  }
-}
-
-/* Estilos para móviles grandes y tablets en orientación vertical (481px a 768px) */
-@media (min-width: 481px) and (max-width: 768px) {
-  .local {
-    padding: 20px;
-    margin-bottom: 20px;
-    font-size: 16px;
-  }
-
-  .local label {
-    margin-bottom: 15px;
-  }
-
-  #agregar-local {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  #agregar-local input,
-  #agregar-local select,
-  #agregar-local button {
-    width: 100%;
-    margin-bottom: 15px;
-  }
-
-  #contadores {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  #contadores div {
-    margin-bottom: 15px;
-  }
-}
-
-/* Estilos para tablets en orientación horizontal (769px a 1024px) */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .local {
-    padding: 25px;
-    margin-bottom: 25px;
-    font-size: 18px;
-  }
-
-  .local label {
-    margin-bottom: 20px;
-  }
-
-  #agregar-local {
-    flex-direction: row;
-    gap: 15px;
-  }
-
-  #agregar-local input,
-  #agregar-local select,
-  #agregar-local button {
-    flex-grow: 1;
-    margin-bottom: 0;
-  }
-
-  #contadores {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  #contadores div {
-    margin-bottom: 20px;
-  }
-}
-
-/* Estilos para dispositivos de escritorio pequeños (1025px a 1280px) */
-@media (min-width: 1025px) and (max-width: 1280px) {
-  .local {
-    padding: 30px;
-    margin-bottom: 30px;
+  h1 {
     font-size: 20px;
   }
 
-  .local label {
-    margin-bottom: 25px;
+  /* Month list */
+  .month-list {
+    flex-direction: column;
+    align-items: center;
   }
 
-  #agregar-local {
-    flex-direction: row;
-    gap: 20px;
+  .month-list li {
+    margin: 5px 0;
   }
 
-  #agregar-local input,
-  #agregar-local select,
-  #agregar-local button {
-    margin-bottom: 0;
+  /* Botones */
+  button {
+    width: 100%;
+    padding: 10px;
   }
 
-  #contadores {
-    flex-direction: row;
-    justify-content: space-between;
+  /* Selectores */
+  select {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Header */
+  header {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  /* Month list */
+  .month-list {
+    flex-direction: column;
+  }
+
+  .month-list li {
+    margin: 3px 0;
+  }
+
+  /* Botones */
+  button {
+    padding: 8px;
+    font-size: 0.8em;
+  }
+
+  /* Selectores */
+  select {
+    padding: 6px;
+    font-size: 0.8em;
+  }
+
+  /* General layout adjustments */
+  body {
+    padding: 5px;
+  }
+}
+
+@media (min-width: 1281px) {
+  /* Header */
+  header {
+    padding: 30px;
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+
+  /* Botones */
+  button {
+    padding: 15px 30px;
+    font-size: 1.2em;
+  }
+
+  /* Selectores */
+  select {
+    padding: 15px;
+    font-size: 1.2em;
+  }
+}
+
+/* Tablet horizontal (1025px a 1280px) */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  /* Header */
+  header {
+    padding: 25px;
+  }
+
+  h1 {
+    font-size: 26px;
+  }
+
+  /* Botones */
+  button {
+    padding: 14px 28px;
+    font-size: 1.1em;
+  }
+
+  /* Selectores */
+  select {
+    padding: 14px;
+    font-size: 1.1em;
   }
 }
 
@@ -376,10 +451,10 @@ nav {
 }
 
 
+/* Línea separadora */
 #linea-separadora {
   border: 0;
   height: 1px;
-  background-color: #cc0606; /* Color de la línea */
-  margin: 20px 0; /* Espaciado superior e inferior */
+  background-color: #cc0606;
+  margin: 20px 0;
 }
-
