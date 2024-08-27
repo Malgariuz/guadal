@@ -248,155 +248,161 @@ button:hover {
 }
 
 
-/* Dispositivos menores a 768x1024 */
-@media only screen and (max-width: 768px) and (max-height: 1024px) {
-  .sidebar {
-    width: 50%;
-  }
 
+
+/* Dispositivos menores a 768px */
+@media only screen and (max-width: 768px) {
+  .hamburger-menu {
+    font-size: 24px; /* Aumenta el tamaño de la hamburguesa para facilitar su uso */
+  }
   #instructions-content{
     display: none;
   }
-
+  
   #map {
     width: 100%;
     height: 100%;
   }
-
-  .hamburger-menu {
-    font-size: 28px;
+  .sidebar {
+    width: 50%; /* Sidebar ocupa el 50% de la pantalla */
   }
 
   #search-input {
-    width: 80%;
+    width: 200px; /* Ajusta el ancho del campo de búsqueda */
   }
 
   #locales-list {
-    max-height: 250px;
-    padding: 15px;
+    max-height: 250px; /* Ajusta la altura máxima de la lista */
+    padding: 8px;
   }
 
   .start-route-btn, .update-status-btn, .save-status-btn {
-    padding: 10px;
+    padding: 8px 10px;
     font-size: 14px;
+    width: 100%; /* Asegura que los botones ocupen todo el ancho */
+    box-sizing: border-box;
   }
 
   .status-select {
+    padding: 6px;
+    font-size: 14px;
+    width: 100%; /* Asegura que el selector de estado ocupe todo el ancho */
+    box-sizing: border-box;
+  }
+
+  #filtro-locales {
+    margin-bottom: 10px;
+  }
+
+  #filtro-selector {
+    width: 100%; /* Asegura que el selector de filtro ocupe todo el ancho */
     padding: 8px;
     font-size: 14px;
   }
 }
 
-/* Dispositivos menores a 480x800 */
-@media only screen and (max-width: 480px) and (max-height: 800px) {
-  .sidebar {
-    width: 60%; /* Ocupa más del 50% */
+/* Dispositivos menores a 480px */
+@media only screen and (max-width: 480px) {
+  .hamburger-menu {
+    font-size: 28px; /* Aumenta aún más el tamaño de la hamburguesa */
   }
   #instructions-content{
     display: none;
   }
+  
   #map {
     width: 100%;
     height: 100%;
   }
-
-  .hamburger-menu {
-    font-size: 32px; /* Aumenta el tamaño del menú */
-  }
-
-  #search-input {
-    width: 80%;
-  }
-
-  #locales-list {
-    max-height: 200px;
-    padding: 15px;
-  }
-
-  .start-route-btn, .update-status-btn, .save-status-btn {
-    padding: 10px;
-    font-size: 13px;
-  }
-
-  .status-select {
-    padding: 7px;
-    font-size: 13px;
-  }
-}
-
-/* Dispositivos menores a 360x640 */
-@media only screen and (max-width: 360px) and (max-height: 640px) {
   .sidebar {
-    width: 70%; /* Ocupa aún más espacio en pantalla pequeña */
-  }
-  #instructions-content{
-    display: none;
-  }
-
-  #map {
-    width: 100%;
-    height: 100%;
-  }
-  .hamburger-menu {
-    font-size: 36px; /* Aumenta aún más el tamaño del menú */
+    width: 60%; /* Sidebar ocupa el 60% de la pantalla */
   }
 
   #search-input {
-    width: 90%;
+    width: 180px; /* Ajusta el ancho del campo de búsqueda */
   }
 
   #locales-list {
-    max-height: 150px;
-    padding: 10px;
+    max-height: 200px; /* Ajusta la altura máxima de la lista */
+    padding: 6px;
   }
 
   .start-route-btn, .update-status-btn, .save-status-btn {
-    padding: 8px;
+    padding: 6px 8px;
     font-size: 12px;
+    width: 100%; /* Asegura que los botones ocupen todo el ancho */
+    box-sizing: border-box;
   }
 
   .status-select {
+    padding: 4px;
+    font-size: 12px;
+    width: 100%; /* Asegura que el selector de estado ocupe todo el ancho */
+    box-sizing: border-box;
+  }
+
+  #filtro-locales {
+    margin-bottom: 8px;
+  }
+
+  #filtro-selector {
+    width: 100%; /* Asegura que el selector de filtro ocupe todo el ancho */
     padding: 6px;
     font-size: 12px;
   }
 }
 
-/* Dispositivos menores a 320x568 */
-@media only screen and (max-width: 320px) and (max-height: 568px) {
-  .sidebar {
-    width: 80%; /* Sidebar ocupa aún más de la pantalla */
+/* Dispositivos menores a 360px */
+@media only screen and (max-width: 360px) {
+  .hamburger-menu {
+    font-size: 32px; /* Aumenta el tamaño de la hamburguesa para ser más visible */
   }
   #instructions-content{
     display: none;
   }
+  
   #map {
     width: 100%;
     height: 100%;
   }
-
-  .hamburger-menu {
-    font-size: 40px; /* Tamaño máximo para el menú */
+  .sidebar {
+    width: 70%; /* Sidebar ocupa el 70% de la pantalla */
   }
 
   #search-input {
-    width: 100%;
+    width: 160px; /* Ajusta el ancho del campo de búsqueda */
   }
 
   #locales-list {
-    max-height: 120px;
-    padding: 8px;
+    max-height: 150px; /* Ajusta la altura máxima de la lista */
+    padding: 4px;
   }
 
   .start-route-btn, .update-status-btn, .save-status-btn {
-    padding: 6px;
-    font-size: 11px;
+    padding: 4px 6px;
+    font-size: 10px;
+    width: 100%; /* Asegura que los botones ocupen todo el ancho */
+    box-sizing: border-box;
   }
 
   .status-select {
-    padding: 5px;
-    font-size: 11px;
+    padding: 2px;
+    font-size: 10px;
+    width: 100%; /* Asegura que el selector de estado ocupe todo el ancho */
+    box-sizing: border-box;
+  }
+
+  #filtro-locales {
+    margin-bottom: 6px;
+  }
+
+  #filtro-selector {
+    width: 100%; /* Asegura que el selector de filtro ocupe todo el ancho */
+    padding: 4px;
+    font-size: 10px;
   }
 }
+
 
 
 
