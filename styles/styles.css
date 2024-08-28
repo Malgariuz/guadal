@@ -362,6 +362,14 @@ select:focus {
 /* Estilos responsivos */
 @media (max-width: 768px) {
 
+  body {
+    padding: 10px;
+  }
+  header {
+    
+    display: none;}
+
+
   #header {
     display: flex;
     flex-direction: column;
@@ -405,6 +413,11 @@ select:focus {
 /* Estilos responsivos */
 @media (max-width: 1024px) {
   /* Header */
+
+  header {
+    
+    display: none;}
+
   .header-container {
     padding: 0 20px;
   }
