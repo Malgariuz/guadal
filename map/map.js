@@ -62,6 +62,7 @@ const db = getDatabase(app);
 
 
 
+
 async function seleccionarRutasInteligentes() {
   if (!userLocation) {
     console.error("Ubicación del usuario no disponible");
@@ -182,15 +183,96 @@ get(localesRef).then((snapshot) => {
 
             // Validación de las coordenadas
             if (Array.isArray(coords) && coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
-                // Determinar el color del marcador según el estado del local
-                const color = local.estado === 'no-listo' ? '#5f5f5f' :   // Gris oscuro para 'no listo'
-                              local.estado === 'problema' ? '#ffc107' :  // Dorado para 'problema'
-                              local.estado === 'realizado' ? 'green' : // Verde para 'realizado'
-                              'red';  // Rojo como color por defecto para cualquier otro estado no definido
+                // Determinar el color del marcador
+                let color;
+                if (local.nombre === "El Guadal (Home) TASA SI") {
+                    color = 'purple';  // Púrpura para "El Guadal (Home) TASA SI"
+                } else {
+                    color = local.estado === 'no-listo' ? '#5f5f5f' :   // Gris oscuro para 'no listo'
+                            local.estado === 'problema' ? '#ffc107' :  // Dorado para 'problema'
+                            local.estado === 'realizado' ? 'green' :   // Verde para 'realizado'
+                            'red';  // Rojo como color por defecto para cualquier otro estado no definido
+                }
 
-                new mapboxgl.Marker({ color })
+                const marker = new mapboxgl.Marker({ color })
                     .setLngLat(coords)
                     .addTo(map);
+
+                // Añadir evento de clic al marcador
+                marker.getElement().addEventListener('click', () => {
+                    // Mostrar la lista
+                    document.getElementById('desplegar-lista').style.display = 'block';
+
+                    // Llenar la lista con los datos del local seleccionado
+                    const listaLocalesDiv = document.getElementById('locales-list');
+                    listaLocalesDiv.innerHTML = '';  // Limpiar la lista actual
+
+                    const localElement = document.createElement('div');
+                    localElement.className = 'local-item';
+                    localElement.setAttribute('data-id', local.id);
+
+                    // Crear contenido del local
+                    localElement.innerHTML = `
+                        <p><strong>${local.nombre}</strong></p>
+                        <p>Dirección: ${local.direccion}</p>
+                        <p>Costo: ${local.costo || 'No disponible'}</p>
+                        <p>Tipo de Factura: ${local.factura}</p>
+                        <p>Número de Finca: ${local.numeroFinca}</p>
+                        <p>Estado Actual: ${local.estado}</p>
+                        <button class="show-location-btn">Mostrar en Mapa</button>
+                        <button class="start-route-btn">Iniciar Recorrido</button>
+                        <button class="update-status-btn">Actualizar Estado</button>
+                        <select class="status-select" style="display:none;">
+                            <option value="no-listo" ${local.estado === 'no-listo' ? 'selected' : ''}>No Listo</option>
+                            <option value="problema" ${local.estado === 'problema' ? 'selected' : ''}>Problema</option>
+                            <option value="realizado" ${local.estado === 'realizado' ? 'selected' : ''}>Realizado</option>
+                        </select>
+                        <button class="save-status-btn" style="display:none;">Terminar</button>
+                    `;
+
+                    // Añadir el local al contenedor
+                    listaLocalesDiv.appendChild(localElement);
+
+                    // Configurar eventos para los botones dentro de cada local
+                    const updateStatusBtn = localElement.querySelector('.update-status-btn');
+                    const statusSelect = localElement.querySelector('.status-select');
+                    const saveStatusBtn = localElement.querySelector('.save-status-btn');
+
+                    updateStatusBtn.addEventListener('click', () => {
+                        statusSelect.style.display = 'block';
+                        saveStatusBtn.style.display = 'block';
+                    });
+
+                    saveStatusBtn.addEventListener('click', async () => {
+                        const selectedStatus = statusSelect.value;
+                        const localId = localElement.getAttribute('data-id');
+
+                        const localRef = ref(db, `locales/${localId}`);
+                        await update(localRef, { estado: selectedStatus });
+
+                        alert(`Estado actualizado a: ${selectedStatus}`);
+                        location.reload(); // Recargar la página después de guardar
+                    });
+
+                    const startRouteBtn = localElement.querySelector('.start-route-btn');
+                    startRouteBtn.addEventListener('click', async () => {
+                        const { coordinates } = local;
+                        const [lng, lat] = coordinates;
+
+                        // Suponiendo que ya tienes una función `getRoute` definida que toma el punto de inicio y fin
+                        getRoute([lng, lat]);
+                    });
+
+                    // Añadir el evento para mostrar la ubicación en el mapa
+                    const showLocationBtn = localElement.querySelector('.show-location-btn');
+                    showLocationBtn.addEventListener('click', () => {
+                        // Centrar el mapa en la ubicación del local
+                        map.flyTo({
+                            center: coords,
+                            essential: true // Este parámetro asegura que el vuelo sea esencial
+                        });
+                    });
+                });
             } else {
                 console.error(`Coordenadas inválidas para el local ${id}:`, coords);
             }
@@ -199,6 +281,16 @@ get(localesRef).then((snapshot) => {
 }).catch((error) => {
     console.error("Error al obtener los datos:", error);
 });
+
+
+
+
+
+
+
+
+
+
 
 
 // Configuración del mapa
@@ -210,53 +302,7 @@ map.setMaxBounds(bounds);
 
 const start = [-65.466666666667, -33.666666666667]; // Villa Mercedes
 
-map.on('click', (event) => {
-  const coords = Object.keys(event.lngLat).map((key) => event.lngLat[key]);
-  const end = {
-      type: 'FeatureCollection',
-      features: [
-          {
-              type: 'Feature',
-              properties: {},
-              geometry: {
-                  type: 'Point',
-                  coordinates: coords
-              }
-          }
-      ]
-  };
 
-  if (map.getLayer('end')) {
-      map.getSource('end').setData(end);
-  } else {
-      map.addLayer({
-          id: 'end',
-          type: 'circle',
-          source: {
-              type: 'geojson',
-              data: {
-                  type: 'FeatureCollection',
-                  features: [
-                      {
-                          type: 'Feature',
-                          properties: {},
-                          geometry: {
-                              type: 'Point',
-                              coordinates: coords
-                          }
-                      }
-                  ]
-              }
-          },
-          paint: {
-              'circle-radius': 10,
-              'circle-color': '#f30'
-          }
-      });
-  }
-
-  getRoute(coords);
-});
 
 // Crear una función para hacer una solicitud de direcciones
 async function getRoute(end) {

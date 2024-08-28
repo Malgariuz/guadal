@@ -343,20 +343,136 @@ document.getElementById('desinfectados').addEventListener('click', () => {
     }
 });
 
+let mostrandoSoloConProblema = false;
+
+document.getElementById('problema').addEventListener('click', () => {
+    const todosLosLocales = document.querySelectorAll('.local');
+
+    if (mostrandoSoloConProblema) {
+        // Restaurar todos los locales a su estado original
+        todosLosLocales.forEach(local => {
+            const displayOriginal = local.getAttribute('data-display-original');
+            local.style.display = displayOriginal || '';
+        });
+        mostrandoSoloConProblema = false;
+    } else {
+        // Mostrar solo los locales con problemas
+        todosLosLocales.forEach(local => {
+            if (!local.classList.contains('problema')) {
+                // Guardar el valor original de display antes de ocultar
+                local.setAttribute('data-display-original', local.style.display);
+                local.style.display = 'none';
+            } else {
+                local.style.display = local.getAttribute('data-display-original') || '';
+            }
+        });
+        mostrandoSoloConProblema = true;
+    }
+});
 
 
 
-// Función para ver los detalles de un local
+
+// Función para ver y editar los detalles de un local
 function verDetalles(button) {
     const localDiv = button.closest('.local');
     const nombreLocal = localDiv.getAttribute('data-nombre');
     const direccion = localDiv.getAttribute('data-direccion');
     const numeroFinca = localDiv.getAttribute('data-numero-finca');
-    const latitud = localDiv.getAttribute('data-latitud'); // Obtener latitud
-    const longitud = localDiv.getAttribute('data-longitud'); // Obtener longitud
+    const latitud = localDiv.getAttribute('data-latitud');
+    const longitud = localDiv.getAttribute('data-longitud');
+    const estado = localDiv.getAttribute('data-estado'); // Obtener el estado actual
 
-    alert(`Nombre: ${nombreLocal}\nDirección: ${direccion}\nNúmero de Finca: ${numeroFinca}\nLatitud: ${latitud}\nLongitud: ${longitud}`);
+    // Guardar el contenido original del div para restaurarlo después
+    const contenidoOriginal = localDiv.innerHTML;
+
+    // Desplegar detalles
+    localDiv.innerHTML = `
+        <p>Nombre: <span id="detalle-nombre">${nombreLocal}</span></p>
+        <p>Dirección: <span id="detalle-direccion">${direccion}</span></p>
+        <p>Número de Finca: <span id="detalle-numero-finca">${numeroFinca}</span></p>
+        <p>Latitud: <span id="detalle-latitud">${latitud}</span></p>
+        <p>Longitud: <span id="detalle-longitud">${longitud}</span></p>
+        <button id="editar-local">Editar</button>
+        <button id="cerrar-detalles">Cerrar Detalles</button>
+    `;
+
+    // Manejar el evento de clic en el botón "Editar"
+    document.getElementById('editar-local').addEventListener('click', () => {
+        // Cambiar a modo edición
+        localDiv.innerHTML = `
+            <label>Nombre: <input type="text" id="edit-nombre" value="${nombreLocal}"></label><br>
+            <label>Dirección: <input type="text" id="edit-direccion" value="${direccion}"></label><br>
+            <label>Número de Finca: <input type="text" id="edit-numero-finca" value="${numeroFinca}"></label><br>
+            <label>Latitud: <input type="text" id="edit-latitud" value="${latitud}"></label><br>
+            <label>Longitud: <input type="text" id="edit-longitud" value="${longitud}"></label><br>
+            <button id="guardar-cambios">Terminar</button>
+            <button id="cerrar-detalles">Cerrar Detalles</button>
+        `;
+
+        // Manejar el evento de clic en el botón "Terminar"
+        document.getElementById('guardar-cambios').addEventListener('click', async () => {
+            const nuevoNombre = document.getElementById('edit-nombre').value;
+            const nuevaDireccion = document.getElementById('edit-direccion').value;
+            const nuevoNumeroFinca = document.getElementById('edit-numero-finca').value;
+            const nuevaLatitud = document.getElementById('edit-latitud').value;
+            const nuevaLongitud = document.getElementById('edit-longitud').value;
+
+            const localId = localDiv.getAttribute('data-id');
+
+            // Actualizar datos en Firebase
+            const snapshot = await get(child(ref(db), 'locales'));
+            const locales = snapshot.exists() ? snapshot.val() : [];
+
+            const localIndex = locales.findIndex(local => local.id === parseInt(localId));
+            if (localIndex !== -1) {
+                locales[localIndex].nombre = nuevoNombre;
+                locales[localIndex].direccion = nuevaDireccion;
+                locales[localIndex].numeroFinca = nuevoNumeroFinca;
+                locales[localIndex].coordinates = [parseFloat(nuevaLongitud), parseFloat(nuevaLatitud)];
+                
+                await set(ref(db, 'locales'), locales);
+            }
+
+            // Recargar la página para reflejar los cambios
+            location.reload();
+        });
+    });
+
+    // Manejar el evento de clic en el botón "Cerrar Detalles"
+    document.getElementById('cerrar-detalles').addEventListener('click', () => {
+        // Restaurar el contenido original del div
+        localDiv.innerHTML = contenidoOriginal;
+    });
 }
+
+
+
+
+
+// Función para buscar y filtrar locales en tiempo real
+document.getElementById('busqueda-input').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const locales = document.querySelectorAll('.local');
+    
+    // Filtrar locales en tiempo real
+    locales.forEach(local => {
+        const nombre = local.getAttribute('data-nombre').toLowerCase();
+        const direccion = local.getAttribute('data-direccion').toLowerCase();
+        const numeroFinca = local.getAttribute('data-numero-finca').toLowerCase();
+
+        // Mostrar o esconder locales basado en la búsqueda
+        if (nombre.includes(searchTerm) || direccion.includes(searchTerm) || numeroFinca.includes(searchTerm)) {
+            local.style.display = ''; // Mostrar el local si coincide con la búsqueda
+        } else {
+            local.style.display = 'none'; // Ocultar el local si no coincide con la búsqueda
+        }
+    });
+});
+
+
+
+
 
 // Función para actualizar los contadores de locales
 function actualizarContadores() {
