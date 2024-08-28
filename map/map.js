@@ -652,7 +652,7 @@ async function ordenarLocales() {
                 <p><strong>${local.nombre}</strong></p>
                 <p>Dirección: ${local.direccion}</p>
                 <p>Costo: ${local.costo || 'No disponible'}</p>
-                <p>Tipo de Factura: ${local.tipoFactura || 'No disponible'}</p>
+                <p>Tipo de Factura: ${local.factura}</p>
                 <p>Número de Finca: ${local.numeroFinca}</p>
                 <p>Estado Actual: ${local.estado}</p>
                 <button class="show-location-btn">Mostrar en Mapa</button>
