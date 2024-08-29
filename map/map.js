@@ -187,6 +187,8 @@ get(localesRef).then((snapshot) => {
                 let color;
                 if (local.nombre === "El Guadal (Home) TASA SI") {
                     color = 'purple';  // Púrpura para "El Guadal (Home) TASA SI"
+                } else if (local.estado === 'no-listo' && local.factura === 'A') {
+                    color = '#9b9b9b';  // Plateado para 'no listo' con factura 'A'
                 } else {
                     color = local.estado === 'no-listo' ? '#5f5f5f' :   // Gris oscuro para 'no listo'
                             local.estado === 'problema' ? '#ffc107' :  // Dorado para 'problema'
@@ -200,8 +202,24 @@ get(localesRef).then((snapshot) => {
 
                 // Añadir evento de clic al marcador
                 marker.getElement().addEventListener('click', () => {
-                    // Mostrar la lista
-                    document.getElementById('desplegar-lista').style.display = 'block';
+                    // Asegurarse de que el sidebar y la lista estén desplegadas
+                    const sidebar = document.getElementById('sidebar');
+                    const hamburgerMenu = document.getElementById('hamburger-menu');
+                    const localesList = document.getElementById('locales-list');
+                    const desplegarListaBtn = document.getElementById('desplegar-lista');
+
+                    if (!sidebar.classList.contains('open')) {
+                        sidebar.classList.add('open');
+                    }
+                    if (!hamburgerMenu.classList.contains('open')) {
+                        hamburgerMenu.classList.add('open');
+                    }
+                    if (!localesList.style.display !== 'block') {
+                        localesList.style.display = 'block';
+                    }
+                    if (desplegarListaBtn.style.display !== 'block') {
+                        desplegarListaBtn.style.display = 'block';
+                    }
 
                     // Llenar la lista con los datos del local seleccionado
                     const listaLocalesDiv = document.getElementById('locales-list');
@@ -281,6 +299,8 @@ get(localesRef).then((snapshot) => {
 }).catch((error) => {
     console.error("Error al obtener los datos:", error);
 });
+
+
 
 
 

@@ -24,11 +24,11 @@ body, html {
   top: 15px;
   left: 15px;
   z-index: 1001;
-  color: black;
+  color: orange;
   transition: color 0.3s ease;
 }
 .hamburger-menu:hover {
-  color: #666;
+  color: goldenrod;
 }
 
 /* Barra de búsqueda */
@@ -94,6 +94,9 @@ body, html {
 
 
 .sidebar a {
+  position: relative;
+  top: 20px;
+  align-self: center;
   color: white;
   text-decoration: none;
   text-align: center;
@@ -261,7 +264,11 @@ button:hover {
     display: none;
   }
   .sidebar {
-    width: 50%;
+    width: 40%;
+  }
+
+  #coordenadas {
+    display: none;
   }
 
   /* Asegurar que el contenido no desborde */
@@ -289,9 +296,11 @@ button:hover {
     display: none;
   }
   .sidebar {
-    width: 60%;
+    width: 50%;
   }
-
+  #coordenadas {
+    display: none;
+  }
   body, html {
     height: 100%;
     overflow: hidden;
@@ -316,7 +325,11 @@ button:hover {
     display: none;
   }
   .sidebar {
-    width: 70%;
+    width: 50%;
+  }
+
+  #coordenadas {
+    display: none;
   }
 
   body, html {
