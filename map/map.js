@@ -644,15 +644,19 @@ document.getElementById('desplegar-lista').addEventListener('click', async () =>
           const { coordinates } = local;
           const [lng, lat] = coordinates;
 
+
+          
+
           // Mostrar la ubicación en el mapa
-          new mapboxgl.Marker({ color: 'inherit' })  // Puedes personalizar el color o el estilo del marcador
+          new mapboxgl.Marker({ color: 'red' })  // Puedes personalizar el color o el estilo del marcador
             .setLngLat([lng, lat])
             .addTo(map);
 
           // Centrar el mapa en la ubicación del local
           map.flyTo({
             center: [lng, lat],
-            essential: true // Este parámetro asegura que el vuelo sea esencial
+            essential: true, // Este parámetro asegura que el vuelo sea esencial
+            zoom: 16,
           });
         });
 

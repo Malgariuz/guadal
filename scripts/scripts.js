@@ -159,7 +159,13 @@ async function cargarLocales() {
     }
 }
 
- 
+
+
+
+
+
+
+
 
 /// Función para agregar un nuevo local a la lista
 async function agregarLocal() {
@@ -320,6 +326,8 @@ async function cambiarEstado(selectElement) {
 // Evento para alternar entre mostrar solo los desinfectados y todos los locales
 document.getElementById('desinfectados').addEventListener('click', () => {
     const todosLosLocales = document.querySelectorAll('.local');
+    const contadorElement = document.getElementById('contador-locales-realizados');
+    let contadorRealizados = 0;
 
     if (mostrandoSoloDesinfectados) {
         // Restaurar todos los locales a su estado original
@@ -328,6 +336,7 @@ document.getElementById('desinfectados').addEventListener('click', () => {
             local.style.display = displayOriginal || '';
         });
         mostrandoSoloDesinfectados = false;
+        contadorElement.textContent = ''; // Ocultar contador cuando no se filtran locales
     } else {
         // Mostrar solo los locales realizados
         todosLosLocales.forEach(local => {
@@ -337,9 +346,11 @@ document.getElementById('desinfectados').addEventListener('click', () => {
                 local.style.display = 'none';
             } else {
                 local.style.display = local.getAttribute('data-display-original') || '';
+                contadorRealizados++;
             }
         });
         mostrandoSoloDesinfectados = true;
+        contadorElement.textContent = `Locales Desinfectados: ${contadorRealizados}`; // Mostrar contador
     }
 });
 
@@ -369,6 +380,19 @@ document.getElementById('problema').addEventListener('click', () => {
         mostrandoSoloConProblema = true;
     }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

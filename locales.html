@@ -59,7 +59,8 @@
             <input type="number" id="tasa" placeholder="Monto de la Tasa" disabled>
         </div>
         <button onclick="agregarLocal()">Agregar Local</button>
-    
+        <div id="contador-locales-realizados" style="margin-bottom: 10px;"></div>
+
     <div id="seccion-pendientes">
     <!-- Lista de locales -->
     <div id="lista-locales"></div>
@@ -70,7 +71,8 @@
 
     <!-- Contadores -->
     <div id="contadores">
-        <span id="total-locales"></span>
+        <p>Total locales: 
+            <span id="total-locales"></span></p>
         <span id="total-dinero"></span>
         <span id="total-tasas"></span>
         <span id="locales-desinfectados"></span>
