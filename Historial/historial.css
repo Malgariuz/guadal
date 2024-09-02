@@ -2,38 +2,38 @@ body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f0f2f5;
-  color: #333;
+  background-color: #121212;
+  color: #e0e0e0;
 }
 
 header {
-  background-color: #1e293b;
-  color: white;
-  padding: 20px;
+  background-color: #292929;
+  color: #f5f5f5;
+  padding: 15px;
   text-align: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 #meses-container {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .mes-btn {
-  background-color: #3b82f6;
+  background-color: #ff9800;
   color: white;
   border: none;
-  padding: 12px 25px;
-  margin: 8px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 5px;
   font-weight: 600;
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .mes-btn:hover {
-  background-color: #2563eb;
+  background-color: #e68a00;
   transform: translateY(-2px);
 }
 
@@ -41,7 +41,7 @@ header {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 #anio-container label {
@@ -50,23 +50,23 @@ header {
 }
 
 #anio-container select {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #757575;
   font-size: 16px;
-  background-color: white;
-  color: #333;
+  background-color: #333;
+  color: #e0e0e0;
 }
 
 main {
-  padding: 20px;
+  padding: 15px;
 }
 
 #titulo-mes {
   text-align: center;
-  margin-bottom: 30px;
-  font-size: 24px;
-  color: #1e293b;
+  margin-bottom: 25px;
+  font-size: 22px;
+  color: #ff9800;
 }
 
 #actividad-container {
@@ -76,121 +76,123 @@ main {
 }
 
 .local-item {
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  padding: 15px;
-  margin: 10px;
+  background-color: #212121;
+  border: 1px solid #424242;
+  padding: 12px;
+  margin: 8px;
   width: 100%;
-  max-width: 700px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  max-width: 600px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .local-item:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
   transform: translateY(-2px);
 }
 
 .local-item h4 {
-  margin: 0 0 10px 0;
-  font-size: 20px;
-  color: #1e293b;
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #ff9800;
 }
 
 .local-item p {
-  margin: 5px 0;
-  color: #6b7280;
+  margin: 4px 0;
+  color: #bdbdbd;
 }
 
 .local-item button {
-  background-color: #3b82f6;
+  background-color: #ff5722;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border-radius: 5px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .local-item button:hover {
-  background-color: #2563eb;
+  background-color: #e64a19;
 }
 
 .edit-fields {
   display: none;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .edit-fields label {
   display: block;
-  margin-bottom: 10px;
-  color: #374151;
+  margin-bottom: 8px;
+  color: #ff9800;
   font-weight: 600;
 }
 
 .edit-fields input[type="text"],
 .edit-fields select {
   width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #757575;
   box-sizing: border-box;
   font-size: 16px;
-  background-color: #f9fafb;
+  background-color: #333;
+  color: #e0e0e0;
 }
 
 .save-btn {
-  margin-top: 10px;
-  background-color: #10b981;
+  margin-top: 8px;
+  background-color: #4caf50;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border-radius: 5px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
 .save-btn:hover {
-  background-color: #059669;
+  background-color: #388e3c;
 }
 
 /* Estilo para el botón de mostrar/ocultar locales ocultos */
 #toggle-ocultos-btn {
-  background-color: #3b82f6;
+  background-color: #ff9800;
   color: #fff;
-  padding: 12px 25px;
+  padding: 10px 20px;
   border: none;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
   transition: background-color 0.3s ease;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 #toggle-ocultos-btn:hover {
-  background-color: #2563eb;
+  background-color: #e68a00;
 }
 
 /* Estilo para el contenedor de locales ocultos */
 #ocultos-container {
-  margin-top: 20px;
-  padding: 20px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background-color: #f9fafb;
+  margin-top: 15px;
+  padding: 15px;
+  border: 1px solid #424242;
+  border-radius: 5px;
+  background-color: #333;
 }
 
 /* Estilo para los locales ocultos */
 .local-item.oculto {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 15px;
+  background-color: #424242;
+  border: 1px solid #616161;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 12px;
   transition: transform 0.3s ease;
+  font-size: 14px;
 }
 
 .local-item.oculto:hover {
@@ -199,16 +201,155 @@ main {
 
 /* Estilo para el botón de mostrar dentro de un local oculto */
 .local-item.oculto .mostrar-btn {
-  background-color: #10b981;
+  background-color: #4caf50;
   color: #fff;
-  padding: 10px 20px;
+  padding: 8px 16px;
   border: none;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s ease;
 }
 
 .local-item.oculto .mostrar-btn:hover {
-  background-color: #059669;
+  background-color: #388e3c;
+}
+
+
+/* Estilos generales para dispositivos pequeños (celulares) */
+@media (max-width: 480px) {
+  header {
+    padding: 15px;
+    text-align: center;
+  }
+
+  #toggle-ocultos-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  #anio-container, #meses-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #meses-container .mes-btn {
+    padding: 10px;
+    font-size: 14px;
+    margin: 5px;
+    width: 100%;
+  }
+
+  main {
+    padding: 15px;
+  }
+
+  #actividad-container {
+    align-items: stretch;
+  }
+
+  .local-item {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .local-item button {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+
+  .edit-fields input[type="text"],
+  .edit-fields select {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  #ocultos-container {
+    padding: 15px;
+  }
+
+  .local-item.oculto {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+}
+
+/* Estilos para dispositivos medianos (tablets) */
+@media (max-width: 768px) {
+  #meses-container {
+    justify-content: space-around;
+  }
+
+  #meses-container .mes-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin: 5px;
+  }
+
+  .local-item {
+    max-width: 90%;
+    margin: 10px auto;
+  }
+
+  #actividad-container {
+    align-items: center;
+  }
+
+  .local-item button {
+    padding: 10px 20px;
+  }
+
+  .edit-fields input[type="text"],
+  .edit-fields select {
+    font-size: 15px;
+  }
+}
+
+/* Estilos para dispositivos grandes (laptops y pantallas grandes) */
+@media (min-width: 1024px) {
+  header {
+    padding: 25px;
+    text-align: left;
+  }
+
+  #toggle-ocultos-btn {
+    width: auto;
+    margin-bottom: 15px;
+  }
+
+  #meses-container {
+    justify-content: center;
+  }
+
+  #meses-container .mes-btn {
+    padding: 15px 30px;
+    font-size: 18px;
+  }
+
+  .local-item {
+    max-width: 70%;
+    margin: 15px auto;
+  }
+
+  .local-item button {
+    padding: 12px 25px;
+    font-size: 16px;
+  }
+
+  .edit-fields input[type="text"],
+  .edit-fields select {
+    font-size: 16px;
+    padding: 12px;
+  }
+
+  #ocultos-container {
+    padding: 20px;
+  }
+
+  .local-item.oculto {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
 }

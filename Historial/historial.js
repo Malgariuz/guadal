@@ -280,14 +280,17 @@ function toggleLocalesOcultos() {
       mostrandoOcultos = !mostrandoOcultos;
       
       if (mostrandoOcultos) {
-          mostrarLocalesOcultos();
+          ocultosContainer.style.display = 'block'; // Mostrar el contenedor
+          mostrarLocalesOcultos(); // Llamar a la función para mostrar los locales ocultos
           toggleOcultosBtn.textContent = 'Ocultar locales ocultos';
       } else {
-          ocultosContainer.innerHTML = ''; // Limpiar el contenedor de ocultos
+          ocultosContainer.style.display = 'none'; // Ocultar el contenedor
+          ocultosContainer.innerHTML = ''; // Limpiar el contenido del contenedor
           toggleOcultosBtn.textContent = 'Mostrar locales ocultos';
       }
   });
 }
+
 
 // Función para cargar y mostrar los locales ocultos
 function mostrarLocalesOcultos() {
