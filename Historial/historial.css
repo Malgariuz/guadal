@@ -307,8 +307,8 @@ main {
   }
 }
 
-/* Estilos para dispositivos grandes (laptops y pantallas grandes) */
-@media (min-width: 1024px) {
+/* Estilos para dispositivos grandes (laptops y pantallas grandes) 
+@media (min-width: 1024px)  {
   header {
     padding: 25px;
     text-align: left;
@@ -352,4 +352,4 @@ main {
     padding: 15px;
     margin-bottom: 15px;
   }
-}
+}/*

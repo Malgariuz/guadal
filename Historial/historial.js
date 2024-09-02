@@ -344,3 +344,17 @@ function mostrarLocalesOcultos() {
 
 // Llamar a la función para configurar el botón de mostrar/ocultar locales ocultos
 toggleLocalesOcultos();
+
+
+
+document.querySelectorAll('.mes-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    // Lógica para actualizar el contenido de #mes-actual si es necesario
+    // Por ejemplo: document.getElementById('mes-actual').textContent = button.textContent;
+
+    // Desplazamiento suave hasta la sección de actividad
+    document.getElementById('titulo-mes').scrollIntoView({
+      behavior: 'smooth'
+    });
+  });
+});
