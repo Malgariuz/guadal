@@ -1,0 +1,170 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+header {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+
+#meses-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.mes-btn {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+}
+
+.mes-btn:hover {
+  background-color: #555;
+}
+
+#anio-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+#anio-container label {
+  margin-right: 10px;
+}
+
+#anio-container select {
+  padding: 5px;
+}
+
+main {
+  padding: 20px;
+}
+
+#titulo-mes {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#actividad-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.local-item {
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin: 10px;
+  width: 80%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.local-item h4 {
+  margin: 0;
+}
+
+.local-item p {
+  margin: 5px 0;
+}
+
+.local-item button {
+  background-color: #3887be;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.local-item button:hover {
+  background-color: #287593;
+}
+
+.edit-fields {
+  display: none;
+  margin-top: 10px;
+}
+
+.edit-fields label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.edit-fields input[type="text"],
+.edit-fields select {
+  width: 100%;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.save-btn {
+  margin-top: 10px;
+}
+
+
+
+/* Estilo para el botón de mostrar/ocultar locales ocultos */
+#toggle-ocultos-btn {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  margin-bottom: 20px;
+}
+
+#toggle-ocultos-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Estilo para el contenedor de locales ocultos */
+#ocultos-container {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+/* Estilo para los locales ocultos */
+.local-item.oculto {
+  background-color: #f8d7da;
+  border: 1px solid #f5c2c7;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  transition: transform 0.3s ease;
+}
+
+.local-item.oculto:hover {
+  transform: translateY(-3px);
+}
+
+/* Estilo para el botón de mostrar dentro de un local oculto */
+.local-item.oculto .mostrar-btn {
+  background-color: #28a745;
+  color: #fff;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.local-item.oculto .mostrar-btn:hover {
+  background-color: #218838;
+}
+

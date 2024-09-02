@@ -59,6 +59,7 @@
             <input type="number" id="tasa" placeholder="Monto de la Tasa" disabled>
         </div>
         <button onclick="agregarLocal()">Agregar Local</button>
+        <button id="historial" src="/Historial/historial.html">Ver Historial</button>
         <div id="contador-locales-realizados" style="margin-bottom: 10px;"></div>
 
     <div id="seccion-pendientes">
@@ -77,6 +78,8 @@
         <span id="total-tasas"></span>
         <span id="locales-desinfectados"></span>
     </div>
+    <button id="btn-establecer-no-listo">Resetear todos los locales a 'no-listo'</button>
+    
 
     <script type="module" src="scripts/scripts.js"></script>
     <script type="module">

@@ -165,6 +165,61 @@ async function cargarLocales() {
 
 
 
+// Función para establecer todos los locales en estado "no-listo"
+async function establecerTodosNoListo() {
+    const snapshot = await get(child(ref(db), 'locales'));
+    const locales = snapshot.exists() ? snapshot.val() : [];
+
+    locales.forEach(local => {
+        local.estado = 'no-listo';
+    });
+
+    await set(ref(db, 'locales'), locales);
+    
+    // Recargar los locales en la interfaz
+    cargarLocales();
+    actualizarContadores();
+}
+
+// Evento para el botón que cambia todos los locales a "no-listo"
+document.getElementById('btn-establecer-no-listo').addEventListener('click', establecerTodosNoListo);
+
+
+
+
+
+
+
+
+// Función para verificar si es el primer día del mes y entre las 00:00 y las 00:15
+function verificarInicioDeMes() {
+    const ahora = new Date();
+    const primerDiaDelMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+
+    // Verifica si es el primer día del mes
+    if (ahora.getDate() === 1) {
+        // Verifica si la hora actual está entre las 00:00 y las 00:15
+        const horas = ahora.getHours();
+        const minutos = ahora.getMinutes();
+        
+        if (horas === 0 && minutos <= 15) {
+            establecerTodosNoListo();
+        }
+    }
+}
+
+// Llama a la función al cargar la página
+verificarInicioDeMes();
+
+
+
+
+
+
+
+
+
+
 
 
 /// Función para agregar un nuevo local a la lista

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Actividad</title>
+    <link rel="stylesheet" href="historial.css">
+</head>
+<body>
+    <header>
+        <div id="reciente">
+        <button class="reciente" data="reciente">Reciente</button></div>
+        <button id="toggle-ocultos-btn">Mostrar locales ocultos</button>
+<div id="ocultos-container"></div>
+        <div id="anio-container">
+            <label for="select-anio">Seleccionar Año:</label>
+            <select id="select-anio">
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+            </select>
+        </div>
+        <div id="meses-container">
+            <button class="mes-btn" data-mes="enero">Enero</button>
+            <button class="mes-btn" data-mes="febrero">Febrero</button>
+            <button class="mes-btn" data-mes="marzo">Marzo</button>
+            <button class="mes-btn" data-mes="abril">Abril</button>
+            <button class="mes-btn" data-mes="mayo">Mayo</button>
+            <button class="mes-btn" data-mes="junio">Junio</button>
+            <button class="mes-btn" data-mes="julio">Julio</button>
+            <button class="mes-btn" data-mes="agosto">Agosto</button>
+            <button class="mes-btn" data-mes="septiembre">Septiembre</button>
+            <button class="mes-btn" data-mes="octubre">Octubre</button>
+            <button class="mes-btn" data-mes="noviembre">Noviembre</button>
+            <button class="mes-btn" data-mes="diciembre">Diciembre</button>
+        </div>
+    </header>
+
+    <main>
+        <div id="reciente">
+            <h2>Locales Recientes</h2>
+            <!-- Aquí se cargarán los locales recientes -->
+            <div id="reciente-container"></div>
+        </div>
+        
+        <div id="desinfectados-container" style="display: none;">
+            <button id="ver-locales-desinfectados">Locales Desinfectados</button>
+            <!-- Aquí se cargarán los locales desinfectados -->
+            <div id="desinfectados"></div>
+        </div>
+
+        <h1 id="titulo-mes">Actividad de <span id="mes-actual"></span></h1>
+        <div id="actividad-container">
+            <!-- Aquí se cargarán las actividades desde Firebase -->
+        </div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-database.js"></script>
+    <script type="module" src="historial.js"></script>
+</body>
+</html>
