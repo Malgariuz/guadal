@@ -371,13 +371,25 @@ toggleLocalesOcultos();
 
 
 document.querySelectorAll('.mes-btn').forEach(button => {
+  let firstClick = true;
+
   button.addEventListener('click', () => {
     // Lógica para actualizar el contenido de #mes-actual si es necesario
     // Por ejemplo: document.getElementById('mes-actual').textContent = button.textContent;
 
-    // Desplazamiento suave hasta la sección de actividad
-    document.getElementById('titulo-mes').scrollIntoView({
-      behavior: 'smooth'
-    });
+    if (firstClick) {
+      setTimeout(() => {
+        document.getElementById('titulo-mes').scrollIntoView({
+          behavior: 'smooth'
+        });
+      }, 500); // El valor de 500 ms puede ajustarse si es necesario
+      firstClick = false; // Establecer a false después del primer clic
+    } else {
+      document.getElementById('titulo-mes').scrollIntoView({
+        behavior: 'smooth'
+      });
+    }
   });
 });
+
+
