@@ -169,17 +169,17 @@ document.querySelectorAll('.mes-btn').forEach(btn => {
   });
 });
 
-// Función para cargar locales por mes y año seleccionados y contar los realizados
+// Función para cargar locales por mes y año seleccionados y contar todos los locales
 function cargarLocalesPorMes(anio, mes) {
   const actividadContainer = document.getElementById('actividad-container');
   const tituloMes = document.getElementById('titulo-mes');
   const contadorElement = document.getElementById('contador-locales'); // Elemento para mostrar el contador
 
   actividadContainer.innerHTML = ''; // Limpiar el contenedor de actividad
-  contadorElement.innerText = ''; // Limpiar el contador de locales realizados
+  contadorElement.innerText = ''; // Limpiar el contador de locales
   
   const mesRef = ref(db, `actividad/${anio}/${mes}`);
-  let contadorRealizados = 0; // Inicializar contador para locales en estado "realizado"
+  let contadorLocales = 0; // Inicializar contador para todos los locales
 
   // Actualiza el título con el mes seleccionado
   tituloMes.innerHTML = `Actividad de ${mes} (${anio})`;
@@ -193,10 +193,8 @@ function cargarLocalesPorMes(anio, mes) {
         localItem.className = 'local-item';
         localItem.setAttribute('data-id', local.id);
 
-        // Contar solo locales en estado "realizado"
-        if (local.estado === 'realizado') {
-          contadorRealizados++; // Incrementar el contador si el local está en estado realizado
-        }
+        // Incrementar el contador por cada local
+        contadorLocales++;
 
         // Mostrar la fecha de modificación si existe
         const fechaStr = local.fechaModificacion || 'No modificado';
@@ -215,11 +213,11 @@ function cargarLocalesPorMes(anio, mes) {
         actividadContainer.appendChild(localItem);
       });
 
-      // Actualizar el contador de locales realizados en la interfaz
-      contadorElement.innerText = `Total de locales realizados en ${mes}: ${contadorRealizados}`;
+      // Actualizar el contador de locales en la interfaz
+      contadorElement.innerText = `Total de locales en ${mes}: ${contadorLocales}`;
     } else {
       actividadContainer.innerHTML = '<p>No hay locales para este mes y año seleccionados.</p>';
-      contadorElement.innerText = `Total de locales realizados en ${mes}: 0`; // Si no hay locales, contador es 0
+      contadorElement.innerText = `Total de locales en ${mes}: 0`; // Si no hay locales, contador es 0
     }
   });
 }
@@ -230,6 +228,113 @@ function cargarLocalesPorMes(anio, mes) {
 
 
 
+
+
+
+
+
+
+// ----------------------------------------------------------------------------------------------
+// Función para mostrar montos realizados solo en el día actual
+// Función para guardar el monto total del día en la base de datos
+function guardarMontoDelDia(anio, mes, dia, montoTotal) {
+  const diaRef = ref(db, `montosPorDia/${anio}/${mes}/${dia}`);
+  set(diaRef, {
+    montoTotal: montoTotal
+  });
+}
+
+// Función para cargar los montos del día desde la base de datos o calcularlos si no existen
+function mostrarMontosDeHoy() {
+  const montosHoyContainer = document.getElementById('montos-hoy-container');
+  montosHoyContainer.innerHTML = ''; // Limpiar el contenedor de montos
+  const hoy = new Date(); // Fecha actual
+
+  // Obtener los componentes de año, mes y día
+  const anio = hoy.getFullYear();
+  const mes = hoy.getMonth() + 1; // Los meses en JavaScript son 0-indexados (enero es 0)
+  const dia = hoy.getDate();
+
+  // Referencia para los montos guardados del día
+  const diaRef = ref(db, `montosPorDia/${anio}/${mes}/${dia}`);
+
+  // Verificar si ya existe un monto guardado para el día de hoy
+  onValue(diaRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const montoTotalHoy = snapshot.val().montoTotal;
+
+      // Mostrar el monto total del día guardado
+      montosHoyContainer.innerHTML = `<h3>Montos realizados el día ${dia}/${mes}/${anio}</h3>
+                                      <p>Monto total de hoy: $${montoTotalHoy.toFixed(2)}</p>`;
+    } else {
+      // Si no hay datos guardados, calcular los montos de hoy
+      calcularMontosDeHoy(anio, mes, dia, montosHoyContainer);
+    }
+  });
+}
+
+// Función para calcular los montos de hoy y luego guardarlos
+function calcularMontosDeHoy(anio, mes, dia, montosHoyContainer) {
+  const mesRef = ref(db, `actividad/${anio}/${mes}`);
+  let montoTotalHoy = 0; // Inicializar el monto total para hoy
+
+  // Crear las fechas de inicio y fin del día actual (rango de 00:00 a 23:59 del día actual)
+  const inicioDia = new Date(anio, mes - 1, dia, 0, 0, 0); // 00:00
+  const finDia = new Date(anio, mes - 1, dia, 23, 59, 59); // 23:59
+
+  // Estructura del div para mostrar el total del día
+  const diaDiv = document.createElement('div');
+  diaDiv.className = 'dia-div';
+  diaDiv.innerHTML = `<h3>Montos realizados el día ${dia}/${mes}/${anio}</h3>`;
+  montosHoyContainer.appendChild(diaDiv);
+
+  // Obtener los locales del mes actual y sus montos
+  onValue(mesRef, (snapshot) => {
+    const locales = snapshot.val();
+    if (locales) {
+      Object.values(locales).forEach(local => {
+        const fechaModificacion = local.fechaModificacion || null;
+        const monto = parseFloat(local.tasas) || 0;
+
+        if (fechaModificacion) {
+          const fechaModificada = new Date(fechaModificacion);
+
+          // Verificar si la fecha de modificación está dentro del rango de hoy (00:00 a 23:59)
+          if (fechaModificada >= inicioDia && fechaModificada <= finDia) {
+            montoTotalHoy += monto; // Sumar el monto si está en el rango de hoy
+          }
+        }
+      });
+
+      // Guardar el monto total del día en la base de datos
+      guardarMontoDelDia(anio, mes, dia, montoTotalHoy);
+
+      // Mostrar el monto total del día en el div
+      diaDiv.innerHTML += `<p>Monto total de hoy: $${montoTotalHoy.toFixed(2)}</p>`;
+
+      // Si no hay montos, mostrar mensaje de que no hay actividades para hoy
+      if (montoTotalHoy === 0) {
+        diaDiv.innerHTML += '<p>No se registraron montos para hoy.</p>';
+      }
+    } else {
+      diaDiv.innerHTML += '<p>No hay datos disponibles para hoy.</p>';
+    }
+  });
+}
+
+// Función para alternar la visibilidad del contenedor de montos de hoy
+function toggleMontosHoy() {
+  const montosHoyContainer = document.getElementById('montos-hoy-container');
+  if (montosHoyContainer.style.display === 'none') {
+    montosHoyContainer.style.display = 'block';
+    mostrarMontosDeHoy(); // Cargar los montos de hoy al mostrar el contenedor
+  } else {
+    montosHoyContainer.style.display = 'none';
+  }
+}
+
+// Añadir evento al botón para mostrar/ocultar los montos de hoy
+document.getElementById('mostrar-montos-hoy-btn').addEventListener('click', toggleMontosHoy);
 
 
 

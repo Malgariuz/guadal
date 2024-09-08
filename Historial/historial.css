@@ -216,6 +216,38 @@ main {
 }
 
 
+
+#montos-hoy-container {
+  background-color: #333;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 5px;
+  color: #ff9800;
+}
+
+.mes-div h3 {
+  text-align: center;
+  color: #ff9800;
+}
+
+.dia-div {
+  background-color: #212121;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #424242;
+  border-radius: 5px;
+}
+
+.dia-div h4 {
+  color: #ff9800;
+  margin-bottom: 5px;
+}
+
+.dia-div p {
+  color: #bdbdbd;
+}
+
+
 /* Estilos generales para dispositivos pequeños (celulares) */
 @media (max-width: 480px) {
   header {
