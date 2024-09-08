@@ -175,10 +175,13 @@ body, html {
 .realizado {
   background-color: #e0ffe0;
 }
-.start-route-btn, .update-status-btn, .save-status-btn {
+.start-route-btn, .update-status-btn, .save-status-btn, .mes-tasa-input, .notas-input {
   margin-top: 5px;
   margin-right: 5px;
   padding: 5px 10px;
+}
+.notas-input {
+  resize: none; /* Deshabilita la redimensionabilidad del textarea */
 }
 .status-select {
   margin-top: 10px;

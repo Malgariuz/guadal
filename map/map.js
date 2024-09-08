@@ -187,7 +187,9 @@ get(localesRef).then((snapshot) => {
                 let color;
                 if (local.nombre === "El Guadal (Home) TASA SI") {
                     color = 'purple';  // Púrpura para "El Guadal (Home) TASA SI"
-                } else if (local.estado === 'no-listo' && local.factura === 'A') {
+                } else if (local.nombre === "Gonzalez Victoria - GUADAL")  {
+                  color = 'purple';  
+              } else if (local.estado === 'no-listo' && local.factura === 'A') {
                     color = '#9b9b9b';  // Plateado para 'no listo' con factura 'A'
                 } else {
                     color = local.estado === 'no-listo' ? '#5f5f5f' :   // Gris oscuro para 'no listo'
@@ -245,6 +247,8 @@ get(localesRef).then((snapshot) => {
                             <option value="problema" ${local.estado === 'problema' ? 'selected' : ''}>Problema</option>
                             <option value="realizado" ${local.estado === 'realizado' ? 'selected' : ''}>Realizado</option>
                         </select>
+                        <input type="text" class="mes-tasa-input" placeholder="Mes y Tasa" style="display:none; margin: 5px 0;" value="${local.mesTasa || ''}">
+                        <textarea class="notas-input" placeholder="Notas" style="display:none; margin: 5px 0;">${local.notas || ''}</textarea>
                         <button class="save-status-btn" style="display:none;">Terminar</button>
                     `;
 
@@ -254,21 +258,33 @@ get(localesRef).then((snapshot) => {
                     // Configurar eventos para los botones dentro de cada local
                     const updateStatusBtn = localElement.querySelector('.update-status-btn');
                     const statusSelect = localElement.querySelector('.status-select');
+                    const mesTasaInput = localElement.querySelector('.mes-tasa-input');
+                    const notasInput = localElement.querySelector('.notas-input');
                     const saveStatusBtn = localElement.querySelector('.save-status-btn');
 
                     updateStatusBtn.addEventListener('click', () => {
                         statusSelect.style.display = 'block';
+                        mesTasaInput.style.display = 'block';
+                        notasInput.style.display = 'block';
                         saveStatusBtn.style.display = 'block';
                     });
 
                     saveStatusBtn.addEventListener('click', async () => {
                         const selectedStatus = statusSelect.value;
+                        const mesTasaValue = mesTasaInput.value;
+                        const notasValue = notasInput.value;
                         const localId = localElement.getAttribute('data-id');
+                        const fechaModificacion = new Date().toLocaleString(); // Obtener la fecha y hora actual
 
                         const localRef = ref(db, `locales/${localId}`);
-                        await update(localRef, { estado: selectedStatus });
+                        await update(localRef, { 
+                            estado: selectedStatus,
+                            mesTasa: mesTasaValue,
+                            notas: notasValue,
+                            fechaModificacion: fechaModificacion
+                        });
 
-                        alert(`Estado actualizado a: ${selectedStatus}`);
+                        alert(`Información actualizada:\nEstado: ${selectedStatus}\nMes y Tasa: ${mesTasaValue}\nNotas: ${notasValue}`);
                         location.reload(); // Recargar la página después de guardar
                     });
 
@@ -299,6 +315,8 @@ get(localesRef).then((snapshot) => {
 }).catch((error) => {
     console.error("Error al obtener los datos:", error);
 });
+
+
 
 
 
@@ -570,15 +588,15 @@ document.getElementById('terminar-button').addEventListener('click', async () =>
 
 document.getElementById('desplegar-lista').addEventListener('click', async () => {
   const listaLocalesDiv = document.getElementById('locales-list');
-  
+
   if (listaLocalesDiv.style.display === 'none' || listaLocalesDiv.style.display === '') {
     listaLocalesDiv.style.display = 'block'; // Mostrar la lista
 
     const snapshot = await get(localesRef);
-    
+
     if (snapshot.exists()) {
       const locales = snapshot.val();
-      listaLocalesDiv.innerHTML = '';  // Limpiar la lista
+      listaLocalesDiv.innerHTML = ''; // Limpiar la lista
 
       Object.values(locales).forEach(local => {
         // Crear el contenedor del local
@@ -602,29 +620,45 @@ document.getElementById('desplegar-lista').addEventListener('click', async () =>
             <option value="problema" ${local.estado === 'problema' ? 'selected' : ''}>Problema</option>
             <option value="realizado" ${local.estado === 'realizado' ? 'selected' : ''}>Realizado</option>
           </select>
+          <input type="text" class="mes-tasa-input" placeholder="Mes y Tasa" style="display:none; margin: 5px 0;" value="${local.mesTasa || ''}">
+          <textarea class="notas-input" placeholder="Notas" style="display:none; margin: 5px 0;">${local.notas || ''}</textarea>
           <button class="save-status-btn" style="display:none;">Terminar</button>
         `;
 
-        // Mostrar/ocultar el menú de estado y el botón "Terminar"
+        // Mostrar/ocultar los campos de actualización
         const updateStatusBtn = localItem.querySelector('.update-status-btn');
         const statusSelect = localItem.querySelector('.status-select');
+        const mesTasaInput = localItem.querySelector('.mes-tasa-input');
+        const notasInput = localItem.querySelector('.notas-input');
         const saveStatusBtn = localItem.querySelector('.save-status-btn');
 
         updateStatusBtn.addEventListener('click', () => {
           statusSelect.style.display = 'block';
+          mesTasaInput.style.display = 'block';
+          notasInput.style.display = 'block';
           saveStatusBtn.style.display = 'block';
         });
 
-        // Añadir evento para cambiar el estado y guardar en Firebase
+        // Añadir evento para guardar el estado, Mes y Tasa, y Notas en Firebase junto con la fecha y hora actuales
         saveStatusBtn.addEventListener('click', async () => {
           const selectedStatus = statusSelect.value;
+          const mesTasaValue = mesTasaInput.value;
+          const notasValue = notasInput.value;
           const localId = localItem.getAttribute('data-id');
 
-          // Actualizar solo el campo "estado" en la entrada existente de Firebase
-          const localRef = ref(db, `locales/${localId}`);
-          await update(localRef, { estado: selectedStatus });
+          // Obtener la fecha y hora actuales
+          const fechaModificacion = new Date().toLocaleString();
 
-          alert(`Estado actualizado a: ${selectedStatus}`);
+          // Actualizar los campos en Firebase
+          const localRef = ref(db, `locales/${localId}`);
+          await update(localRef, { 
+            estado: selectedStatus,
+            mesTasa: mesTasaValue,
+            notas: notasValue,
+            fechaModificacion: fechaModificacion // Guardar la fecha y hora de modificación
+          });
+
+          alert(`Información actualizada:\nEstado: ${selectedStatus}\nMes y Tasa: ${mesTasaValue}\nNotas: ${notasValue}\nFecha de modificación: ${fechaModificacion}`);
           location.reload(); // Recargar la página después de guardar
         });
 
@@ -634,21 +668,17 @@ document.getElementById('desplegar-lista').addEventListener('click', async () =>
           const { coordinates } = local;
           const [lng, lat] = coordinates;
 
-          // Suponiendo que ya tienes una función `getRoute` definida que toma el punto de inicio y fin
-          getRoute([lng, lat]);
+          getRoute([lng, lat]); // Función definida previamente
         });
 
-        // Añadir el nuevo evento para mostrar la ubicación en el mapa
+        // Añadir el evento para mostrar la ubicación en el mapa
         const showLocationBtn = localItem.querySelector('.show-location-btn');
         showLocationBtn.addEventListener('click', () => {
           const { coordinates } = local;
           const [lng, lat] = coordinates;
 
-
-          
-
           // Mostrar la ubicación en el mapa
-          new mapboxgl.Marker({ color: 'red' })  // Puedes personalizar el color o el estilo del marcador
+          new mapboxgl.Marker({ color: 'red' })
             .setLngLat([lng, lat])
             .addTo(map);
 
@@ -670,6 +700,8 @@ document.getElementById('desplegar-lista').addEventListener('click', async () =>
     listaLocalesDiv.style.display = 'none'; // Ocultar la lista
   }
 });
+
+
 
 
 
@@ -733,6 +765,9 @@ async function ordenarLocales() {
                     <option value="problema" ${local.estado === 'problema' ? 'selected' : ''}>Problema</option>
                     <option value="realizado" ${local.estado === 'realizado' ? 'selected' : ''}>Realizado</option>
                 </select>
+                <input type="text" class="mes-tasa-input" placeholder="Mes y Tasa" style="display:none; margin: 5px 0;" value="${local.mesTasa || ''}">
+                <textarea class="notas-input" placeholder="Notas" style="display:none; margin: 5px 0;">${local.notas || ''}</textarea>
+                
                 <button class="save-status-btn" style="display:none;">Terminar</button>
             `;
 
@@ -743,18 +778,29 @@ async function ordenarLocales() {
             const updateStatusBtn = localElement.querySelector('.update-status-btn');
             const statusSelect = localElement.querySelector('.status-select');
             const saveStatusBtn = localElement.querySelector('.save-status-btn');
+            const mesTasaInput = localElement.querySelector('.mes-tasa-input');
+            const notasInput = localElement.querySelector('.notas-input');
 
             updateStatusBtn.addEventListener('click', () => {
                 statusSelect.style.display = 'block';
+                mesTasaInput.style.display = 'block';
+                notasInput.style.display = 'block';
                 saveStatusBtn.style.display = 'block';
             });
 
             saveStatusBtn.addEventListener('click', async () => {
                 const selectedStatus = statusSelect.value;
+                const mesTasa = mesTasaInput.value;
+                const notas = notasInput.value;
                 const localId = localElement.getAttribute('data-id');
-
+                const fechaModificacion = new Date().toLocaleString(); // Obtener la fecha y hora actual
                 const localRef = ref(db, `locales/${localId}`);
-                await update(localRef, { estado: selectedStatus });
+                await update(localRef, { 
+                    estado: selectedStatus,
+                    mesTasa: mesTasa,
+                    notas: notas,
+                    fechaModificacion: fechaModificacion // Guardar fecha y hora
+                });
 
                 alert(`Estado actualizado a: ${selectedStatus}`);
                 location.reload(); // Recargar la página después de guardar
@@ -789,6 +835,7 @@ async function ordenarLocales() {
         });
     }
 }
+
 
 // Función auxiliar para calcular la distancia entre dos puntos
 function calcularDistancia(coord1, coord2) {

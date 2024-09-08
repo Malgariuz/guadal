@@ -61,39 +61,39 @@ function cargarLocales() {
                           <p style="margin: 5px 0;">Tipo de Factura: ${local.factura}</p>
                           <p style="margin: 5px 0;">Número de Finca: ${local.numeroFinca}</p>
                           <p style="margin: 5px 0;">Estado Actual: ${local.estado}</p>
-                          <p style="margin: 5px 0; color: gray;">Fecha de modificación: ${fechaStr}</p>
+                          <p style="margin: 5px 0;">Mes y Tasa: ${local.mesTasa || 'N/A'}</p>
+                          <p style="margin: 5px 0;">Notas: ${local.notas || 'Sin notas'}</p>
+                          <p style="margin: 5px 0; color: gray;">Fecha de la desinfeccion: ${fechaStr}</p>
                           <button class="edit-btn">Editar</button>
                           <button class="hide-btn">Ocultar</button>
                           <div class="edit-fields" style="display: none;">
                               <label>Monto: <input type="text" class="costo-input" value="${local.costo}"></label>
                               <label>Mes: 
                                   <select class="mes-select">
-                                      <option value="enero">Enero</option>
-                                      <option value="febrero">Febrero</option>
-                                      <option value="marzo">Marzo</option>
-                                      <option value="abril">Abril</option>
-                                      <option value="mayo">Mayo</option>
-                                      <option value="junio">Junio</option>
-                                      <option value="julio">Julio</option>
-                                      <option value="agosto">Agosto</option>
-                                      <option value="septiembre">Septiembre</option>
-                                      <option value="octubre">Octubre</option>
-                                      <option value="noviembre">Noviembre</option>
-                                      <option value="diciembre">Diciembre</option>
+                                      <option value="enero" ${local.mesTasa?.includes('enero') ? 'selected' : ''}>Enero</option>
+                                      <option value="febrero" ${local.mesTasa?.includes('febrero') ? 'selected' : ''}>Febrero</option>
+                                      <option value="marzo" ${local.mesTasa?.includes('marzo') ? 'selected' : ''}>Marzo</option>
+                                      <option value="abril" ${local.mesTasa?.includes('abril') ? 'selected' : ''}>Abril</option>
+                                      <option value="mayo" ${local.mesTasa?.includes('mayo') ? 'selected' : ''}>Mayo</option>
+                                      <option value="junio" ${local.mesTasa?.includes('junio') ? 'selected' : ''}>Junio</option>
+                                      <option value="julio" ${local.mesTasa?.includes('julio') ? 'selected' : ''}>Julio</option>
+                                      <option value="agosto" ${local.mesTasa?.includes('agosto') ? 'selected' : ''}>Agosto</option>
+                                      <option value="septiembre" ${local.mesTasa?.includes('septiembre') ? 'selected' : ''}>Septiembre</option>
+                                      <option value="octubre" ${local.mesTasa?.includes('octubre') ? 'selected' : ''}>Octubre</option>
+                                      <option value="noviembre" ${local.mesTasa?.includes('noviembre') ? 'selected' : ''}>Noviembre</option>
+                                      <option value="diciembre" ${local.mesTasa?.includes('diciembre') ? 'selected' : ''}>Diciembre</option>
                                   </select>
                               </label>
                               <label>Año: 
                                   <select class="anio-select">
-                                      <option value="2024">2024</option>
-                                      <option value="2025">2025</option>
-                                      <option value="2026">2026</option>
-                                      <option value="2027">2027</option>
-                                      <option value="2028">2028</option>
-                                      <option value="2029">2029</option>
-                                      <option value="2030">2030</option>
+                                      <option value="2024" ${local.mesTasa?.includes('2024') ? 'selected' : ''}>2024</option>
+                                      <option value="2025" ${local.mesTasa?.includes('2025') ? 'selected' : ''}>2025</option>
+                                      <option value="2026" ${local.mesTasa?.includes('2026') ? 'selected' : ''}>2026</option>
+                                      <option value="2027" ${local.mesTasa?.includes('2027') ? 'selected' : ''}>2027</option>
                                   </select>
                               </label>
-                              <label>Tasas: <input type="text" class="tasas-input" value="${local.tasas}"></label>
+                              <label>Tasas: <input type="text" class="tasas-input" value="${local.tasas || ''}"></label>
+                              <label>Notas: <textarea class="notas-input">${local.notas || ''}</textarea></label>
                               <button class="save-btn">Guardar</button>
                           </div>
                       `;
@@ -110,16 +110,14 @@ function cargarLocales() {
                           const newMes = localItem.querySelector('.mes-select').value;
                           const newAnio = localItem.querySelector('.anio-select').value;
                           const newTasas = localItem.querySelector('.tasas-input').value;
-                          location.reload();
+                          const newNotas = localItem.querySelector('.notas-input').value;
 
-                    
+                          location.reload();
 
                           // Obtener la fecha y hora actual
                           const fechaModificacion = new Date().toLocaleString();
                           
-
                           // Guardar en la nueva sección "actividad" con la estructura Año > Mes > Local
-                        
                           const actividadRef = ref(db, `actividad/${newAnio}/${newMes}/${local.id}`);
                           set(actividadRef, {
                               nombre: local.nombre,
@@ -129,6 +127,7 @@ function cargarLocales() {
                               numeroFinca: local.numeroFinca,
                               estado: local.estado,
                               tasas: newTasas,
+                              notas: newNotas,
                               fechaModificacion: fechaModificacion // Guardar la fecha y hora de modificación
                           }).then(() => {
                               // Eliminar el local de la sección "Locales Recientes"
@@ -155,6 +154,7 @@ function cargarLocales() {
   });
 }
 
+
 // Llamar a la función para cargar los locales al iniciar la página
 cargarLocales();
 
@@ -169,43 +169,66 @@ document.querySelectorAll('.mes-btn').forEach(btn => {
   });
 });
 
-// Función para cargar locales por mes y año seleccionados
+// Función para cargar locales por mes y año seleccionados y contar los realizados
 function cargarLocalesPorMes(anio, mes) {
   const actividadContainer = document.getElementById('actividad-container');
-  actividadContainer.innerHTML = ''; // Limpiar el contenedor
+  const tituloMes = document.getElementById('titulo-mes');
+  const contadorElement = document.getElementById('contador-locales'); // Elemento para mostrar el contador
 
+  actividadContainer.innerHTML = ''; // Limpiar el contenedor de actividad
+  contadorElement.innerText = ''; // Limpiar el contador de locales realizados
+  
   const mesRef = ref(db, `actividad/${anio}/${mes}`);
+  let contadorRealizados = 0; // Inicializar contador para locales en estado "realizado"
+
+  // Actualiza el título con el mes seleccionado
+  tituloMes.innerHTML = `Actividad de ${mes} (${anio})`;
 
   onValue(mesRef, (snapshot) => {
-      const locales = snapshot.val();
+    const locales = snapshot.val();
+    
+    if (locales) {
+      Object.values(locales).forEach(local => {
+        const localItem = document.createElement('div');
+        localItem.className = 'local-item';
+        localItem.setAttribute('data-id', local.id);
 
-      if (locales) {
-          Object.values(locales).forEach(local => {
-              const localItem = document.createElement('div');
-              localItem.className = 'local-item';
-              localItem.setAttribute('data-id', local.id);
+        // Contar solo locales en estado "realizado"
+        if (local.estado === 'realizado') {
+          contadorRealizados++; // Incrementar el contador si el local está en estado realizado
+        }
 
-              // Mostrar la fecha de modificación si existe
-              const fechaStr = local.fechaModificacion || 'No modificado';
+        // Mostrar la fecha de modificación si existe
+        const fechaStr = local.fechaModificacion || 'No modificado';
 
-              localItem.innerHTML = `
-                  <h4>${local.nombre}</h4>
-                  <p>Dirección: ${local.direccion}</p>
-                  <p>Costo: ${local.costo}</p>
-                  <p>Tipo de Factura: ${local.factura}</p>
-                  <p>Número de Finca: ${local.numeroFinca}</p>
-                  <p>Estado Actual: ${local.estado}</p>
-                  <p>Tasa monto: ${local.tasas}</p>
-                  <p style="color: gray;">Fecha de modificación: ${fechaStr}</p>
-              `;
+        localItem.innerHTML = `
+          <h4>${local.nombre}</h4>
+          <p>Dirección: ${local.direccion}</p>
+          <p>Costo: ${local.costo}</p>
+          <p>Tipo de Factura: ${local.factura}</p>
+          <p>Número de Finca: ${local.numeroFinca}</p>
+          <p>Estado Actual: ${local.estado}</p>
+          <p>Tasa monto: ${local.tasas}</p>
+          <p style="color: gray;">Fecha de modificación: ${fechaStr}</p>
+        `;
 
-              actividadContainer.appendChild(localItem);
-          });
-      } else {
-          actividadContainer.innerHTML = '<p>No hay locales para este mes y año seleccionados.</p>';
-      }
+        actividadContainer.appendChild(localItem);
+      });
+
+      // Actualizar el contador de locales realizados en la interfaz
+      contadorElement.innerText = `Total de locales realizados en ${mes}: ${contadorRealizados}`;
+    } else {
+      actividadContainer.innerHTML = '<p>No hay locales para este mes y año seleccionados.</p>';
+      contadorElement.innerText = `Total de locales realizados en ${mes}: 0`; // Si no hay locales, contador es 0
+    }
   });
 }
+
+
+
+
+
+
 
 
 
