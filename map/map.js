@@ -6,6 +6,9 @@ mapboxgl.accessToken = 'pk.eyJ1IjoibWFsZ2FyaXV6IiwiYSI6ImNsenpoa3A1ZTB3em0ybW9xM
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import { getDatabase, ref, set, get, child, update, remove } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
+
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
 const map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/streets-v12',
@@ -53,6 +56,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 /** @type {import("https://malgariuz-default-rtdb.firebaseio.com/").Database} */
 const db = getDatabase(app);
+
+
+
+
+
+
 
 
 
