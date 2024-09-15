@@ -1,6 +1,9 @@
 // Importar las funciones necesarias de los SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import { getDatabase, ref, set, get, child, update, remove } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+// Importar los métodos necesarios desde Firebase EMAIL
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
 
 // Configuración de tu aplicación web en Firebase
 const firebaseConfig = {
@@ -17,6 +20,161 @@ const firebaseConfig = {
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
+
+/// Inicializar Firebase Auth
+const auth = getAuth(app);
+auth.useDeviceLanguage(); // Usar el idioma del dispositivo
+const provider = new GoogleAuthProvider();
+
+
+
+
+
+// Función para iniciar sesión con correo electrónico y contraseña
+function loginWithEmail() {
+    const email = document.getElementById('email-input').value;
+    const password = document.getElementById('password-input').value;
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log('Usuario autenticado:', user.uid);
+
+            // Mostrar el estado de autenticación
+            document.getElementById('estado-usuario').innerText = 'Usuario autenticado';
+
+            // Ocultar el formulario de inicio de sesión y mostrar el contenido protegido
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('protected-content').style.display = 'block';
+        })
+        .catch((error) => {
+            console.error('Error en la autenticación:', error);
+            document.getElementById('estado-usuario').innerText = 'Error en la autenticación';
+        });
+}
+
+// Función para registrar un nuevo usuario (opcional)
+function registerWithEmail() {
+    const email = document.getElementById('email-input').value;
+    const password = document.getElementById('password-input').value;
+
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log('Usuario registrado:', user.uid);
+            // Puedes redirigir o mostrar un mensaje de éxito aquí
+        })
+        .catch((error) => {
+            console.error('Error al registrar usuario:', error);
+        });
+}
+
+// Verificar el estado de autenticación al cargar la página
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        document.getElementById('estado-usuario').innerText = 'Usuario autenticado';
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('protected-content').style.display = 'block';
+    } else {
+        document.getElementById('estado-usuario').innerText = 'No hay usuario autenticado';
+        document.getElementById('login-container').style.display = 'block';
+        document.getElementById('protected-content').style.display = 'none';
+    }
+});
+
+// Conectar el botón de inicio de sesión con la función loginWithEmail
+document.getElementById('login-button').addEventListener('click', loginWithEmail);
+
+// Conectar el botón de registro con la función registerWithEmail (opcional)
+document.getElementById('register-button').addEventListener('click', registerWithEmail);
+
+function loginWithGoogle() {
+    // Establecer el idioma del dispositivo
+    auth.useDeviceLanguage();
+
+    // Añadir un login_hint si quieres sugerir un correo electrónico
+    provider.setCustomParameters({
+        'login_hint': 'user@example.com' // Cambia este correo si lo necesitas
+    });
+
+    // Usar el popup para iniciar sesión
+    signInWithPopup(auth, provider)
+        .then((result) => {
+            // Obtenemos el token de acceso de Google si es necesario
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential ? credential.accessToken : null;
+
+            // Información del usuario autenticado
+            const user = result.user;
+            console.log('Usuario autenticado:', user.uid);
+
+            // Mostrar el estado de autenticación en la interfaz
+            document.getElementById('estado-usuario').innerText = 'Usuario autenticado';
+
+            // Ocultar el formulario de inicio de sesión y mostrar el contenido protegido
+            document.getElementById('login-container1').style.display = 'none';
+            document.getElementById('protected-content').style.display = 'block';
+        })
+        .catch((error) => {
+            // Manejar errores de autenticación
+            console.error('Error en la autenticación:', error);
+            console.error('Código de error:', error.code);
+            console.error('Mensaje de error:', error.message);
+            console.error('Correo del usuario:', error.email);
+            console.error('Credencial:', error.credential);
+
+            document.getElementById('estado-usuario').innerText = 'Error en la autenticación';
+        });
+}
+
+
+// Conectar el botón de inicio de sesión con la función loginWithGoogle
+document.getElementById('google-login-button').addEventListener('click', loginWithGoogle);
+
+
+// Verificar el estado de autenticación al cargar la página
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log('Usuario autenticado:', user.uid);
+        document.getElementById('estado-usuario').innerText = 'Usuario autenticado';
+        document.getElementById('login-container1').style.display = 'none';
+        document.getElementById('protected-content').style.display = 'block';
+    } else {
+        console.log('No hay usuario autenticado');
+        document.getElementById('estado-usuario').innerText = 'No hay usuario autenticado';
+        document.getElementById('login-container1').style.display = 'block';
+        document.getElementById('protected-content').style.display = 'none';
+    }
+});
+
+
+// Conectar el botón de inicio de sesión con la función loginWithGoogle
+document.getElementById('google-login-button').addEventListener('click', loginWithGoogle);
+
+// Función para cerrar sesión
+function logout() {
+    signOut(auth).then(() => {
+        console.log('Sesión cerrada');
+        // Recargar la página para actualizar el estado
+        window.location.reload();
+    }).catch((error) => {
+        console.error('Error al cerrar sesión:', error);
+    });
+}
+
+// Asegúrate de que el botón de cerrar sesión esté conectado a esta función
+document.getElementById('logout-button').addEventListener('click', logout);
+
+// Mostrar el contenido protegido si el usuario está autenticado
+function mostrarContenidoProtegido() {
+    document.getElementById('login-container').style.display = 'none'; // Ocultar el formulario de inicio de sesión
+    document.getElementById('protected-content').style.display = 'block'; // Mostrar contenido protegido
+}
+
+
+
+
 
 // Clave requerida para la autenticación
 const CLAVE_CORRECTA = 'malgariuz';

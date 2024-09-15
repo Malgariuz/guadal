@@ -7,6 +7,24 @@
     <link rel="stylesheet" href="styles/styles.css">
     
 </head>
+
+<!-- Formulario de inicio de sesión con Google -->
+<div id="login-container1">
+    <button id="google-login-button">Iniciar sesión con Google</button>
+
+    <div id="estado-usuario"></div>
+</div>
+<div id="login-container">
+    <h2>Iniciar Sesión</h2>
+    <input type="email" id="email-input" placeholder="Correo Electrónico" required>
+    <input type="password" id="password-input" placeholder="Contraseña" required>
+    <button id="login-button">Iniciar Sesión</button>
+    <button id="register-button">Registrar</button>
+    <div id="estado-usuario"></div>
+</div>
+
+<!-- Contenido protegido -->
+<div id="protected-content" style="display:none;">
 <header>
     <div class="header-container">
         <h1>Selecciona un Mes</h1>
@@ -79,7 +97,7 @@
         <span id="locales-desinfectados"></span>
     </div>
     <button id="btn-establecer-no-listo">Resetear todos los locales a 'no-listo'</button>
-    
+    <button id="logout-button" onclick="logout()">Cerrar Sesión</button>
 
     <script type="module" src="scripts/scripts.js"></script>
     <script type="module">
@@ -112,4 +130,5 @@
 
 
 </body>
+</div>
 </html>
