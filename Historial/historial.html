@@ -8,9 +8,12 @@
 </head>
 <body>
     <header>
-        
+
         <button id="toggle-ocultos-btn">Mostrar locales ocultos</button>
+        
         <div id="ocultos-container" style="display: none;"></div>
+
+        <!-- Año y Mes original que no debe ser modificado -->
         <div id="anio-container">
             <label for="select-anio">Seleccionar Año:</label>
             <select id="select-anio">
@@ -23,6 +26,7 @@
                 <option value="2030">2030</option>
             </select>
         </div>
+
         <div id="meses-container">
             <button class="mes-btn" data-mes="enero">Enero</button>
             <button class="mes-btn" data-mes="febrero">Febrero</button>
@@ -40,11 +44,81 @@
     </header>
 
     <main>
-        <!-- Botón para mostrar montos del día actual -->
-<button id="mostrar-montos-hoy-btn" class="mes-btn">Mostrar montos de hoy</button>
+        <!-- Nueva funcionalidad: Ver montos por día -->
+        <button id="ver-montos-btn" class="mes-btn">Ver montos por día</button>
 
-<!-- Contenedor para mostrar los montos del día -->
-<div id="montos-hoy-container" style="display: none;"></div>
+        <!-- Contenedor para desplegar las opciones de selección de fecha -->
+        <div id="opciones-fecha-container" style="display: none;">
+            <label for="nuevo-select-anio">Año:</label>
+            <select id="nuevo-select-anio">
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+            </select>
+
+            <label for="nuevo-select-mes">Mes:</label>
+            <select id="nuevo-select-mes">
+                <option value="01">Enero</option>
+                <option value="02">Febrero</option>
+                <option value="03">Marzo</option>
+                <option value="04">Abril</option>
+                <option value="05">Mayo</option>
+                <option value="06">Junio</option>
+                <option value="07">Julio</option>
+                <option value="08">Agosto</option>
+                <option value="09">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+            </select>
+
+            <label for="nuevo-select-dia">Día:</label>
+            <select id="nuevo-select-dia">
+                <option value="01">1</option>
+                <option value="02">2</option>
+                <option value="03">3</option>
+                <option value="04">4</option>
+                <option value="05">5</option>
+                <option value="06">6</option>
+                <option value="07">7</option>
+                <option value="08">8</option>
+                <option value="09">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+                <option value="24">24</option>
+                <option value="25">25</option>
+                <option value="26">26</option>
+                <option value="27">27</option>
+                <option value="28">28</option>
+                <option value="29">29</option>
+                <option value="30">30</option>
+                <option value="31">31</option>
+            </select>
+
+
+            <!-- Botón para obtener montos del día seleccionado -->
+            <button id="obtener-montos-btn" class="mes-btn">Obtener montos</button>
+
+            <!-- Botón para obtener montos del día actual -->
+            <button id="montos-hoy-btn" class="mes-btn">Ver montos de hoy</button>
+        </div>
+
+        <!-- Contenedor para mostrar los montos totales -->
+        <div id="montos-container"></div>
+
+        <!-- Sección existente -->
         <div id="reciente">
             <h2>Locales Recientes</h2>
             <!-- Aquí se cargarán los locales recientes -->
@@ -57,9 +131,11 @@
             <div id="desinfectados"></div>
         </div>
 
-        
         <h1 id="titulo-mes">Actividad de <span id="mes-actual"></span></h1>
         <h2 id="contador-locales">Total de locales realizados: 0</h2>
+        <div id="monto-bruto"></div>
+        <div id="monto-neto"></div>
+
         <div id="actividad-container">
             <!-- Aquí se cargarán las actividades desde Firebase -->
         </div>
@@ -70,5 +146,7 @@
     <script type="module" src="historial.js"></script>
     <script type="module" src="/auth.js"></script>
     <script type="module" src="/guadal/auth.js"></script>
+
+    <button id="scroll-btn" class="scroll-btn hidden">&#8681;</button>
 </body>
 </html>

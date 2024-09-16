@@ -158,8 +158,160 @@ main {
   background-color: #388e3c;
 }
 
+
+/* Estilo del botón flotante */
+.scroll-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff9800, #e68a00);
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  opacity: 0.5;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
+  font-size: 20px;
+}
+
+.scroll-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: block;
+}
+
+
+
+
+
+
+#scroll-ocultos-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ff5722;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  z-index: 1000;
+}
+
+#scroll-ocultos-btn.visible {
+  display: block;
+}
+
+#scroll-ocultos-btn.hidden {
+  display: none;
+}
+
+
+
+
+
+/* Estilos para el contador diario*/
+
+/* Estilo para el botón "Ver montos por día" */
+#ver-montos-btn {
+  background-color: #ff9800;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin-bottom: 15px;
+}
+
+#ver-montos-btn:hover {
+  background-color: #e68a00;
+  transform: translateY(-2px);
+}
+
+/* Estilo para el contenedor de montos */
+#montos-container {
+  display: none;
+  background-color: #333;
+  padding: 15px;
+  border-radius: 5px;
+  margin-top: 15px;
+}
+
+.fecha-item {
+  background-color: #212121;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #424242;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fecha-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.fecha-item h4 {
+  color: #ff9800;
+  margin-bottom: 5px;
+}
+
+.fecha-item p {
+  color: #bdbdbd;
+  margin: 4px 0;
+}
+
+/* Estilo para el contenedor de filtro de fechas */
+#opciones-fecha-container {
+  display: none;
+  margin-bottom: 15px;
+}
+
+#opciones-fecha-container select {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #757575;
+  font-size: 16px;
+  background-color: #333;
+  color: #e0e0e0;
+}
+
+#opciones-fecha-container button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: 10px;
+}
+
+#opciones-fecha-container button:hover {
+  background-color: #388e3c;
+}
+
+
+
+
 /* Estilo para el botón de mostrar/ocultar locales ocultos */
-#toggle-ocultos-btn {
+#toggle-ocultos-btn{
   background-color: #ff9800;
   color: #fff;
   padding: 10px 20px;

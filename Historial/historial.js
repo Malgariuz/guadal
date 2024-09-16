@@ -173,28 +173,64 @@ document.querySelectorAll('.mes-btn').forEach(btn => {
 function cargarLocalesPorMes(anio, mes) {
   const actividadContainer = document.getElementById('actividad-container');
   const tituloMes = document.getElementById('titulo-mes');
-  const contadorElement = document.getElementById('contador-locales'); // Elemento para mostrar el contador
+  const contadorElement = document.getElementById('contador-locales'); // Elemento para mostrar el contador de locales
+  const montoBrutoElement = document.getElementById('monto-bruto'); // Elemento para mostrar el monto bruto total
+  const montoNetoElement = document.getElementById('monto-neto'); // Elemento para mostrar el monto neto
 
   actividadContainer.innerHTML = ''; // Limpiar el contenedor de actividad
   contadorElement.innerText = ''; // Limpiar el contador de locales
+  montoBrutoElement.innerText = ''; // Limpiar el contador de monto bruto
+  montoNetoElement.innerText = ''; // Limpiar el contador de monto neto
   
   const mesRef = ref(db, `actividad/${anio}/${mes}`);
   let contadorLocales = 0; // Inicializar contador para todos los locales
+  let montoBrutoTotal = 0; // Inicializar el monto bruto total
 
   // Actualiza el título con el mes seleccionado
   tituloMes.innerHTML = `Actividad de ${mes} (${anio})`;
 
   onValue(mesRef, (snapshot) => {
-    const locales = snapshot.val();
+    let locales = snapshot.val();
     
     if (locales) {
-      Object.values(locales).forEach(local => {
+      // Convertir el objeto a un array para facilitar el orden
+      locales = Object.values(locales);
+
+      // Función para convertir la fecha en formato "DD/MM/YYYY, HH:mm:ss a.m./p.m." a un timestamp comparable
+      const convertirFecha = (fechaStr) => {
+        if (!fechaStr) return 0; // Si no hay fecha, retorna 0 como valor por defecto (para ordenarlos al final)
+
+        // Dividir la fecha y la hora
+        const [fecha, hora] = fechaStr.split(', ');
+        const [dia, mes, anio] = fecha.split('/').map(Number); // Obtener día, mes y año
+        let [tiempo, periodo] = hora.split(' '); // Dividir el tiempo y el periodo (a.m./p.m.)
+        let [horas, minutos, segundos] = tiempo.split(':').map(Number); // Obtener horas, minutos, segundos
+
+        // Convertir a formato de 24 horas
+        if (periodo === 'p.m.' && horas !== 12) horas += 12; // Convertir las horas p.m., excepto para 12 p.m.
+        if (periodo === 'a.m.' && horas === 12) horas = 0; // Convertir 12 a.m. a 00 horas
+
+        // Crear un timestamp (milisegundos desde la medianoche del 1 de enero de 1970) usando los valores extraídos
+        return new Date(anio, mes - 1, dia, horas, minutos, segundos).getTime();
+      };
+
+      // Ordenar los locales por la fecha de modificación (descendente)
+      locales.sort((a, b) => {
+        const fechaA = convertirFecha(a.fechaModificacion);
+        const fechaB = convertirFecha(b.fechaModificacion);
+        return fechaB - fechaA; // Orden descendente (de más reciente a más antiguo)
+      });
+
+      locales.forEach(local => {
         const localItem = document.createElement('div');
         localItem.className = 'local-item';
         localItem.setAttribute('data-id', local.id);
 
         // Incrementar el contador por cada local
         contadorLocales++;
+
+        // Sumar el costo del local al monto bruto total
+        montoBrutoTotal += parseFloat(local.costo);
 
         // Mostrar la fecha de modificación si existe
         const fechaStr = local.fechaModificacion || 'No modificado';
@@ -213,14 +249,144 @@ function cargarLocalesPorMes(anio, mes) {
         actividadContainer.appendChild(localItem);
       });
 
+      // Calcular el monto neto como el 40% del monto bruto total
+      const montoNetoTotal = montoBrutoTotal * 0.40;
+
+      // Formatear los montos con separador de miles y símbolo de moneda, mostrando decimales solo si es necesario
+      const formatoMoneda = (monto) => {
+        return `$${monto.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+      };
+
       // Actualizar el contador de locales en la interfaz
       contadorElement.innerText = `Total de locales en ${mes}: ${contadorLocales}`;
+      // Actualizar el monto bruto total en la interfaz
+      montoBrutoElement.innerText = `Monto bruto total: ${formatoMoneda(montoBrutoTotal)}`;
+      // Actualizar el monto neto total en la interfaz
+      montoNetoElement.innerText = `Monto neto total: ${formatoMoneda(montoNetoTotal)}`;
+
     } else {
       actividadContainer.innerHTML = '<p>No hay locales para este mes y año seleccionados.</p>';
       contadorElement.innerText = `Total de locales en ${mes}: 0`; // Si no hay locales, contador es 0
+      montoBrutoElement.innerText = 'Monto bruto total: $0';
+      montoNetoElement.innerText = 'Monto neto total: $0';
     }
   });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//-------------------------------------
+
+const scrollBtn = document.getElementById('scroll-btn');
+let lastScrollTop = 0;
+
+// Función para detectar scroll
+window.addEventListener('scroll', () => {
+    const scrollPosition = window.scrollY;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const actividadContainer = document.getElementById('actividad-container');
+    const ocultosContainer = document.getElementById('ocultos-container');
+    const actividadContainerTop = actividadContainer.offsetTop;
+    const actividadContainerBottom = actividadContainerTop + actividadContainer.offsetHeight;
+
+    // Verificar si el scroll está dentro del contenedor de actividad
+    const isInActividadContainer = scrollPosition >= actividadContainerTop && scrollPosition <= actividadContainerBottom;
+    
+    // Verificar si el contenedor ocultos está desplegado
+    const isOcultosVisible = ocultosContainer.classList.contains('visible');
+
+    // Mostrar el botón solo si estamos dentro del contenedor de actividad y el contenedor de ocultos no está desplegado
+    if (isInActividadContainer && !isOcultosVisible && scrollPosition > 200 && scrollPosition < maxScroll - 200) {
+        scrollBtn.classList.remove('hidden');
+        scrollBtn.classList.add('visible');
+    } else {
+        scrollBtn.classList.remove('visible');
+        scrollBtn.classList.add('hidden');
+    }
+
+    // Cambiar el icono dependiendo de la dirección de scroll
+    if (scrollPosition > lastScrollTop) {
+        // Scrolleando hacia abajo
+        scrollBtn.innerHTML = '&#8681;'; // Flecha hacia abajo
+    } else {
+        // Scrolleando hacia arriba
+        scrollBtn.innerHTML = '&#8679;'; // Flecha hacia arriba
+    }
+
+    lastScrollTop = scrollPosition <= 0 ? 0 : scrollPosition; // Evitar valores negativos en el scroll
+});
+
+// Función del botón al hacer clic
+scrollBtn.addEventListener('click', () => {
+    const scrollPosition = window.scrollY;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const actividadContainer = document.getElementById('actividad-container');
+    const ocultosContainer = document.getElementById('ocultos-container');
+    const actividadContainerClosed = actividadContainer.classList.contains('closed'); // Verificar si actividad está cerrado
+    const ocultosContainerVisible = ocultosContainer.classList.contains('visible');  // Verificar si ocultos está desplegado
+    const ocultosContainerTop = ocultosContainer.getBoundingClientRect().top;
+    const ocultosContainerBottom = ocultosContainer.getBoundingClientRect().bottom;
+
+    // Si el contenedor de ocultos está visible y estamos interactuando con él
+    if (ocultosContainerVisible && scrollPosition >= ocultosContainerTop && scrollPosition <= ocultosContainerBottom) {
+        const ocultosMaxScroll = ocultosContainer.scrollHeight - ocultosContainer.clientHeight;
+
+        if (ocultosContainer.scrollTop < ocultosMaxScroll / 2) {
+            // Si está en la primera mitad del contenedor de ocultos, scroll al final
+            ocultosContainer.scrollTo({
+                top: ocultosMaxScroll,
+                behavior: 'smooth'
+            });
+        } else {
+            // Si está en la segunda mitad del contenedor de ocultos, scroll al principio
+            ocultosContainer.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    } else {
+        // Si el contenedor de actividad está abierto y no estamos en ocultos-container
+        if (!actividadContainerClosed) {
+            if (scrollPosition < maxScroll / 2) {
+                // Si está en la primera mitad, scroll al final de la página
+                window.scrollTo({
+                    top: document.documentElement.scrollHeight,
+                    behavior: 'smooth'
+                });
+            } else {
+                // Si está en la segunda mitad, scroll al título del mes
+                document.getElementById('titulo-mes').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        } else {
+            // Si el contenedor actividad está cerrado o si no estamos interactuando con ningún contenedor
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    }
+});
+
+
+
+
+
+
+//--------------------------------------OCULTOS----------------
 
 
 
@@ -235,109 +401,179 @@ function cargarLocalesPorMes(anio, mes) {
 
 
 // ----------------------------------------------------------------------------------------------
-// Función para mostrar montos realizados solo en el día actual
-// Función para guardar el monto total del día en la base de datos
-function guardarMontoDelDia(anio, mes, dia, montoTotal) {
-  const diaRef = ref(db, `montosPorDia/${anio}/${mes}/${dia}`);
-  set(diaRef, {
-    montoTotal: montoTotal
-  });
-}
+// Función para cargar los años, meses y días disponibles desde la base de datos
+let listaVisible = false; // Variable para rastrear si la lista está visible o no
 
-// Función para cargar los montos del día desde la base de datos o calcularlos si no existen
-function mostrarMontosDeHoy() {
-  const montosHoyContainer = document.getElementById('montos-hoy-container');
-  montosHoyContainer.innerHTML = ''; // Limpiar el contenedor de montos
-  const hoy = new Date(); // Fecha actual
+// Función que se ejecuta al hacer clic en "Ver montos por día"
+document.getElementById('ver-montos-btn').addEventListener('click', () => {
+  const montosContainer = document.getElementById('montos-container');
+  const opcionesFechaContainer = document.getElementById('opciones-fecha-container');
+  
+  // Alternar visibilidad de la lista
+  if (!listaVisible) {
+    cargarMontosAgrupadosPorFecha();
+    montosContainer.style.display = 'block'; // Mostrar el contenedor de montos
+    opcionesFechaContainer.style.display = 'block'; // Mostrar el filtro
+    listaVisible = true;
+  } else {
+    montosContainer.innerHTML = ''; // Limpiar la lista
+    montosContainer.style.display = 'none'; // Ocultar el contenedor de montos
+    opcionesFechaContainer.style.display = 'none'; // Ocultar el filtro
+    listaVisible = false;
+  }
+});
 
-  // Obtener los componentes de año, mes y día
-  const anio = hoy.getFullYear();
-  const mes = hoy.getMonth() + 1; // Los meses en JavaScript son 0-indexados (enero es 0)
-  const dia = hoy.getDate();
+// Función para cargar los montos agrupados por fecha
+function cargarMontosAgrupadosPorFecha() {
+  const montosContainer = document.getElementById('montos-container');
+  montosContainer.innerHTML = ''; // Limpiar el contenedor de montos anteriores
 
-  // Referencia para los montos guardados del día
-  const diaRef = ref(db, `montosPorDia/${anio}/${mes}/${dia}`);
+  const actividadRef = ref(db, 'actividad'); // Referencia a la actividad en la base de datos
 
-  // Verificar si ya existe un monto guardado para el día de hoy
-  onValue(diaRef, (snapshot) => {
-    if (snapshot.exists()) {
-      const montoTotalHoy = snapshot.val().montoTotal;
+  const montosPorFecha = {}; // Objeto para agrupar los montos por fecha
 
-      // Mostrar el monto total del día guardado
-      montosHoyContainer.innerHTML = `<h3>Montos realizados el día ${dia}/${mes}/${anio}</h3>
-                                      <p>Monto total de hoy: $${montoTotalHoy.toFixed(2)}</p>`;
-    } else {
-      // Si no hay datos guardados, calcular los montos de hoy
-      calcularMontosDeHoy(anio, mes, dia, montosHoyContainer);
-    }
-  });
-}
+  onValue(actividadRef, (snapshot) => {
+    const actividad = snapshot.val(); // Obtener todos los locales
 
-// Función para calcular los montos de hoy y luego guardarlos
-function calcularMontosDeHoy(anio, mes, dia, montosHoyContainer) {
-  const mesRef = ref(db, `actividad/${anio}/${mes}`);
-  let montoTotalHoy = 0; // Inicializar el monto total para hoy
+    if (actividad) {
+      // Recorrer todos los años y meses en la actividad
+      Object.keys(actividad).forEach(anio => {
+        Object.keys(actividad[anio]).forEach(mes => {
+          const locales = actividad[anio][mes];
 
-  // Crear las fechas de inicio y fin del día actual (rango de 00:00 a 23:59 del día actual)
-  const inicioDia = new Date(anio, mes - 1, dia, 0, 0, 0); // 00:00
-  const finDia = new Date(anio, mes - 1, dia, 23, 59, 59); // 23:59
+          // Recorrer todos los locales del mes
+          Object.values(locales).forEach(local => {
+            const fechaModificacion = local.fechaModificacion;
 
-  // Estructura del div para mostrar el total del día
-  const diaDiv = document.createElement('div');
-  diaDiv.className = 'dia-div';
-  diaDiv.innerHTML = `<h3>Montos realizados el día ${dia}/${mes}/${anio}</h3>`;
-  montosHoyContainer.appendChild(diaDiv);
+            if (fechaModificacion) {
+              // Extraer solo el día completo (DD/MM/YYYY) de la fecha
+              const fechaKey = fechaModificacion.split(', ')[0];
 
-  // Obtener los locales del mes actual y sus montos
-  onValue(mesRef, (snapshot) => {
-    const locales = snapshot.val();
-    if (locales) {
-      Object.values(locales).forEach(local => {
-        const fechaModificacion = local.fechaModificacion || null;
-        const monto = parseFloat(local.tasas) || 0;
+              // Si la fecha no existe en el objeto, inicializarla
+              if (!montosPorFecha[fechaKey]) {
+                montosPorFecha[fechaKey] = 0;
+              }
 
-        if (fechaModificacion) {
-          const fechaModificada = new Date(fechaModificacion);
-
-          // Verificar si la fecha de modificación está dentro del rango de hoy (00:00 a 23:59)
-          if (fechaModificada >= inicioDia && fechaModificada <= finDia) {
-            montoTotalHoy += monto; // Sumar el monto si está en el rango de hoy
-          }
-        }
+              // Sumar el costo del local al monto bruto total de esa fecha
+              montosPorFecha[fechaKey] += parseFloat(local.costo);
+            }
+          });
+        });
       });
 
-      // Guardar el monto total del día en la base de datos
-      guardarMontoDelDia(anio, mes, dia, montoTotalHoy);
+      // Convertir el objeto de fechas a un array y ordenarlo por fecha descendente
+      const fechasOrdenadas = Object.keys(montosPorFecha).sort((a, b) => {
+        const fechaA = new Date(a.split('/').reverse().join('/')).getTime();
+        const fechaB = new Date(b.split('/').reverse().join('/')).getTime();
+        return fechaB - fechaA; // Orden descendente (más reciente primero)
+      });
 
-      // Mostrar el monto total del día en el div
-      diaDiv.innerHTML += `<p>Monto total de hoy: $${montoTotalHoy.toFixed(2)}</p>`;
+      // Crear las opciones del filtro de fechas
+      const filtroDia = document.getElementById('nuevo-select-dia');
+      filtroDia.innerHTML = ''; // Limpiar las opciones anteriores
+      fechasOrdenadas.forEach(fecha => {
+        const option = document.createElement('option');
+        option.value = fecha;
+        option.innerText = fecha;
+        filtroDia.appendChild(option);
+      });
 
-      // Si no hay montos, mostrar mensaje de que no hay actividades para hoy
-      if (montoTotalHoy === 0) {
-        diaDiv.innerHTML += '<p>No se registraron montos para hoy.</p>';
-      }
+      // Mostrar los montos agrupados por fecha en el contenedor
+      fechasOrdenadas.forEach(fecha => {
+        const montoBrutoTotal = montosPorFecha[fecha];
+        const montoNetoTotal = montoBrutoTotal * 0.40; // Calcular el monto neto como el 40%
+
+        // Crear un contenedor para mostrar la fecha y los montos
+        const fechaContainer = document.createElement('div');
+        fechaContainer.className = 'fecha-item';
+
+        fechaContainer.innerHTML = `
+          <h4>Montos para el día ${fecha}:</h4>
+          <p>Monto bruto total: ${formatoMoneda(montoBrutoTotal)}</p>
+          <p>Monto neto total: ${formatoMoneda(montoNetoTotal)}</p>
+        `;
+
+        // Añadir el contenedor al montosContainer
+        montosContainer.appendChild(fechaContainer);
+      });
     } else {
-      diaDiv.innerHTML += '<p>No hay datos disponibles para hoy.</p>';
+      montosContainer.innerHTML = '<p>No hay datos disponibles en la base de datos.</p>';
     }
   });
 }
 
-// Función para alternar la visibilidad del contenedor de montos de hoy
-function toggleMontosHoy() {
-  const montosHoyContainer = document.getElementById('montos-hoy-container');
-  if (montosHoyContainer.style.display === 'none') {
-    montosHoyContainer.style.display = 'block';
-    mostrarMontosDeHoy(); // Cargar los montos de hoy al mostrar el contenedor
-  } else {
-    montosHoyContainer.style.display = 'none';
-  }
+// Función para formatear los montos con separador de miles y símbolo de moneda
+function formatoMoneda(monto) {
+  return `$${monto.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }
 
-// Añadir evento al botón para mostrar/ocultar los montos de hoy
-document.getElementById('mostrar-montos-hoy-btn').addEventListener('click', toggleMontosHoy);
+// Filtro: Mostrar montos solo para la fecha seleccionada
+document.getElementById('obtener-montos-btn').addEventListener('click', () => {
+  const filtroDia = document.getElementById('nuevo-select-dia').value;
+  filtrarPorFecha(filtroDia);
+});
+
+// Función para filtrar y mostrar los montos de la fecha seleccionada
+function filtrarPorFecha(fechaSeleccionada) {
+  const montosContainer = document.getElementById('montos-container');
+  montosContainer.innerHTML = ''; // Limpiar el contenedor de montos anteriores
+
+  const actividadRef = ref(db, 'actividad');
+  const montosPorFecha = {};
+
+  onValue(actividadRef, (snapshot) => {
+    const actividad = snapshot.val();
+
+    if (actividad) {
+      Object.keys(actividad).forEach(anio => {
+        Object.keys(actividad[anio]).forEach(mes => {
+          const locales = actividad[anio][mes];
+
+          Object.values(locales).forEach(local => {
+            const fechaModificacion = local.fechaModificacion;
+
+            if (fechaModificacion) {
+              const fechaKey = fechaModificacion.split(', ')[0];
+
+              if (fechaKey === fechaSeleccionada) {
+                if (!montosPorFecha[fechaKey]) {
+                  montosPorFecha[fechaKey] = 0;
+                }
+                montosPorFecha[fechaKey] += parseFloat(local.costo);
+              }
+            }
+          });
+        });
+      });
+
+      // Mostrar el monto de la fecha seleccionada
+      if (montosPorFecha[fechaSeleccionada]) {
+        const montoBrutoTotal = montosPorFecha[fechaSeleccionada];
+        const montoNetoTotal = montoBrutoTotal * 0.40;
+
+        const fechaContainer = document.createElement('div');
+        fechaContainer.className = 'fecha-item';
+
+        fechaContainer.innerHTML = `
+          <h4>Montos para el día ${fechaSeleccionada}:</h4>
+          <p>Monto bruto total: ${formatoMoneda(montoBrutoTotal)}</p>
+          <p>Monto neto total: ${formatoMoneda(montoNetoTotal)}</p>
+        `;
+
+        montosContainer.appendChild(fechaContainer);
+      } else {
+        montosContainer.innerHTML = `<p>No hay montos para la fecha seleccionada (${fechaSeleccionada}).</p>`;
+      }
+    }
+  });
+}
 
 
 
+
+
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 
 // Función para ocultar locales recientes que ya están en "Actividad" el mismo día
 function ocultarLocalesRecientesDuplicados() {
@@ -420,18 +656,48 @@ function toggleLocalesOcultos() {
 }
 
 
+
+
+
 // Función para cargar y mostrar los locales ocultos
+// Función para cargar y mostrar los locales ocultos, ordenados por fecha de modificación
 function mostrarLocalesOcultos() {
   const ocultosContainer = document.getElementById('ocultos-container');
 
   onValue(localesRef, (snapshot) => {
       ocultosContainer.innerHTML = ''; // Limpiar el contenedor de ocultos
-      const locales = snapshot.val();
+      let locales = snapshot.val();
 
       if (locales) {
-          Object.values(locales).forEach(local => {
-              if (local.estado === 'realizado' || local.estado === 'problema') {
+          // Convertir el objeto locales a un array
+          locales = Object.values(locales);
 
+          // Función para convertir la fecha en formato "DD/MM/YYYY, HH:mm:ss a.m./p.m." a timestamp
+          const convertirFecha = (fechaStr) => {
+              if (!fechaStr) return 0; // Si no hay fecha, retorna 0
+              
+              const [fecha, hora] = fechaStr.split(', ');
+              const [dia, mes, anio] = fecha.split('/').map(Number);
+              let [tiempo, periodo] = hora.split(' ');
+              let [horas, minutos, segundos] = tiempo.split(':').map(Number);
+
+              // Convertir a formato de 24 horas
+              if (periodo === 'p.m.' && horas !== 12) horas += 12;
+              if (periodo === 'a.m.' && horas === 12) horas = 0;
+
+              return new Date(anio, mes - 1, dia, horas, minutos, segundos).getTime();
+          };
+
+          // Ordenar los locales por la fecha de modificación (de más reciente a más antiguo)
+          locales.sort((a, b) => {
+              const fechaA = convertirFecha(a.fechaModificacion);
+              const fechaB = convertirFecha(b.fechaModificacion);
+              return fechaB - fechaA; // Orden descendente
+          });
+
+          // Filtrar y mostrar los locales ocultos
+          locales.forEach(local => {
+              if (local.estado === 'realizado' || local.estado === 'problema') {
                   const ocultarRef = ref(db, `ocultos/${local.id}`);
 
                   get(ocultarRef).then(ocultarSnapshot => {
@@ -470,8 +736,29 @@ function mostrarLocalesOcultos() {
   });
 }
 
+
 // Llamar a la función para configurar el botón de mostrar/ocultar locales ocultos
 toggleLocalesOcultos();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -487,7 +774,7 @@ document.querySelectorAll('.mes-btn').forEach(button => {
         document.getElementById('titulo-mes').scrollIntoView({
           behavior: 'smooth'
         });
-      }, 500); // El valor de 500 ms puede ajustarse si es necesario
+      }, 600); // El valor de 500 ms puede ajustarse si es necesario
       firstClick = false; // Establecer a false después del primer clic
     } else {
       document.getElementById('titulo-mes').scrollIntoView({
