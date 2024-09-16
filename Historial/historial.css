@@ -402,6 +402,28 @@ main {
 
 /* Estilos generales para dispositivos pequeños (celulares) */
 @media (max-width: 480px) {
+  /* Estilo del botón flotante */
+  .scroll-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  /* Estilo para el botón "Ver montos por día" */
+  #ver-montos-btn {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  /* Estilo para los elementos de fecha */
+  .fecha-item h4 {
+    font-size: 14px;
+  }
+
+  .fecha-item p {
+    font-size: 12px;
+  }
+  
   header {
     padding: 15px;
     text-align: center;
@@ -462,6 +484,53 @@ main {
 
 /* Estilos para dispositivos medianos (tablets) */
 @media (max-width: 768px) {
+
+  .scroll-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  /* Estilo para el botón "Ver montos por día" */
+  #ver-montos-btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  /* Estilo para el contenedor de montos */
+  #montos-container {
+    padding: 10px;
+  }
+
+  /* Estilo para los elementos de fecha */
+  .fecha-item {
+    padding: 10px;
+  }
+
+  .fecha-item h4 {
+    font-size: 16px;
+  }
+
+  .fecha-item p {
+    font-size: 14px;
+  }
+
+  /* Estilo para el contenedor de filtro de fechas */
+  #opciones-fecha-container {
+    margin-bottom: 10px;
+  }
+
+  #opciones-fecha-container select {
+    width: 100%;
+    padding: 8px;
+  }
+
+  #opciones-fecha-container button {
+    width: 100%;
+    padding: 10px;
+    margin-left: 0; /* Resetear margen para pantalla pequeña */
+  }
   #meses-container {
     justify-content: space-around;
   }
