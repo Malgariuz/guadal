@@ -497,8 +497,7 @@ function limpiarFormulario() {
 }
 
 // Variable de control para mostrar solo desinfectados o todos
-// Variable de control para mostrar solo desinfectados o todos
-let mostrandoSoloDesinfectados = false;
+
 
 // Función para cambiar el estado del local
 async function cambiarEstado(selectElement) {
@@ -536,36 +535,55 @@ async function cambiarEstado(selectElement) {
     actualizarContadores();
 }
 
-// Evento para alternar entre mostrar solo los desinfectados y todos los locales
-document.getElementById('desinfectados').addEventListener('click', () => {
-    const todosLosLocales = document.querySelectorAll('.local');
-    const contadorElement = document.getElementById('contador-locales-realizados');
-    let contadorRealizados = 0;
+let mostrandoSoloDesinfectados = false;
 
-    if (mostrandoSoloDesinfectados) {
-        // Restaurar todos los locales a su estado original
-        todosLosLocales.forEach(local => {
-            const displayOriginal = local.getAttribute('data-display-original');
-            local.style.display = displayOriginal || '';
-        });
-        mostrandoSoloDesinfectados = false;
-        contadorElement.textContent = ''; // Ocultar contador cuando no se filtran locales
-    } else {
-        // Mostrar solo los locales realizados
-        todosLosLocales.forEach(local => {
-            if (!local.classList.contains('realizado')) {
-                // Guardar el valor original de display antes de ocultar
-                local.setAttribute('data-display-original', local.style.display);
-                local.style.display = 'none';
-            } else {
-                local.style.display = local.getAttribute('data-display-original') || '';
-                contadorRealizados++;
-            }
-        });
-        mostrandoSoloDesinfectados = true;
-        contadorElement.textContent = `Locales Desinfectados: ${contadorRealizados}`; // Mostrar contador
-    }
-});
+    // Evento para alternar entre mostrar solo los desinfectados y todos los locales
+    document.getElementById('desinfectados').addEventListener('click', () => {
+        const todosLosLocales = document.querySelectorAll('.local');
+        const contadorElement = document.getElementById('contador-locales-realizados');
+        const contadorRestantesElement = document.getElementById('contador-locales-restantes');
+        const porcentajeCompletadoElement = document.getElementById('porcentaje-completado');
+        const barraProgreso = document.getElementById('barra-progreso');
+        let contadorRealizados = 0;
+        let totalLocales = todosLosLocales.length;
+
+        if (mostrandoSoloDesinfectados) {
+            // Restaurar todos los locales a su estado original
+            todosLosLocales.forEach(local => {
+                const displayOriginal = local.getAttribute('data-display-original');
+                local.style.display = displayOriginal || '';
+            });
+            mostrandoSoloDesinfectados = false;
+            contadorElement.textContent = ''; // Ocultar contador cuando no se filtran locales
+            contadorRestantesElement.textContent = ''; // Ocultar contador de restantes
+            porcentajeCompletadoElement.textContent = ''; // Ocultar porcentaje completado
+            barraProgreso.style.width = '0'; // Reiniciar barra de progreso
+        } else {
+            // Mostrar solo los locales realizados
+            todosLosLocales.forEach(local => {
+                if (!local.classList.contains('realizado')) {
+                    // Guardar el valor original de display antes de ocultar
+                    local.setAttribute('data-display-original', local.style.display);
+                    local.style.display = 'none';
+                } else {
+                    local.style.display = local.getAttribute('data-display-original') || '';
+                    contadorRealizados++;
+                }
+            });
+            mostrandoSoloDesinfectados = true;
+
+            // Actualizar los contadores
+            let localesRestantes = totalLocales - contadorRealizados;
+            let porcentajeCompletado = Math.round((contadorRealizados / totalLocales) * 100);
+
+            contadorElement.textContent = `Locales Desinfectados: ${contadorRealizados}`;
+            contadorRestantesElement.textContent = `Locales Restantes por Desinfectar: ${localesRestantes}`;
+            porcentajeCompletadoElement.textContent = `Porcentaje Completado: ${porcentajeCompletado}%`;
+
+            // Actualizar la barra de progreso
+            barraProgreso.style.width = `${porcentajeCompletado}%`;
+        }
+    });
 
 let mostrandoSoloConProblema = false;
 
