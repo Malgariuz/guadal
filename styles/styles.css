@@ -644,6 +644,7 @@ select:focus {
   /* Header */
   header {
     padding: 10px;
+    width: 95%;
   }
 
   #botones-container {
