@@ -597,7 +597,7 @@ select:focus {
 @media (max-width: 768px) {
   /* Header */
   header {
-    padding: 15px;
+    padding: 16px;
   }
 
   #header {
