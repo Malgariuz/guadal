@@ -603,6 +603,7 @@ select:focus {
   #header {
     display: flex;
     flex-direction: column;
+    width: 95%;
     align-items: center;}
 
     #botones-container {
@@ -644,6 +645,10 @@ select:focus {
   /* Header */
   header {
     padding: 10px;
+    width: 95%;
+  }
+  #header {
+  
     width: 95%;
   }
 
