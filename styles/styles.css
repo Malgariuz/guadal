@@ -622,6 +622,21 @@ select:focus {
   header {
     padding: 16px;
   }
+    body {
+    padding: 10px; /* Reduce el padding en pantallas pequeñas */
+    font-size: 0.9em; /* Ajusta el tamaño de la fuente */
+  }
+
+  body::before {
+    background: repeating-linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px,
+      transparent 4px
+    ); /* Reduce el espaciado de las líneas en pantallas pequeñas */
+  }
+
 
   #header {
     display: flex;
@@ -712,7 +727,8 @@ select:focus {
 
   /* General layout adjustments */
   body {
-    padding: 5px;
+    padding: 5px; /* Aún menos padding en pantallas muy pequeñas */
+    font-size: 0.8em; /* Reduce un poco más el tamaño de la fuente */
   }
 
   .centrado{
