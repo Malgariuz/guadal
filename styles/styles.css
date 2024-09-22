@@ -691,6 +691,10 @@ select:focus {
   body {
     padding: 5px;
   }
+
+  .centrado{
+    width: 95%;
+  }
 }
 
 @media (min-width: 1281px) {
