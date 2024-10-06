@@ -113,6 +113,12 @@
 
             <!-- Botón para obtener montos del día actual -->
             <button id="montos-hoy-btn" class="mes-btn">Ver montos de hoy</button>
+            <div id="contadores-container" style="display:none;">
+                <p id="total-bruto"></p>
+                <p id="total-neto"></p>
+                
+              </div>
+              
         </div>
 
         <!-- Contenedor para mostrar los montos totales -->
@@ -139,6 +145,8 @@
         <div id="actividad-container">
             <!-- Aquí se cargarán las actividades desde Firebase -->
         </div>
+        <div id="boton-container"></div>
+
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app.js"></script>

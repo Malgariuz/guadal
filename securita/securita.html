@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captura Foto y Ubicación</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        #container {
+            text-align: center;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        video, img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ccc;
+            margin-bottom: 10px;
+        }
+        #location {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <h1>Capturar Foto y Ubicación</h1>
+        <video id="video" autoplay></video>
+        <img id="photo" alt="Foto capturada" style="display: none;">
+        <p id="location">Obteniendo ubicación...</p>
+    </div>
+
+    <script>
+        // Capturar la cámara
+        const video = document.getElementById('video');
+        const photo = document.getElementById('photo');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            video.srcObject = stream;
+            setTimeout(() => {
+                capturePhoto(); // Capturar la foto automáticamente después de 2 segundos
+            }, 2000);
+        })
+        .catch(err => {
+            console.error("Error al acceder a la cámara: " + err);
+        });
+
+        // Función para capturar la foto
+        function capturePhoto() {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataURL = canvas.toDataURL('image/png');
+            photo.src = dataURL;
+            photo.style.display = 'block';
+            video.style.display = 'none';
+        }
+
+        // Obtener la ubicación
+        const locationElement = document.getElementById('location');
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                locationElement.innerHTML = `Ubicación: Latitud: ${lat}, Longitud: ${lon}`;
+            }, error => {
+                locationElement.innerHTML = 'No se pudo obtener la ubicación';
+            });
+        } else {
+            locationElement.innerHTML = 'Geolocalización no soportada en este navegador.';
+        }
+    </script>
+</body>
+</html>

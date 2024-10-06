@@ -37,6 +37,28 @@ header {
   transform: translateY(-2px);
 }
 
+
+/* Estilo para el botón de mostrar todos los locales ocultos */
+#boton-mostrar-locales {
+  padding: 10px 20px;
+  background-color: #ff9800;  /* Color de fondo verde */
+  color: white;  /* Texto en blanco */
+  border: none;  /* Sin borde */
+  border-radius: 5px;  /* Bordes redondeados */
+  font-size: 16px;  /* Tamaño de fuente */
+  cursor: pointer;  /* Cambia el cursor a "pointer" al pasar sobre el botón */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);  /* Sombra para darle profundidad */
+  margin-top: 20px;  /* Espacio superior */
+  transition: background-color 0.3s ease;  /* Transición suave al cambiar de color */
+}
+
+/* Efecto hover (cuando se pasa el mouse sobre el botón) */
+#boton-mostrar-locales:hover {
+  background-color:  #e68a00;  /* Color verde más oscuro */
+}
+
+
+
 #anio-container {
   display: flex;
   justify-content: center;

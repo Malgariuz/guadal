@@ -25,138 +25,150 @@ const localesRef = ref(db, 'locales');
 
 
 
-
 // Función para cargar y mostrar locales en la sección "Recientes"
 function cargarLocales() {
   const recienteContainer = document.getElementById('reciente-container');
   const desinfectadosContainer = document.getElementById('desinfectados');
 
   onValue(localesRef, (snapshot) => {
-      recienteContainer.innerHTML = ''; // Limpiar el contenedor de recientes
-      desinfectadosContainer.innerHTML = ''; // Limpiar el contenedor de desinfectados
-      const locales = snapshot.val();
+    recienteContainer.innerHTML = ''; // Limpiar el contenedor de recientes
+    desinfectadosContainer.innerHTML = ''; // Limpiar el contenedor de desinfectados
 
-      if (locales) {
-          Object.values(locales).forEach(local => {
-              if (local.estado === 'realizado' || local.estado === 'problema') {
+    let locales = snapshot.val();
 
-                  const ocultarRef = ref(db, `ocultos/${local.id}`);
+    if (locales) {
+      // Convertir el objeto locales a un array para facilitar el orden
+      locales = Object.values(locales);
 
-                  get(ocultarRef).then(ocultarSnapshot => {
-                      if (ocultarSnapshot.exists() && ocultarSnapshot.val() === true) {
-                          return; // Si el local está oculto, no lo mostramos
-                      }
+      // Función para convertir la fecha en un timestamp comparable
+      const convertirFecha = (fechaStr) => {
+        if (!fechaStr) return 0;
+        const [fecha, hora] = fechaStr.split(', ');
+        const [dia, mes, anio] = fecha.split('/').map(Number);
+        let [tiempo, periodo] = hora.split(' ');
+        let [horas, minutos, segundos] = tiempo.split(':').map(Number);
+        if (periodo === 'p.m.' && horas !== 12) horas += 12;
+        if (periodo === 'a.m.' && horas === 12) horas = 0;
+        return new Date(anio, mes - 1, dia, horas, minutos, segundos).getTime();
+      };
 
-                      const localItem = document.createElement('div');
-                      localItem.className = 'local-item';
-                      localItem.setAttribute('data-id', local.id);
+      // Ordenar los locales por la fecha de modificación (descendente)
+      locales.sort((a, b) => {
+        const fechaA = convertirFecha(a.fechaModificacion);
+        const fechaB = convertirFecha(b.fechaModificacion);
+        return fechaB - fechaA;
+      });
 
-                      // Mostrar la fecha de modificación si existe
-                      const fechaStr = local.fechaModificacion || 'No modificado';
+      locales.forEach(local => {
+        if (local.estado === 'realizado' || local.estado === 'problema') {
+          const ocultarRef = ref(db, `ocultos/${local.id}`);
 
-                      localItem.innerHTML = `
-                          <h4 style="margin: 0 0 5px 0;">${local.nombre}</h4>
-                          <p style="margin: 5px 0;">Dirección: ${local.direccion}</p>
-                          <p style="margin: 5px 0;">Costo: ${local.costo}</p>
-                          <p style="margin: 5px 0;">Tipo de Factura: ${local.factura}</p>
-                          <p style="margin: 5px 0;">Número de Finca: ${local.numeroFinca}</p>
-                          <p style="margin: 5px 0;">Estado Actual: ${local.estado}</p>
-                          <p style="margin: 5px 0;">Mes y Tasa: ${local.mesTasa || 'N/A'}</p>
-                          <p style="margin: 5px 0;">Notas: ${local.notas || 'Sin notas'}</p>
-                          <p style="margin: 5px 0; color: gray;">Fecha de la desinfeccion: ${fechaStr}</p>
-                          <button class="edit-btn">Editar</button>
-                          <button class="hide-btn">Ocultar</button>
-                          <div class="edit-fields" style="display: none;">
-                              <label>Monto: <input type="text" class="costo-input" value="${local.costo}"></label>
-                              <label>Mes: 
-                                  <select class="mes-select">
-                                      <option value="enero" ${local.mesTasa?.includes('enero') ? 'selected' : ''}>Enero</option>
-                                      <option value="febrero" ${local.mesTasa?.includes('febrero') ? 'selected' : ''}>Febrero</option>
-                                      <option value="marzo" ${local.mesTasa?.includes('marzo') ? 'selected' : ''}>Marzo</option>
-                                      <option value="abril" ${local.mesTasa?.includes('abril') ? 'selected' : ''}>Abril</option>
-                                      <option value="mayo" ${local.mesTasa?.includes('mayo') ? 'selected' : ''}>Mayo</option>
-                                      <option value="junio" ${local.mesTasa?.includes('junio') ? 'selected' : ''}>Junio</option>
-                                      <option value="julio" ${local.mesTasa?.includes('julio') ? 'selected' : ''}>Julio</option>
-                                      <option value="agosto" ${local.mesTasa?.includes('agosto') ? 'selected' : ''}>Agosto</option>
-                                      <option value="septiembre" ${local.mesTasa?.includes('septiembre') ? 'selected' : ''}>Septiembre</option>
-                                      <option value="octubre" ${local.mesTasa?.includes('octubre') ? 'selected' : ''}>Octubre</option>
-                                      <option value="noviembre" ${local.mesTasa?.includes('noviembre') ? 'selected' : ''}>Noviembre</option>
-                                      <option value="diciembre" ${local.mesTasa?.includes('diciembre') ? 'selected' : ''}>Diciembre</option>
-                                  </select>
-                              </label>
-                              <label>Año: 
-                                  <select class="anio-select">
-                                      <option value="2024" ${local.mesTasa?.includes('2024') ? 'selected' : ''}>2024</option>
-                                      <option value="2025" ${local.mesTasa?.includes('2025') ? 'selected' : ''}>2025</option>
-                                      <option value="2026" ${local.mesTasa?.includes('2026') ? 'selected' : ''}>2026</option>
-                                      <option value="2027" ${local.mesTasa?.includes('2027') ? 'selected' : ''}>2027</option>
-                                  </select>
-                              </label>
-                              <label>Tasas: <input type="text" class="tasas-input" value="${local.tasas || ''}"></label>
-                              <label>Notas: <textarea class="notas-input">${local.notas || ''}</textarea></label>
-                              <button class="save-btn">Guardar</button>
-                          </div>
-                      `;
+          get(ocultarRef).then(ocultarSnapshot => {
+            if (ocultarSnapshot.exists() && ocultarSnapshot.val() === true) {
+              return; // Si el local está oculto, no lo mostramos
+            }
 
-                      // Agregar event listener para el botón Editar
-                      localItem.querySelector('.edit-btn').addEventListener('click', () => {
-                          const editFields = localItem.querySelector('.edit-fields');
-                          editFields.style.display = editFields.style.display === 'none' ? 'block' : 'none';
-                      });
+            const localItem = document.createElement('div');
+            localItem.className = 'local-item';
+            localItem.setAttribute('data-id', local.id);
 
-                      // Agregar event listener para el botón Guardar
-                      localItem.querySelector('.save-btn').addEventListener('click', () => {
-                          const newCosto = localItem.querySelector('.costo-input').value;
-                          const newMes = localItem.querySelector('.mes-select').value;
-                          const newAnio = localItem.querySelector('.anio-select').value;
-                          const newTasas = localItem.querySelector('.tasas-input').value;
-                          const newNotas = localItem.querySelector('.notas-input').value;
+            // Estilos para facturas tipo A
+            if (local.factura === 'A') {
+              localItem.style.backgroundColor = 'rgba(0, 128, 0, 0.5)';
+              localItem.style.color = 'blue';
+            }
 
-                          location.reload();
+            // Mostrar la fecha de modificación
+            const fechaStr = local.fechaModificacion || 'No modificado';
 
-                          // Obtener la fecha y hora actual
-                          const fechaModificacion = new Date().toLocaleString();
-                          
-                          // Guardar en la nueva sección "actividad" con la estructura Año > Mes > Local
-                          const actividadRef = ref(db, `actividad/${newAnio}/${newMes}/${local.id}`);
-                          set(actividadRef, {
-                              nombre: local.nombre,
-                              direccion: local.direccion,
-                              costo: newCosto,
-                              factura: local.factura,
-                              numeroFinca: local.numeroFinca,
-                              estado: local.estado,
-                              tasas: newTasas,
-                              notas: newNotas,
-                              fechaModificacion: fechaModificacion // Guardar la fecha y hora de modificación
-                          }).then(() => {
-                              // Eliminar el local de la sección "Locales Recientes"
-                              remove(ref(db, `locales/${local.id}`));
-                              localItem.remove(); // Remover el elemento de la interfaz
+            localItem.innerHTML = `
+              <h4 style="margin: 0 0 5px 0;">${local.nombre}</h4>
+              <p style="margin: 5px 0;">Dirección: ${local.direccion}</p>
+              <p style="margin: 5px 0;">Costo: ${local.costo}</p>
+              <p style="margin: 5px 0;">Tipo de Factura: ${local.factura}</p>
+              <p style="margin: 5px 0;">Número de Finca: ${local.numeroFinca}</p>
+              <p style="margin: 5px 0;">Estado Actual: ${local.estado}</p>
+              <p style="margin: 5px 0;">Mes y Tasa: ${local.mesTasa || 'N/A'}</p>
+              <p style="margin: 5px 0;">Notas: ${local.notas || 'Sin notas'}</p>
+              <p style="margin: 5px 0; color: gray;">Fecha de la desinfección: ${fechaStr}</p>
+              <button class="edit-btn">Editar</button>
+              <button class="hide-btn">Ocultar</button>
+              <div class="edit-fields" style="display: none;">
+                  <label>Monto: <input type="text" class="costo-input" value="${local.costo}"></label>
+                  <label>Mes: 
+                      <select class="mes-select">
+                          <option value="enero" ${local.mesTasa?.includes('enero') ? 'selected' : ''}>Enero</option>
+                          <option value="febrero" ${local.mesTasa?.includes('febrero') ? 'selected' : ''}>Febrero</option>
+                          <!-- Opciones restantes -->
+                      </select>
+                  </label>
+                  <label>Año: 
+                      <select class="anio-select">
+                          <option value="2024" ${local.mesTasa?.includes('2024') ? 'selected' : ''}>2024</option>
+                          <!-- Opciones restantes -->
+                      </select>
+                  </label>
+                  <label>Tasas: <input type="text" class="tasas-input" value="${local.tasas || ''}"></label>
+                  <label>Notas: <textarea class="notas-input">${local.notas || ''}</textarea></label>
+                  <button class="save-btn">Guardar</button>
+              </div>
+            `;
 
-                              // Mover el local al contenedor de "Locales Desinfectados"
-                              desinfectadosContainer.appendChild(localItem);
-                          });
-                      });
+            // Agregar event listener para el botón Editar
+            localItem.querySelector('.edit-btn').addEventListener('click', () => {
+              const editFields = localItem.querySelector('.edit-fields');
+              editFields.style.display = editFields.style.display === 'none' ? 'block' : 'none';
+            });
 
-                      // Event listener para el botón Ocultar
-                      localItem.querySelector('.hide-btn').addEventListener('click', () => {
-                          set(ocultarRef, true).then(() => {
-                              localItem.style.display = 'none';
-                          });
-                      });
+            // Agregar event listener para el botón Guardar
+            localItem.querySelector('.save-btn').addEventListener('click', () => {
+              const newCosto = localItem.querySelector('.costo-input').value;
+              const newMes = localItem.querySelector('.mes-select').value;
+              const newAnio = localItem.querySelector('.anio-select').value;
+              const newTasas = localItem.querySelector('.tasas-input').value;
+              const newNotas = localItem.querySelector('.notas-input').value;
 
-                      recienteContainer.appendChild(localItem);
-                  });
-              }
+              const fechaModificacion = new Date().toLocaleString();
+
+              const actividadRef = ref(db, `actividad/${newAnio}/${newMes}/${local.id}`);
+              set(actividadRef, {
+                nombre: local.nombre,
+                direccion: local.direccion,
+                costo: newCosto,
+                factura: local.factura,
+                numeroFinca: local.numeroFinca,
+                estado: local.estado,
+                tasas: newTasas,
+                notas: newNotas,
+                fechaModificacion: fechaModificacion
+              }).then(() => {
+                remove(ref(db, `locales/${local.id}`));
+                localItem.remove();
+                desinfectadosContainer.appendChild(localItem);
+              });
+            });
+
+            localItem.querySelector('.hide-btn').addEventListener('click', () => {
+              set(ocultarRef, true).then(() => {
+                localItem.style.display = 'none';
+              });
+            });
+
+            recienteContainer.appendChild(localItem);
           });
-      }
+        }
+      });
+    }
   });
 }
 
-
 // Llamar a la función para cargar los locales al iniciar la página
 cargarLocales();
+
+
+
+
+
 
 
 
@@ -404,21 +416,30 @@ scrollBtn.addEventListener('click', () => {
 // Función para cargar los años, meses y días disponibles desde la base de datos
 let listaVisible = false; // Variable para rastrear si la lista está visible o no
 
+// Variables globales para los contadores
+let totalMontoBruto = 0;
+let totalMontoNeto = 0;
+let montoBrutoMes = 0;
+let montoNetoMes = 0;
+
 // Función que se ejecuta al hacer clic en "Ver montos por día"
 document.getElementById('ver-montos-btn').addEventListener('click', () => {
   const montosContainer = document.getElementById('montos-container');
   const opcionesFechaContainer = document.getElementById('opciones-fecha-container');
-  
+  const contadoresContainer = document.getElementById('contadores-container'); // Contenedor para mostrar los contadores
+
   // Alternar visibilidad de la lista
   if (!listaVisible) {
     cargarMontosAgrupadosPorFecha();
     montosContainer.style.display = 'block'; // Mostrar el contenedor de montos
     opcionesFechaContainer.style.display = 'block'; // Mostrar el filtro
+    contadoresContainer.style.display = 'block'; // Mostrar los contadores
     listaVisible = true;
   } else {
     montosContainer.innerHTML = ''; // Limpiar la lista
     montosContainer.style.display = 'none'; // Ocultar el contenedor de montos
     opcionesFechaContainer.style.display = 'none'; // Ocultar el filtro
+    contadoresContainer.style.display = 'none'; // Ocultar los contadores
     listaVisible = false;
   }
 });
@@ -426,11 +447,14 @@ document.getElementById('ver-montos-btn').addEventListener('click', () => {
 // Función para cargar los montos agrupados por fecha
 function cargarMontosAgrupadosPorFecha() {
   const montosContainer = document.getElementById('montos-container');
+  const contadoresContainer = document.getElementById('contadores-container');
   montosContainer.innerHTML = ''; // Limpiar el contenedor de montos anteriores
+  totalMontoBruto = 0; // Reiniciar el contador global
+  totalMontoNeto = 0;
 
   const actividadRef = ref(db, 'actividad'); // Referencia a la actividad en la base de datos
-
   const montosPorFecha = {}; // Objeto para agrupar los montos por fecha
+  const montosPorMes = {}; // Objeto para agrupar montos por mes completo
 
   onValue(actividadRef, (snapshot) => {
     const actividad = snapshot.val(); // Obtener todos los locales
@@ -440,6 +464,11 @@ function cargarMontosAgrupadosPorFecha() {
       Object.keys(actividad).forEach(anio => {
         Object.keys(actividad[anio]).forEach(mes => {
           const locales = actividad[anio][mes];
+
+          // Inicializar las variables para el mes actual
+          if (!montosPorMes[`${anio}-${mes}`]) {
+            montosPorMes[`${anio}-${mes}`] = { bruto: 0, neto: 0 };
+          }
 
           // Recorrer todos los locales del mes
           Object.values(locales).forEach(local => {
@@ -456,6 +485,14 @@ function cargarMontosAgrupadosPorFecha() {
 
               // Sumar el costo del local al monto bruto total de esa fecha
               montosPorFecha[fechaKey] += parseFloat(local.costo);
+
+              // Sumar al total global bruto y neto
+              totalMontoBruto += parseFloat(local.costo);
+              totalMontoNeto += parseFloat(local.costo) * 0.40; // Calcular el monto neto como el 40%
+
+              // Sumar al total bruto y neto del mes correspondiente
+              montosPorMes[`${anio}-${mes}`].bruto += parseFloat(local.costo);
+              montosPorMes[`${anio}-${mes}`].neto += parseFloat(local.costo) * 0.40;
             }
           });
         });
@@ -496,6 +533,12 @@ function cargarMontosAgrupadosPorFecha() {
         // Añadir el contenedor al montosContainer
         montosContainer.appendChild(fechaContainer);
       });
+
+      // Mostrar los montos totales globales en los contadores
+      const totalBrutoContainer = document.getElementById('total-bruto');
+      const totalNetoContainer = document.getElementById('total-neto');
+      totalBrutoContainer.innerHTML = `Monto bruto total: ${formatoMoneda(totalMontoBruto)}`;
+      totalNetoContainer.innerHTML = `Monto neto total: ${formatoMoneda(totalMontoNeto)}`;
     } else {
       montosContainer.innerHTML = '<p>No hay datos disponibles en la base de datos.</p>';
     }
@@ -513,10 +556,12 @@ document.getElementById('obtener-montos-btn').addEventListener('click', () => {
   filtrarPorFecha(filtroDia);
 });
 
-// Función para filtrar y mostrar los montos de la fecha seleccionada
+// Función para filtrar y mostrar los montos de la fecha seleccionada y el mes correspondiente
 function filtrarPorFecha(fechaSeleccionada) {
   const montosContainer = document.getElementById('montos-container');
   montosContainer.innerHTML = ''; // Limpiar el contenedor de montos anteriores
+  montoBrutoMes = 0; // Reiniciar el contador para el mes y año seleccionados
+  montoNetoMes = 0;
 
   const actividadRef = ref(db, 'actividad');
   const montosPorFecha = {};
@@ -525,6 +570,8 @@ function filtrarPorFecha(fechaSeleccionada) {
     const actividad = snapshot.val();
 
     if (actividad) {
+      const [diaSeleccionado, mesSeleccionado, anioSeleccionado] = fechaSeleccionada.split('/');
+
       Object.keys(actividad).forEach(anio => {
         Object.keys(actividad[anio]).forEach(mes => {
           const locales = actividad[anio][mes];
@@ -535,11 +582,19 @@ function filtrarPorFecha(fechaSeleccionada) {
             if (fechaModificacion) {
               const fechaKey = fechaModificacion.split(', ')[0];
 
+              // Filtrar montos por fecha seleccionada
               if (fechaKey === fechaSeleccionada) {
                 if (!montosPorFecha[fechaKey]) {
                   montosPorFecha[fechaKey] = 0;
                 }
                 montosPorFecha[fechaKey] += parseFloat(local.costo);
+              }
+
+              // Sumar montos del mes correspondiente
+              const [diaLocal, mesLocal, anioLocal] = fechaKey.split('/');
+              if (mesLocal === mesSeleccionado && anioLocal === anioSeleccionado) {
+                montoBrutoMes += parseFloat(local.costo);
+                montoNetoMes += parseFloat(local.costo) * 0.40;
               }
             }
           });
@@ -564,9 +619,17 @@ function filtrarPorFecha(fechaSeleccionada) {
       } else {
         montosContainer.innerHTML = `<p>No hay montos para la fecha seleccionada (${fechaSeleccionada}).</p>`;
       }
+
+      // Mostrar los montos filtrados del mes y año seleccionados
+      const mesBrutoContainer = document.getElementById('mes-bruto');
+      const mesNetoContainer = document.getElementById('mes-neto');
+      mesBrutoContainer.innerHTML = `Monto bruto del mes: ${formatoMoneda(montoBrutoMes)}`;
+      mesNetoContainer.innerHTML = `Monto neto del mes: ${formatoMoneda(montoNetoMes)}`;
     }
   });
 }
+
+
 
 
 
@@ -744,6 +807,75 @@ toggleLocalesOcultos();
 
 
 
+//---------------------------------------------------------------------------------------------------------------
+function verificarInicioDeMesYMostrarLocales() {
+  const ahora = new Date();
+  
+  // Verificar si es el primer día del mes
+  if (ahora.getDate() === 1) {
+      // Verificar si la hora actual está entre las 00:00 y las 00:15
+      const horas = ahora.getHours();
+      const minutos = ahora.getMinutes();
+      
+      if (horas === 0 && minutos <= 15) {
+          mostrarTodosLosLocales();  // Mostrar todos los locales ocultos
+      }
+  }
+}
+
+// Llama a la función al cargar la página
+verificarInicioDeMesYMostrarLocales();
+
+
+function mostrarTodosLosLocales() {
+  onValue(localesRef, (snapshot) => {
+      let locales = snapshot.val();
+
+      if (locales) {
+          locales = Object.values(locales);
+
+          locales.forEach(local => {
+              if (local.estado === 'realizado' || local.estado === 'problema') {
+                  const ocultarRef = ref(db, `ocultos/${local.id}`);
+                  
+                  // Cambiar el estado de "oculto" a "visible"
+                  get(ocultarRef).then(ocultarSnapshot => {
+                      if (ocultarSnapshot.exists() && ocultarSnapshot.val() === true) {
+                          set(ocultarRef, false);  // Quitar el ocultamiento del local
+                      }
+                  });
+              }
+          });
+      }
+  });
+}
+
+
+//---------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------
+
+
+function crearBotonMostrarLocales() {
+  const botonContainer = document.getElementById('boton-container'); // Asegúrate de tener un contenedor para el botón
+  const boton = document.createElement('button');
+  
+  boton.textContent = 'Mostrar todos los locales ocultos';
+  
+  // Asigna el ID o clase al botón para aplicar los estilos CSS
+  boton.id = 'boton-mostrar-locales';  // Usamos el ID 'boton-mostrar-locales'
+
+  // Función que se ejecuta al hacer clic
+  boton.addEventListener('click', () => {
+      mostrarTodosLosLocales();
+  });
+
+  // Agregar el botón al contenedor
+  botonContainer.appendChild(boton);
+}
+
+
+// Llama a la función para crear el botón cuando cargue la página
+crearBotonMostrarLocales();
 
 
 
