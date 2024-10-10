@@ -81,6 +81,9 @@ function cargarLocales() {
             // Mostrar la fecha de modificación
             const fechaStr = local.fechaModificacion || 'No modificado';
 
+            // Obtener el mes actual
+            const mesActual = new Date().toLocaleString('es-ES', { month: 'long' }).toLowerCase();
+
             localItem.innerHTML = `
               <h4 style="margin: 0 0 5px 0;">${local.nombre}</h4>
               <p style="margin: 5px 0;">Dirección: ${local.direccion}</p>
@@ -97,15 +100,29 @@ function cargarLocales() {
                   <label>Monto: <input type="text" class="costo-input" value="${local.costo}"></label>
                   <label>Mes: 
                       <select class="mes-select">
-                          <option value="enero" ${local.mesTasa?.includes('enero') ? 'selected' : ''}>Enero</option>
-                          <option value="febrero" ${local.mesTasa?.includes('febrero') ? 'selected' : ''}>Febrero</option>
-                          <!-- Opciones restantes -->
+                          <option value="enero" ${mesActual === 'enero' ? 'selected' : ''}>Enero</option>
+                          <option value="febrero" ${mesActual === 'febrero' ? 'selected' : ''}>Febrero</option>
+                          <option value="marzo" ${mesActual === 'marzo' ? 'selected' : ''}>Marzo</option>
+                          <option value="abril" ${mesActual === 'abril' ? 'selected' : ''}>Abril</option>
+                          <option value="mayo" ${mesActual === 'mayo' ? 'selected' : ''}>Mayo</option>
+                          <option value="junio" ${mesActual === 'junio' ? 'selected' : ''}>Junio</option>
+                          <option value="julio" ${mesActual === 'julio' ? 'selected' : ''}>Julio</option>
+                          <option value="agosto" ${mesActual === 'agosto' ? 'selected' : ''}>Agosto</option>
+                          <option value="septiembre" ${mesActual === 'septiembre' ? 'selected' : ''}>Septiembre</option>
+                          <option value="octubre" ${mesActual === 'octubre' ? 'selected' : ''}>Octubre</option>
+                          <option value="noviembre" ${mesActual === 'noviembre' ? 'selected' : ''}>Noviembre</option>
+                          <option value="diciembre" ${mesActual === 'diciembre' ? 'selected' : ''}>Diciembre</option>
                       </select>
                   </label>
                   <label>Año: 
                       <select class="anio-select">
                           <option value="2024" ${local.mesTasa?.includes('2024') ? 'selected' : ''}>2024</option>
-                          <!-- Opciones restantes -->
+                          <option value="2025" ${local.mesTasa?.includes('2025') ? 'selected' : ''}>2025</option>
+                          <option value="2026" ${local.mesTasa?.includes('2026') ? 'selected' : ''}>2026</option>
+                          <option value="2027" ${local.mesTasa?.includes('2027') ? 'selected' : ''}>2027</option>
+                          <option value="2028" ${local.mesTasa?.includes('2028') ? 'selected' : ''}>2028</option>
+                          <option value="2029" ${local.mesTasa?.includes('2029') ? 'selected' : ''}>2029</option>
+                          <option value="2030" ${local.mesTasa?.includes('2030') ? 'selected' : ''}>2030</option>
                       </select>
                   </label>
                   <label>Tasas: <input type="text" class="tasas-input" value="${local.tasas || ''}"></label>
@@ -142,9 +159,12 @@ function cargarLocales() {
                 notas: newNotas,
                 fechaModificacion: fechaModificacion
               }).then(() => {
-                remove(ref(db, `locales/${local.id}`));
-                localItem.remove();
-                desinfectadosContainer.appendChild(localItem);
+                window.location.reload(); // Recargar la página
+                // Eliminar el local de la referencia original
+                remove(ref(db, `locales/${local.id}`)).then(() => {
+                  // Recargar la página después de guardar los cambios
+                 
+                });
               });
             });
 
@@ -161,6 +181,9 @@ function cargarLocales() {
     }
   });
 }
+
+
+
 
 // Llamar a la función para cargar los locales al iniciar la página
 cargarLocales();
