@@ -216,96 +216,115 @@ function cargarLocalesPorMes(anio, mes) {
   contadorElement.innerText = ''; // Limpiar el contador de locales
   montoBrutoElement.innerText = ''; // Limpiar el contador de monto bruto
   montoNetoElement.innerText = ''; // Limpiar el contador de monto neto
-  
+
+  // Crear el input del buscador si no existe
+  let buscador = document.getElementById('buscador-locales');
+  if (!buscador) {
+    buscador = document.createElement('input');
+    buscador.id = 'buscador-locales';
+    buscador.type = 'text';
+    buscador.placeholder = 'Buscar local por nombre...';
+    actividadContainer.before(buscador); // Insertar el buscador antes del contenedor de actividad
+  }
+  buscador.value = ''; // Limpiar el buscador al cambiar de mes
+
   const mesRef = ref(db, `actividad/${anio}/${mes}`);
   let contadorLocales = 0; // Inicializar contador para todos los locales
   let montoBrutoTotal = 0; // Inicializar el monto bruto total
+  let locales = []; // Almacenar los locales para el filtrado
 
   // Actualiza el título con el mes seleccionado
   tituloMes.innerHTML = `Actividad de ${mes} (${anio})`;
 
   onValue(mesRef, (snapshot) => {
-    let locales = snapshot.val();
-    
-    if (locales) {
-      // Convertir el objeto a un array para facilitar el orden
-      locales = Object.values(locales);
+    locales = snapshot.val() ? Object.values(snapshot.val()) : [];
 
+    if (locales.length) {
       // Función para convertir la fecha en formato "DD/MM/YYYY, HH:mm:ss a.m./p.m." a un timestamp comparable
       const convertirFecha = (fechaStr) => {
-        if (!fechaStr) return 0; // Si no hay fecha, retorna 0 como valor por defecto (para ordenarlos al final)
+        if (!fechaStr) return 0; // Si no hay fecha, retorna 0 como valor por defecto
 
-        // Dividir la fecha y la hora
         const [fecha, hora] = fechaStr.split(', ');
-        const [dia, mes, anio] = fecha.split('/').map(Number); // Obtener día, mes y año
-        let [tiempo, periodo] = hora.split(' '); // Dividir el tiempo y el periodo (a.m./p.m.)
-        let [horas, minutos, segundos] = tiempo.split(':').map(Number); // Obtener horas, minutos, segundos
+        const [dia, mes, anio] = fecha.split('/').map(Number);
+        let [tiempo, periodo] = hora.split(' ');
+        let [horas, minutos, segundos] = tiempo.split(':').map(Number);
 
-        // Convertir a formato de 24 horas
-        if (periodo === 'p.m.' && horas !== 12) horas += 12; // Convertir las horas p.m., excepto para 12 p.m.
-        if (periodo === 'a.m.' && horas === 12) horas = 0; // Convertir 12 a.m. a 00 horas
+        if (periodo === 'p.m.' && horas !== 12) horas += 12;
+        if (periodo === 'a.m.' && horas === 12) horas = 0;
 
-        // Crear un timestamp (milisegundos desde la medianoche del 1 de enero de 1970) usando los valores extraídos
         return new Date(anio, mes - 1, dia, horas, minutos, segundos).getTime();
       };
 
       // Ordenar los locales por la fecha de modificación (descendente)
-      locales.sort((a, b) => {
-        const fechaA = convertirFecha(a.fechaModificacion);
-        const fechaB = convertirFecha(b.fechaModificacion);
-        return fechaB - fechaA; // Orden descendente (de más reciente a más antiguo)
+      locales.sort((a, b) => convertirFecha(b.fechaModificacion) - convertirFecha(a.fechaModificacion));
+
+      // Mostrar los locales iniciales
+      mostrarLocales(locales);
+
+      // Actualizar los contadores
+      actualizarContadores(locales);
+
+      // Filtrar los locales cuando se escriba en el buscador
+      buscador.addEventListener('input', function() {
+        const filtro = buscador.value.toLowerCase();
+        const localesFiltrados = locales.filter(local => local.nombre.toLowerCase().includes(filtro));
+        mostrarLocales(localesFiltrados); // Mostrar los locales filtrados
+        actualizarContadores(localesFiltrados); // Actualizar contadores con los locales filtrados
       });
-
-      locales.forEach(local => {
-        const localItem = document.createElement('div');
-        localItem.className = 'local-item';
-        localItem.setAttribute('data-id', local.id);
-
-        // Incrementar el contador por cada local
-        contadorLocales++;
-
-        // Sumar el costo del local al monto bruto total
-        montoBrutoTotal += parseFloat(local.costo);
-
-        // Mostrar la fecha de modificación si existe
-        const fechaStr = local.fechaModificacion || 'No modificado';
-
-        localItem.innerHTML = `
-          <h4>${local.nombre}</h4>
-          <p>Dirección: ${local.direccion}</p>
-          <p>Costo: ${local.costo}</p>
-          <p>Tipo de Factura: ${local.factura}</p>
-          <p>Número de Finca: ${local.numeroFinca}</p>
-          <p>Estado Actual: ${local.estado}</p>
-          <p>Tasa monto: ${local.tasas}</p>
-          <p style="color: gray;">Fecha de modificación: ${fechaStr}</p>
-        `;
-
-        actividadContainer.appendChild(localItem);
-      });
-
-      // Calcular el monto neto como el 40% del monto bruto total
-      const montoNetoTotal = montoBrutoTotal * 0.40;
-
-      // Formatear los montos con separador de miles y símbolo de moneda, mostrando decimales solo si es necesario
-      const formatoMoneda = (monto) => {
-        return `$${monto.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
-      };
-
-      // Actualizar el contador de locales en la interfaz
-      contadorElement.innerText = `Total de locales en ${mes}: ${contadorLocales}`;
-      // Actualizar el monto bruto total en la interfaz
-      montoBrutoElement.innerText = `Monto bruto total: ${formatoMoneda(montoBrutoTotal)}`;
-      // Actualizar el monto neto total en la interfaz
-      montoNetoElement.innerText = `Monto neto total: ${formatoMoneda(montoNetoTotal)}`;
 
     } else {
       actividadContainer.innerHTML = '<p>No hay locales para este mes y año seleccionados.</p>';
-      contadorElement.innerText = `Total de locales en ${mes}: 0`; // Si no hay locales, contador es 0
+      contadorElement.innerText = `Total de locales en ${mes}: 0`;
       montoBrutoElement.innerText = 'Monto bruto total: $0';
       montoNetoElement.innerText = 'Monto neto total: $0';
     }
   });
+}
+
+// Función para mostrar los locales en el contenedor
+function mostrarLocales(locales) {
+  const actividadContainer = document.getElementById('actividad-container');
+  actividadContainer.innerHTML = ''; // Limpiar el contenedor
+
+  locales.forEach(local => {
+    const localItem = document.createElement('div');
+    localItem.className = 'local-item';
+    localItem.setAttribute('data-id', local.id);
+
+    const fechaStr = local.fechaModificacion || 'No modificado';
+
+    localItem.innerHTML = `
+      <h4>${local.nombre}</h4>
+      <p>Dirección: ${local.direccion}</p>
+      <p>Costo: ${local.costo}</p>
+      <p>Tipo de Factura: ${local.factura}</p>
+      <p>Número de Finca: ${local.numeroFinca}</p>
+      <p>Estado Actual: ${local.estado}</p>
+      <p>Tasa monto: ${local.tasas}</p>
+      <p style="color: gray;">Fecha de modificación: ${fechaStr}</p>
+    `;
+
+    actividadContainer.appendChild(localItem);
+  });
+}
+
+// Función para actualizar los contadores
+function actualizarContadores(locales) {
+  const contadorElement = document.getElementById('contador-locales');
+  const montoBrutoElement = document.getElementById('monto-bruto');
+  const montoNetoElement = document.getElementById('monto-neto');
+
+  const contadorLocales = locales.length;
+  const montoBrutoTotal = locales.reduce((sum, local) => sum + parseFloat(local.costo), 0);
+  const montoNetoTotal = montoBrutoTotal * 0.40;
+
+  const formatoMoneda = (monto) => {
+    return `$${monto.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+  };
+
+  contadorElement.innerText = `Total de locales: ${contadorLocales}`;
+  montoBrutoElement.innerText = `Monto bruto total: ${formatoMoneda(montoBrutoTotal)}`;
+  montoNetoElement.innerText = `Monto neto total: ${formatoMoneda(montoNetoTotal)}`;
 }
 
 

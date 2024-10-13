@@ -181,6 +181,39 @@ main {
 }
 
 
+
+
+
+/* Estilo para el buscador, centrado y con un ancho fijo */
+#buscador-locales {
+  width: 50%; /* Ajusta el ancho del buscador */
+  padding: 15px;
+  font-size: 18px;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  margin: 20px auto; /* Centrar horizontalmente */
+  display: block;
+  transition: border 0.3s ease;
+}
+
+#buscador-locales:focus {
+  outline: none;
+  border-color: #0056b3;
+}
+
+/* Estilos responsivos para el buscador */
+@media (max-width: 768px) {
+  #buscador-locales {
+    width: 80%; /* Aumenta el ancho en dispositivos pequeños */
+    padding: 10px;
+    font-size: 16px;
+  }
+}
+
+
+
+
+
 /* Estilo del botón flotante */
 .scroll-btn {
   position: fixed;
