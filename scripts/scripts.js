@@ -535,6 +535,106 @@ async function cambiarEstado(selectElement) {
     actualizarContadores();
 }
 
+
+// ------------------------------------------------------------
+
+// Variables para almacenar los contadores y montos
+let contadorFacturasA = 0;
+let contadorFacturasB = 0;
+let montoTotalA = 0;
+let montoTotalB = 0;
+let montoFacturaA = 4500;
+let montoFacturaB = 3000;
+let mostrandoEstimaciones = false;  // Controla si las estimaciones están visibles o no
+
+// Función para cargar los datos de facturas desde Firebase y hacer los cálculos
+async function cargarDatos() {
+    try {
+        // Obtener los datos de la base de datos
+        const dbRef = ref(db);
+        const snapshot = await get(child(dbRef, 'locales'));
+
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+
+            // Resetear contadores
+            contadorFacturasA = 0;
+            contadorFacturasB = 0;
+            montoTotalA = 0;
+            montoTotalB = 0;
+
+            // Navegar por los locales y contar las facturas
+            for (let key in data) {
+                const local = data[key];
+
+                if (local.factura === "A") {
+                    contadorFacturasA++;
+                    montoTotalA += montoFacturaA;
+                } else if (local.factura === "B") {
+                    contadorFacturasB++;
+                    montoTotalB += montoFacturaB;
+                }
+            }
+
+            // Actualizar la interfaz con los datos
+            actualizarHTML();
+        } else {
+            console.log("No se encontraron datos.");
+        }
+    } catch (error) {
+        console.error("Error al cargar datos:", error);
+    }
+}
+
+// Función para actualizar los contadores y los montos en el HTML
+function actualizarHTML() {
+    document.getElementById('contador-facturas-a').textContent = `Facturas A: ${contadorFacturasA}`;
+    document.getElementById('monto-total-a').textContent = `Monto total estimado Facturas A: $${montoTotalA.toLocaleString()}`;
+
+    document.getElementById('contador-facturas-b').textContent = `Facturas B: ${contadorFacturasB}`;
+    document.getElementById('monto-total-b').textContent = `Monto total estimado Facturas B: $${montoTotalB.toLocaleString()}`;
+
+    const montoTotalFacturas = montoTotalA + montoTotalB;
+    const gananciaNeta = montoTotalFacturas * 0.40;
+
+    document.getElementById('monto-total-facturas').textContent = `Monto total de todas las facturas: $${montoTotalFacturas.toLocaleString()}`;
+    document.getElementById('ganancia-neta').textContent = `Ganancia neta (40%): $${gananciaNeta.toLocaleString()}`;
+}
+
+// Función para alternar entre mostrar y ocultar las estimaciones
+function toggleEstimaciones() {
+    const contenedorEstimaciones = document.getElementById('contenedor-estimaciones');
+
+    if (mostrandoEstimaciones) {
+        // Ocultar estimaciones
+        contenedorEstimaciones.style.display = 'none';
+        mostrandoEstimaciones = false;
+    } else {
+        // Mostrar estimaciones y cargar datos si no se ha hecho antes
+        contenedorEstimaciones.style.display = 'block';
+        cargarDatos();  // Cargar y mostrar datos
+        mostrandoEstimaciones = true;
+    }
+}
+
+// Agregar evento al botón "Ver Estimaciones"
+document.getElementById('ver-estimaciones').addEventListener('click', toggleEstimaciones);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 let mostrandoSoloDesinfectados = false;
 
     // Evento para alternar entre mostrar solo los desinfectados y todos los locales

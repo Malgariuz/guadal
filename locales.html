@@ -84,6 +84,51 @@
         <div class="progress-bar-container">
             <div class="progress-bar" id="barra-progreso"></div>
         </div>
+        <div>
+            <button id="ver-estimaciones">Ver Estimaciones</button>
+        
+            <div id="contenedor-estimaciones" style="display: none;">
+                <h3>Contadores de Facturas</h3>
+        
+                <div>
+                    <p id="contador-facturas-a">Facturas A: 0</p>
+                    <p id="monto-total-a">Monto total estimado Facturas A: $0</p>
+                </div>
+        
+                <div>
+                    <p id="contador-facturas-b">Facturas B: 0</p>
+                    <p id="monto-total-b">Monto total estimado Facturas B: $0</p>
+                </div>
+        
+                <div>
+                    <p id="monto-total-facturas">Monto total estimado Facturas (A + B): $0</p>
+                    <p id="ganancia-neta">Ganancia Neta (40%): $0</p>
+                </div>
+        
+                <div>
+                    <h4>Editar Montos</h4>
+                    <label for="monto-a">Monto individual Factura A: </label>
+                    <input type="number" id="monto-a" value="4500" />
+                    <button id="actualizar-monto-a">Actualizar montos Facturas A</button>
+                    <br>
+        
+                    <label for="monto-b">Monto individual Factura B: </label>
+                    <input type="number" id="monto-b" value="3000" />
+                    <button id="actualizar-monto-b">Actualizar montos Facturas B</button>
+        
+                    <br>
+        
+                    <label for="factura-a-editable">Editar monto individual Factura A:</label>
+                    <input type="number" id="factura-a-editable" value="0" />
+                    <button id="guardar-monto-individual-a">Guardar</button>
+        
+                    <label for="factura-b-editable">Editar monto individual Factura B:</label>
+                    <input type="number" id="factura-b-editable" value="0" />
+                    <button id="guardar-monto-individual-b">Guardar</button>
+                </div>
+            </div>
+        </div>
+        
 
     <div id="seccion-pendientes">
     <!-- Lista de locales -->
