@@ -25,162 +25,207 @@ const localesRef = ref(db, 'locales');
 
 
 
+// Función independiente para cargar y ordenar la sección "actividad"
+const loadOrderedActividad = (newAnio, newMes) => {
+  // Referencia a la sección de actividad para el mes y año seleccionados
+  const actividadRef = ref(db, `actividad/${newAnio}/${newMes}`);
+
+  // Consulta ordenada por numeroFinca
+  const queryActividad = query(actividadRef, orderByChild('numeroFinca'));
+
+  // Recuperar los datos de la actividad y mostrarlos en orden
+  onValue(queryActividad, (snapshot) => {
+    const actividadesOrdenadas = [];
+
+    // Iterar sobre los registros de actividad
+    snapshot.forEach((childSnapshot) => {
+      actividadesOrdenadas.push(childSnapshot.val());
+    });
+
+    // Aquí puedes trabajar con los datos ordenados en actividadesOrdenadas
+    console.log(actividadesOrdenadas);
+
+    // Si quieres mostrar los datos en el DOM, por ejemplo
+    actividadesOrdenadas.forEach((actividad) => {
+      console.log(`Local: ${actividad.nombre}, Numero Finca: ${actividad.numeroFinca}`);
+    });
+  });
+};
+
+
 // Función para cargar y mostrar locales en la sección "Recientes"
 function cargarLocales() {
   const recienteContainer = document.getElementById('reciente-container');
   const desinfectadosContainer = document.getElementById('desinfectados');
 
+  // Limpiar contenedores
+  recienteContainer.innerHTML = '';
+  desinfectadosContainer.innerHTML = '';
+
+  // Obtener la fecha actual para calcular mes y año
+  const fechaActual = new Date();
+  const mesActual = fechaActual.toLocaleString('es-ES', { month: 'long' }).toLowerCase();
+  const anioActual = fechaActual.getFullYear();
+
+  // Referencia a la actividad del año actual
+  const actividadAnioRef = ref(db, `actividad/${anioActual}`);
+
+  // Cargar locales
   onValue(localesRef, (snapshot) => {
-    recienteContainer.innerHTML = ''; // Limpiar el contenedor de recientes
-    desinfectadosContainer.innerHTML = ''; // Limpiar el contenedor de desinfectados
-
     let locales = snapshot.val();
+    if (!locales) return;
 
-    if (locales) {
-      // Convertir el objeto locales a un array para facilitar el orden
-      locales = Object.values(locales);
+    // Convertir el objeto locales a un array para facilitar el orden
+    locales = Object.values(locales);
 
-      // Función para convertir la fecha en un timestamp comparable
-      const convertirFecha = (fechaStr) => {
-        if (!fechaStr) return 0;
-        const [fecha, hora] = fechaStr.split(', ');
-        const [dia, mes, anio] = fecha.split('/').map(Number);
-        let [tiempo, periodo] = hora.split(' ');
-        let [horas, minutos, segundos] = tiempo.split(':').map(Number);
-        if (periodo === 'p.m.' && horas !== 12) horas += 12;
-        if (periodo === 'a.m.' && horas === 12) horas = 0;
-        return new Date(anio, mes - 1, dia, horas, minutos, segundos).getTime();
-      };
+    // Función para convertir la fecha en un timestamp comparable
+    const convertirFecha = (fechaStr) => {
+      if (!fechaStr) return 0;
+      const [fecha, hora] = fechaStr.split(', ');
+      const [dia, mes, anio] = fecha.split('/').map(Number);
+      let [tiempo, periodo] = hora.split(' ');
+      let [horas, minutos, segundos] = tiempo.split(':').map(Number);
+      if (periodo === 'p.m.' && horas !== 12) horas += 12;
+      if (periodo === 'a.m.' && horas === 12) horas = 0;
+      return new Date(anio, mes - 1, dia, horas, minutos, segundos).getTime();
+    };
 
-      // Ordenar los locales por la fecha de modificación (descendente)
-      locales.sort((a, b) => {
-        const fechaA = convertirFecha(a.fechaModificacion);
-        const fechaB = convertirFecha(b.fechaModificacion);
-        return fechaB - fechaA;
-      });
+    // Ordenar los locales por la fecha de modificación (descendente)
+    locales.sort((a, b) => {
+      const fechaA = convertirFecha(a.fechaModificacion);
+      const fechaB = convertirFecha(b.fechaModificacion);
+      return fechaB - fechaA;
+    });
+
+    // Obtener la actividad del año actual
+    get(actividadAnioRef).then((actividadSnapshot) => {
+      const actividadAnio = actividadSnapshot.val() || {};
+      const localesMesActual = actividadAnio[mesActual] || {};
+      const fincasMesActual = Object.values(localesMesActual).map(local => local.numeroFinca);
 
       locales.forEach(local => {
-        if (local.estado === 'realizado' || local.estado === 'problema') {
-          const ocultarRef = ref(db, `ocultos/${local.id}`);
+        if (local.estado !== 'realizado' && local.estado !== 'problema') return;
 
-          get(ocultarRef).then(ocultarSnapshot => {
-            if (ocultarSnapshot.exists() && ocultarSnapshot.val() === true) {
-              return; // Si el local está oculto, no lo mostramos
-            }
+        const ocultarRef = ref(db, `ocultos/${local.id}`);
+        get(ocultarRef).then((ocultarSnapshot) => {
+          if (ocultarSnapshot.exists() && ocultarSnapshot.val() === true) return;
 
-            const localItem = document.createElement('div');
-            localItem.className = 'local-item';
-            localItem.setAttribute('data-id', local.id);
+          const localItem = document.createElement('div');
+          localItem.className = 'local-item';
+          localItem.setAttribute('data-id', local.id);
 
-            // Estilos para facturas tipo A
-            if (local.factura === 'A') {
-              localItem.style.backgroundColor = 'rgba(0, 128, 0, 0.5)';
-              localItem.style.color = 'blue';
-            }
+          if (local.factura === 'A') {
+            localItem.style.backgroundColor = 'rgba(0, 128, 0, 0.5)';
+            localItem.style.color = 'blue';
+          }
 
-            // Mostrar la fecha de modificación
-            const fechaStr = local.fechaModificacion || 'No modificado';
+          const subidoMesActual = fincasMesActual.includes(local.numeroFinca);
+          let estadoSubida = '';
+          if (subidoMesActual) {
+            estadoSubida = `<p style="font-size: smaller; color: green;"><i>✔ El local ha sido subido al mes de ${mesActual}</i></p>`;
+          } else {
+            estadoSubida = `<p style="font-size: smaller; color: gray;">✘ No se ha subido al mes actual</p>`;
+          }
 
-            // Obtener el mes actual
-            const mesActual = new Date().toLocaleString('es-ES', { month: 'long' }).toLowerCase();
+          const fechaStr = local.fechaModificacion || 'No modificado';
 
-            localItem.innerHTML = `
-              <h4 style="margin: 0 0 5px 0;">${local.nombre}</h4>
-              <p style="margin: 5px 0;">Dirección: ${local.direccion}</p>
-              <p style="margin: 5px 0;">Costo: ${local.costo}</p>
-              <p style="margin: 5px 0;">Tipo de Factura: ${local.factura}</p>
-              <p style="margin: 5px 0;">Número de Finca: ${local.numeroFinca}</p>
-              <p style="margin: 5px 0;">Estado Actual: ${local.estado}</p>
-              <p style="margin: 5px 0;">Mes y Tasa: ${local.mesTasa || 'N/A'}</p>
-              <p style="margin: 5px 0;">Notas: ${local.notas || 'Sin notas'}</p>
-              <p style="margin: 5px 0; color: gray;">Fecha de la desinfección: ${fechaStr}</p>
-              <button class="edit-btn">Editar</button>
-              <button class="hide-btn">Ocultar</button>
-              <div class="edit-fields" style="display: none;">
-                  <label>Monto: <input type="text" class="costo-input" value="${local.costo}"></label>
-                  <label>Mes: 
-                      <select class="mes-select">
-                          <option value="enero" ${mesActual === 'enero' ? 'selected' : ''}>Enero</option>
-                          <option value="febrero" ${mesActual === 'febrero' ? 'selected' : ''}>Febrero</option>
-                          <option value="marzo" ${mesActual === 'marzo' ? 'selected' : ''}>Marzo</option>
-                          <option value="abril" ${mesActual === 'abril' ? 'selected' : ''}>Abril</option>
-                          <option value="mayo" ${mesActual === 'mayo' ? 'selected' : ''}>Mayo</option>
-                          <option value="junio" ${mesActual === 'junio' ? 'selected' : ''}>Junio</option>
-                          <option value="julio" ${mesActual === 'julio' ? 'selected' : ''}>Julio</option>
-                          <option value="agosto" ${mesActual === 'agosto' ? 'selected' : ''}>Agosto</option>
-                          <option value="septiembre" ${mesActual === 'septiembre' ? 'selected' : ''}>Septiembre</option>
-                          <option value="octubre" ${mesActual === 'octubre' ? 'selected' : ''}>Octubre</option>
-                          <option value="noviembre" ${mesActual === 'noviembre' ? 'selected' : ''}>Noviembre</option>
-                          <option value="diciembre" ${mesActual === 'diciembre' ? 'selected' : ''}>Diciembre</option>
-                      </select>
-                  </label>
-                  <label>Año: 
-                      <select class="anio-select">
-                          <option value="2024" ${local.mesTasa?.includes('2024') ? 'selected' : ''}>2024</option>
-                          <option value="2025" ${local.mesTasa?.includes('2025') ? 'selected' : ''}>2025</option>
-                          <option value="2026" ${local.mesTasa?.includes('2026') ? 'selected' : ''}>2026</option>
-                          <option value="2027" ${local.mesTasa?.includes('2027') ? 'selected' : ''}>2027</option>
-                          <option value="2028" ${local.mesTasa?.includes('2028') ? 'selected' : ''}>2028</option>
-                          <option value="2029" ${local.mesTasa?.includes('2029') ? 'selected' : ''}>2029</option>
-                          <option value="2030" ${local.mesTasa?.includes('2030') ? 'selected' : ''}>2030</option>
-                      </select>
-                  </label>
-                  <label>Tasas: <input type="text" class="tasas-input" value="${local.tasas || ''}"></label>
-                  <label>Notas: <textarea class="notas-input">${local.notas || ''}</textarea></label>
-                  <button class="save-btn">Guardar</button>
-              </div>
-            `;
+          localItem.innerHTML = 
+            `<h4 style="margin: 0 0 5px 0;">${local.nombre}</h4>
+            <p style="margin: 5px 0;">Dirección: ${local.direccion}</p>
+            <p style="margin: 5px 0;">Costo: ${local.costo}</p>
+            <p style="margin: 5px 0;">Tipo de Factura: ${local.factura}</p>
+            <p style="margin: 5px 0;">Número de Finca: ${local.numeroFinca}</p>
+            <p style="margin: 5px 0;">Estado Actual: ${local.estado}</p>
+            <p style="margin: 5px 0;">Mes y Tasa: ${local.mesTasa || 'N/A'}</p>
+            <p style="margin: 5px 0;">Notas: ${local.notas || 'Sin notas'}</p>
+            <p style="margin: 5px 0; color: gray;">Fecha de la desinfección: ${fechaStr}</p>
+            ${estadoSubida}
+            <p style="font-size: smaller;">ID del local: ${local.id}</p>
+            <button class="edit-btn">Editar</button>
+            <button class="hide-btn">Ocultar</button>
+            <div class="edit-fields" style="display: none;">
+              <label>Monto: <input type="text" class="costo-input" value="${local.costo}"></label>
+              <label>Mes: 
+                <select class="mes-select">
+                  <option value="enero" ${mesActual === 'enero' ? 'selected' : ''}>Enero</option>
+                  <option value="febrero" ${mesActual === 'febrero' ? 'selected' : ''}>Febrero</option>
+                  <option value="marzo" ${mesActual === 'marzo' ? 'selected' : ''}>Marzo</option>
+                  <option value="abril" ${mesActual === 'abril' ? 'selected' : ''}>Abril</option>
+                  <option value="mayo" ${mesActual === 'mayo' ? 'selected' : ''}>Mayo</option>
+                  <option value="junio" ${mesActual === 'junio' ? 'selected' : ''}>Junio</option>
+                  <option value="julio" ${mesActual === 'julio' ? 'selected' : ''}>Julio</option>
+                  <option value="agosto" ${mesActual === 'agosto' ? 'selected' : ''}>Agosto</option>
+                  <option value="septiembre" ${mesActual === 'septiembre' ? 'selected' : ''}>Septiembre</option>
+                  <option value="octubre" ${mesActual === 'octubre' ? 'selected' : ''}>Octubre</option>
+                  <option value="noviembre" ${mesActual === 'noviembre' ? 'selected' : ''}>Noviembre</option>
+                  <option value="diciembre" ${mesActual === 'diciembre' ? 'selected' : ''}>Diciembre</option>
+                </select>
+              </label>
+              <label>Año: 
+                <select class="anio-select">
+                  <option value="2024" ${local.mesTasa?.includes('2024') ? 'selected' : ''}>2024</option>
+                  <option value="2025" ${local.mesTasa?.includes('2025') ? 'selected' : ''}>2025</option>
+                  <option value="2026" ${local.mesTasa?.includes('2026') ? 'selected' : ''}>2026</option>
+                  <option value="2027" ${local.mesTasa?.includes('2027') ? 'selected' : ''}>2027</option>
+                  <option value="2028" ${local.mesTasa?.includes('2028') ? 'selected' : ''}>2028</option>
+                  <option value="2029" ${local.mesTasa?.includes('2029') ? 'selected' : ''}>2029</option>
+                  <option value="2030" ${local.mesTasa?.includes('2030') ? 'selected' : ''}>2030</option>
+                </select>
+              </label>
+              <label>Tasas: <input type="text" class="tasas-input" value="${local.tasas || ''}"></label>
+              <label>Notas: <textarea class="notas-input">${local.notas || ''}</textarea></label>
+              <button class="save-btn">Guardar</button>
+            </div>`;
 
-            // Agregar event listener para el botón Editar
             localItem.querySelector('.edit-btn').addEventListener('click', () => {
               const editFields = localItem.querySelector('.edit-fields');
               editFields.style.display = editFields.style.display === 'none' ? 'block' : 'none';
             });
-
-            // Agregar event listener para el botón Guardar
+            
             localItem.querySelector('.save-btn').addEventListener('click', () => {
               const newCosto = localItem.querySelector('.costo-input').value;
               const newMes = localItem.querySelector('.mes-select').value;
               const newAnio = localItem.querySelector('.anio-select').value;
               const newTasas = localItem.querySelector('.tasas-input').value;
               const newNotas = localItem.querySelector('.notas-input').value;
-
+            
+              // Generar la fecha de modificación
               const fechaModificacion = new Date().toLocaleString();
-
-              const actividadRef = ref(db, `actividad/${newAnio}/${newMes}/${local.id}`);
+            
+              // Aquí cambiamos la referencia del ID secuencial al numeroFinca
+              const actividadRef = ref(db, `actividad/${newAnio}/${newMes}/${local.numeroFinca}`);
+            
+              // Mantener el registro histórico, basando la actividad en numeroFinca
               set(actividadRef, {
                 nombre: local.nombre,
                 direccion: local.direccion,
                 costo: newCosto,
                 factura: local.factura,
-                numeroFinca: local.numeroFinca,
+                numeroFinca: local.numeroFinca,  // Usamos numeroFinca en lugar de ID
                 estado: local.estado,
                 tasas: newTasas,
                 notas: newNotas,
-                fechaModificacion: fechaModificacion
+                fechaModificacion: fechaModificacion,
+                localActivo: true // Si quieres manejar el estado de si el local sigue activo
               }).then(() => {
-                window.location.reload(); // Recargar la página
-                // Eliminar el local de la referencia original
-                remove(ref(db, `locales/${local.id}`)).then(() => {
-                  // Recargar la página después de guardar los cambios
-                 
-                });
+                // Recargar la página para ver los cambios
+                window.location.reload();
               });
             });
-
-            localItem.querySelector('.hide-btn').addEventListener('click', () => {
-              set(ocultarRef, true).then(() => {
-                localItem.style.display = 'none';
-              });
+            
+          localItem.querySelector('.hide-btn').addEventListener('click', () => {
+            set(ocultarRef, true).then(() => {
+              localItem.style.display = 'none';
             });
-
-            recienteContainer.appendChild(localItem);
           });
-        }
+
+          recienteContainer.appendChild(localItem);
+        });
       });
-    }
+    });
   });
 }
+
 
 
 
