@@ -1,4 +1,4 @@
-import { mapboxConfig } from "./config.js";
+import { mapboxConfig } from ".desinfection/config.js";
 
 // Configuración de Mapbox
 mapboxgl.accessToken = mapboxConfig.accessToken;
