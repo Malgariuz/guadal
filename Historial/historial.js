@@ -3,7 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/fireba
 import { getDatabase, ref, set, get, child, update, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 // Configuración de tu aplicación web en Firebase
-import firebaseConfig from "./config.js"; // Importar la configuración
+import firebaseConfig from "../config.js"; // Importar la configuración
 
 
 const app = initializeApp(firebaseConfig);
