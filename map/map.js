@@ -1,5 +1,8 @@
-// Configuración de Mapbox y Firebase
-mapboxgl.accessToken = 'pk.eyJ1IjoibWFsZ2FyaXV6IiwiYSI6ImNsenpoa3A1ZTB3em0ybW9xMmc0ZjNmMHEifQ.MeeRQSZk5zgeosIbPG3LCg';
+import { mapboxConfig } from "./config.js";
+
+// Configuración de Mapbox
+mapboxgl.accessToken = mapboxConfig.accessToken;
+
 
 
 // Importar las funciones necesarias de los SDKs

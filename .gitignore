@@ -1,1 +1,5 @@
 # Dependencias
+# Ignorar archivos de entorno
+.env
+# Ignorar archivos de configuración local
+config.js
