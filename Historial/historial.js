@@ -3,17 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/fireba
 import { getDatabase, ref, set, get, child, update, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 // Configuración de tu aplicación web en Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyA_W6iFuTLoWVf0VExW7QTy9VJlXnMUOS0",
-  authDomain: "malgariuz.firebaseapp.com",
-  databaseURL: "https://malgariuz-default-rtdb.firebaseio.com",
-  projectId: "malgariuz",
-  storageBucket: "malgariuz.appspot.com",
-  messagingSenderId: "18994913717",
-  appId: "1:18994913717:web:be2e0b0e5d63211d6bb9fc",
-  measurementId: "G-56D4TMG32S"
-};
-
+import firebaseConfig from "./config.js"; // Importar la configuración
 
 
 const app = initializeApp(firebaseConfig);
