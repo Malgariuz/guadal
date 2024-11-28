@@ -132,7 +132,7 @@ function cargarLocales() {
           localItem.innerHTML = 
             `<h4 style="margin: 0 0 5px 0;">${local.nombre}</h4>
             <p style="margin: 5px 0;">Dirección: ${local.direccion}</p>
-            <p style="margin: 5px 0;">Costo: ${local.costo}</p>
+            <p style="margin: 5px 0;">Costo: ${local.mesTasa}</p>
             <p style="margin: 5px 0;">Tipo de Factura: ${local.factura}</p>
             <p style="margin: 5px 0;">Número de Finca: ${local.numeroFinca}</p>
             <p style="margin: 5px 0;">Estado Actual: ${local.estado}</p>
@@ -232,6 +232,10 @@ function cargarLocales() {
 
 // Llamar a la función para cargar los locales al iniciar la página
 cargarLocales();
+
+
+
+
 
 
 
@@ -345,7 +349,7 @@ function mostrarLocales(locales) {
       <p>Tipo de Factura: ${local.factura}</p>
       <p>Número de Finca: ${local.numeroFinca}</p>
       <p>Estado Actual: ${local.estado}</p>
-      <p>Tasa monto: ${local.tasas}</p>
+      <p>Tasa monto: ${local.notas}</p>
       <p style="color: gray;">Fecha de modificación: ${fechaStr}</p>
     `;
 

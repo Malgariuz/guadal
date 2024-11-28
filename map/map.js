@@ -212,118 +212,132 @@ get(localesRef).then((snapshot) => {
                     .addTo(map);
 
                 // Añadir evento de clic al marcador
-                marker.getElement().addEventListener('click', () => {
-                    // Asegurarse de que el sidebar y la lista estén desplegadas
-                    const sidebar = document.getElementById('sidebar');
-                    const hamburgerMenu = document.getElementById('hamburger-menu');
-                    const localesList = document.getElementById('locales-list');
-                    const desplegarListaBtn = document.getElementById('desplegar-lista');
+                // Añadir evento de clic al marcador
+marker.getElement().addEventListener('click', () => {
+  // Asegurarse de que el sidebar y la lista estén desplegadas
+  const sidebar = document.getElementById('sidebar');
+  const hamburgerMenu = document.getElementById('hamburger-menu');
+  const localesList = document.getElementById('locales-list');
+  const desplegarListaBtn = document.getElementById('desplegar-lista');
 
-                    if (!sidebar.classList.contains('open')) {
-                        sidebar.classList.add('open');
-                    }
-                    if (!hamburgerMenu.classList.contains('open')) {
-                        hamburgerMenu.classList.add('open');
-                    }
-                    if (!localesList.style.display !== 'block') {
-                        localesList.style.display = 'block';
-                    }
-                    if (desplegarListaBtn.style.display !== 'block') {
-                        desplegarListaBtn.style.display = 'block';
-                    }
+  if (!sidebar.classList.contains('open')) {
+      sidebar.classList.add('open');
+  }
+  if (!hamburgerMenu.classList.contains('open')) {
+      hamburgerMenu.classList.add('open');
+  }
+  if (!localesList.style.display !== 'block') {
+      localesList.style.display = 'block';
+  }
+  if (desplegarListaBtn.style.display !== 'block') {
+      desplegarListaBtn.style.display = 'block';
+  }
 
-                    // Llenar la lista con los datos del local seleccionado
-                    const listaLocalesDiv = document.getElementById('locales-list');
-                    listaLocalesDiv.innerHTML = '';  // Limpiar la lista actual
+  // Llenar la lista con los datos del local seleccionado
+  const listaLocalesDiv = document.getElementById('locales-list');
+  listaLocalesDiv.innerHTML = ''; // Limpiar la lista actual
 
-                    const localElement = document.createElement('div');
-                    localElement.className = 'local-item';
-                    localElement.setAttribute('data-id', local.id);
+  const localElement = document.createElement('div');
+  localElement.className = 'local-item';
+  localElement.setAttribute('data-id', local.id);
 
-                    // Crear contenido del local
-                    localElement.innerHTML = `
-                        <p><strong>${local.nombre}</strong></p>
-                        <p>Dirección: ${local.direccion}</p>
-                        <p>Costo: ${local.costo || 'No disponible'}</p>
-                        <p>Tipo de Factura: ${local.factura}</p>
-                        <p>Número de Finca: ${local.numeroFinca}</p>
-                        <p>Estado Actual: ${local.estado}</p>
-                        <button class="show-location-btn">Mostrar en Mapa</button>
-                        <button class="start-route-btn">Iniciar Recorrido</button>
-                        <button class="update-status-btn">Actualizar Estado</button>
-                        <select class="status-select" style="display:none;">
-                            <option value="no-listo" ${local.estado === 'no-listo' ? 'selected' : ''}>No Listo</option>
-                            <option value="problema" ${local.estado === 'problema' ? 'selected' : ''}>Problema</option>
-                            <option value="realizado" ${local.estado === 'realizado' ? 'selected' : ''}>Realizado</option>
-                        </select>
-                        <input type="text" class="mes-tasa-input" placeholder="Mes y Tasa" style="display:none; margin: 5px 0;" value="${local.mesTasa || ''}">
-                        <textarea class="notas-input" placeholder="Notas" style="display:none; margin: 5px 0;">${local.notas || ''}</textarea>
-                        <button class="save-status-btn" style="display:none;">Terminar</button>
-                    `;
+  // Crear contenido del local
+  localElement.innerHTML = `
+      <p><strong>${local.nombre}</strong></p>
+      <p>Dirección: ${local.direccion}</p>
+      <p>Costo: ${local.costo || 'No disponible'}</p>
+      <p>Tipo de Factura: ${local.factura}</p>
+      <p>Número de Finca: ${local.numeroFinca}</p>
+      <p>Estado Actual: ${local.estado}</p>
+      <button class="show-location-btn">Mostrar en Mapa</button>
+      <button class="start-route-btn">Iniciar Recorrido</button>
+      <button class="update-status-btn">Actualizar Estado</button>
+      <select class="status-select" style="display:none;">
+          <option value="no-listo" ${local.estado === 'no-listo' ? 'selected' : ''}>No Listo</option>
+          <option value="problema" ${local.estado === 'problema' ? 'selected' : ''}>Problema</option>
+          <option value="realizado" ${local.estado === 'realizado' ? 'selected' : ''}>Realizado</option>
+      </select>
+      <input type="text" class="mes-tasa-input" placeholder="Costo" style="display:none; margin: 5px 0;" value="${local.mesTasa || ''}">
+      <textarea class="notas-input" placeholder="Notas de Actividad" style="display:none; margin: 5px 0;">${local.notas || ''}</textarea>
+      <button class="save-status-btn" style="display:none;">Terminar</button>
+  `;
 
-                    // Añadir el local al contenedor
-                    listaLocalesDiv.appendChild(localElement);
+  // Añadir el local al contenedor
+  listaLocalesDiv.appendChild(localElement);
 
-                    // Configurar eventos para los botones dentro de cada local
-                    const updateStatusBtn = localElement.querySelector('.update-status-btn');
-                    const statusSelect = localElement.querySelector('.status-select');
-                    const mesTasaInput = localElement.querySelector('.mes-tasa-input');
-                    const notasInput = localElement.querySelector('.notas-input');
-                    const saveStatusBtn = localElement.querySelector('.save-status-btn');
+  // Configurar eventos para los botones dentro de cada local
+  const updateStatusBtn = localElement.querySelector('.update-status-btn');
+  const statusSelect = localElement.querySelector('.status-select');
+  const mesTasaInput = localElement.querySelector('.mes-tasa-input');
+  const notasInput = localElement.querySelector('.notas-input');
+  const saveStatusBtn = localElement.querySelector('.save-status-btn');
 
-                    updateStatusBtn.addEventListener('click', () => {
-                        statusSelect.style.display = 'block';
-                        mesTasaInput.style.display = 'block';
-                        notasInput.style.display = 'block';
-                        saveStatusBtn.style.display = 'block';
-                    });
+  updateStatusBtn.addEventListener('click', () => {
+      statusSelect.style.display = 'block';
+      mesTasaInput.style.display = 'block';
+      notasInput.style.display = 'block';
+      saveStatusBtn.style.display = 'block';
+  });
 
-                    saveStatusBtn.addEventListener('click', async () => {
-                        const selectedStatus = statusSelect.value;
-                        const mesTasaValue = mesTasaInput.value;
-                        const notasValue = notasInput.value;
-                        const localId = localElement.getAttribute('data-id');
-                        const fechaModificacion = new Date().toLocaleString(); // Obtener la fecha y hora actual
+  saveStatusBtn.addEventListener('click', async () => {
+      const selectedStatus = statusSelect.value;
+      const mesTasaValue = mesTasaInput.value; // El valor de mesTasaInput ahora será el costo
+      const notasValue = notasInput.value;    // El valor de notasInput será para notas de actividad
+      const localId = localElement.getAttribute('data-id');
+      const fechaModificacion = new Date().toLocaleString(); // Obtener la fecha y hora actual
 
-                        const localRef = ref(db, `locales/${localId}`);
-                        await update(localRef, { 
-                            estado: selectedStatus,
-                            mesTasa: mesTasaValue,
-                            notas: notasValue,
-                            fechaModificacion: fechaModificacion
-                        });
+      // Actualizar el estado en la base de datos original
+      const localRef = ref(db, `locales/${localId}`);
+      await update(localRef, { 
+          estado: selectedStatus,
+          mesTasa: mesTasaValue,
+          notas: notasValue,
+          fechaModificacion: fechaModificacion
+      });
 
-                        alert(`Información actualizada:\nEstado: ${selectedStatus}\nMes y Tasa: ${mesTasaValue}\nNotas: ${notasValue}`);
-                        location.reload(); // Recargar la página después de guardar
-                    });
+      // Guardar en la base de datos "actividad"
+      const anioActual = new Date().getFullYear();
+      const mesActual = new Date().toLocaleString('default', { month: 'long' }).toLowerCase(); // Mes actual
+      const actividadRef = ref(db, `actividad/${anioActual}/${mesActual}/${local.numeroFinca}`);
 
-                    const startRouteBtn = localElement.querySelector('.start-route-btn');
-                    startRouteBtn.addEventListener('click', async () => {
-                        const { coordinates } = local;
-                        const [lng, lat] = coordinates;
+      await set(actividadRef, {
+          nombre: local.nombre,
+          direccion: local.direccion,
+          costo: mesTasaValue,       // Guardar el costo en actividad
+          factura: local.factura,
+          numeroFinca: local.numeroFinca,
+          estado: selectedStatus,
+          mesTasa: mesTasaValue,     // Guardar también en el campo mesTasa si es necesario
+          notas: local.notas,         // Guardar las notas en actividad
+          fechaModificacion: fechaModificacion,
+          localActivo: true // Puede ser útil para marcar si el local sigue vigente
+      });
 
-                        // Suponiendo que ya tienes una función `getRoute` definida que toma el punto de inicio y fin
-                        getRoute([lng, lat]);
-                    });
+      alert(`Información actualizada:\nEstado: ${selectedStatus}\nCosto: ${mesTasaValue}\nNotas: ${notasValue}`);
+      location.reload(); // Recargar la página después de guardar
+  });
 
-                    // Añadir el evento para mostrar la ubicación en el mapa
-                    const showLocationBtn = localElement.querySelector('.show-location-btn');
-                    showLocationBtn.addEventListener('click', () => {
-                        // Centrar el mapa en la ubicación del local
-                        map.flyTo({
-                            center: coords,
-                            essential: true // Este parámetro asegura que el vuelo sea esencial
-                        });
-                    });
-                });
-            } else {
-                console.error(`Coordenadas inválidas para el local ${id}:`, coords);
-            }
-        }
-    }
-}).catch((error) => {
-    console.error("Error al obtener los datos:", error);
-});
+  const startRouteBtn = localElement.querySelector('.start-route-btn');
+  startRouteBtn.addEventListener('click', async () => {
+      const { coordinates } = local;
+      const [lng, lat] = coordinates;
+
+      // Suponiendo que ya tienes una función `getRoute` definida que toma el punto de inicio y fin
+      getRoute([lng, lat]);
+  });
+
+  // Añadir el evento para mostrar la ubicación en el mapa
+  const showLocationBtn = localElement.querySelector('.show-location-btn');
+  showLocationBtn.addEventListener('click', () => {
+      // Centrar el mapa en la ubicación del local
+      map.flyTo({
+          center: coords,
+          essential: true // Este parámetro asegura que el vuelo sea esencial
+      });
+  });
+});}}}})
+
+          
 
 
 
@@ -593,8 +607,6 @@ document.getElementById('terminar-button').addEventListener('click', async () =>
 
 
 
-
-
 document.getElementById('desplegar-lista').addEventListener('click', async () => {
   const listaLocalesDiv = document.getElementById('locales-list');
 
@@ -648,55 +660,72 @@ document.getElementById('desplegar-lista').addEventListener('click', async () =>
           saveStatusBtn.style.display = 'block';
         });
 
-        // Añadir evento para guardar el estado, Mes y Tasa, y Notas en Firebase junto con la fecha y hora actuales
+        // Guardar estado, Mes y Tasa, y Notas en Firebase
         saveStatusBtn.addEventListener('click', async () => {
           const selectedStatus = statusSelect.value;
           const mesTasaValue = mesTasaInput.value;
           const notasValue = notasInput.value;
           const localId = localItem.getAttribute('data-id');
-
-          // Obtener la fecha y hora actuales
           const fechaModificacion = new Date().toLocaleString();
 
-          // Actualizar los campos en Firebase
-          const localRef = ref(db, `locales/${localId}`);
-          await update(localRef, { 
-            estado: selectedStatus,
-            mesTasa: mesTasaValue,
-            notas: notasValue,
-            fechaModificacion: fechaModificacion // Guardar la fecha y hora de modificación
-          });
+          try {
+            // Guardar en "locales"
+            const localRef = ref(db, `locales/${localId}`);
+            await update(localRef, {
+              estado: selectedStatus,
+              mesTasa: mesTasaValue,
+              notas: notasValue,
+              fechaModificacion: fechaModificacion,
+            });
 
-          alert(`Información actualizada:\nEstado: ${selectedStatus}\nMes y Tasa: ${mesTasaValue}\nNotas: ${notasValue}\nFecha de modificación: ${fechaModificacion}`);
-          location.reload(); // Recargar la página después de guardar
+            // Guardar en "actividad"
+            const anioActual = new Date().getFullYear();
+            const mesActual = new Date().toLocaleString('default', { month: 'long' }).toLowerCase();
+            const actividadRef = ref(db, `actividad/${anioActual}/${mesActual}/${local.numeroFinca}`);
+            await set(actividadRef, {
+              nombre: local.nombre,
+              direccion: local.direccion,
+              costo: mesTasaValue,
+              factura: local.factura,
+              numeroFinca: local.numeroFinca,
+              estado: selectedStatus,
+              mesTasa: mesTasaValue,
+              notas: notasValue,
+              fechaModificacion: fechaModificacion,
+              localActivo: true,
+            });
+
+            alert(`Información actualizada:\nEstado: ${selectedStatus}\nCosto: ${mesTasaValue}\nNotas: ${notasValue}`);
+            location.reload(); // Recargar página para reflejar cambios
+          } catch (error) {
+            console.error('Error al guardar en Firebase:', error);
+            alert('Hubo un error al guardar los datos. Inténtalo nuevamente.');
+          }
         });
 
-        // Evento para mostrar la ruta desde la ubicación actual al local seleccionado
-        const startRouteBtn = localItem.querySelector('.start-route-btn');
-        startRouteBtn.addEventListener('click', async () => {
-          const { coordinates } = local;
-          const [lng, lat] = coordinates;
-
-          getRoute([lng, lat]); // Función definida previamente
-        });
-
-        // Añadir el evento para mostrar la ubicación en el mapa
+        // Evento para mostrar la ubicación en el mapa
         const showLocationBtn = localItem.querySelector('.show-location-btn');
         showLocationBtn.addEventListener('click', () => {
           const { coordinates } = local;
           const [lng, lat] = coordinates;
 
-          // Mostrar la ubicación en el mapa
           new mapboxgl.Marker({ color: 'red' })
             .setLngLat([lng, lat])
             .addTo(map);
 
-          // Centrar el mapa en la ubicación del local
           map.flyTo({
             center: [lng, lat],
-            essential: true, // Este parámetro asegura que el vuelo sea esencial
+            essential: true,
             zoom: 16,
           });
+        });
+
+        // Evento para iniciar recorrido
+        const startRouteBtn = localItem.querySelector('.start-route-btn');
+        startRouteBtn.addEventListener('click', () => {
+          const { coordinates } = local;
+          const [lng, lat] = coordinates;
+          getRoute([lng, lat]);
         });
 
         // Añadir el local al contenedor
@@ -717,12 +746,15 @@ document.getElementById('desplegar-lista').addEventListener('click', async () =>
 
 
 
+
+
+
 document.getElementById('filtro-selector').addEventListener('change', ordenarLocales);
 
 async function ordenarLocales() {
     const criterio = document.getElementById('filtro-selector').value;
     const listaLocalesDiv = document.getElementById('locales-list');
-    listaLocalesDiv.innerHTML = '';  // Limpiar la lista actual
+    listaLocalesDiv.innerHTML = ''; // Limpiar la lista actual
 
     // Obtener los locales de Firebase
     const snapshot = await get(ref(db, 'locales'));
@@ -776,7 +808,6 @@ async function ordenarLocales() {
                 </select>
                 <input type="text" class="mes-tasa-input" placeholder="Mes y Tasa" style="display:none; margin: 5px 0;" value="${local.mesTasa || ''}">
                 <textarea class="notas-input" placeholder="Notas" style="display:none; margin: 5px 0;">${local.notas || ''}</textarea>
-                
                 <button class="save-status-btn" style="display:none;">Terminar</button>
             `;
 
@@ -803,16 +834,40 @@ async function ordenarLocales() {
                 const notas = notasInput.value;
                 const localId = localElement.getAttribute('data-id');
                 const fechaModificacion = new Date().toLocaleString(); // Obtener la fecha y hora actual
-                const localRef = ref(db, `locales/${localId}`);
-                await update(localRef, { 
-                    estado: selectedStatus,
-                    mesTasa: mesTasa,
-                    notas: notas,
-                    fechaModificacion: fechaModificacion // Guardar fecha y hora
-                });
 
-                alert(`Estado actualizado a: ${selectedStatus}`);
-                location.reload(); // Recargar la página después de guardar
+                try {
+                    // Actualizar en la base de datos "locales"
+                    const localRef = ref(db, `locales/${localId}`);
+                    await update(localRef, { 
+                        estado: selectedStatus,
+                        mesTasa: mesTasa,
+                        notas: notas,
+                        fechaModificacion: fechaModificacion
+                    });
+
+                    // Actualizar en la base de datos "actividad"
+                    const anioActual = new Date().getFullYear();
+                    const mesActual = new Date().toLocaleString('default', { month: 'long' }).toLowerCase();
+                    const actividadRef = ref(db, `actividad/${anioActual}/${mesActual}/${local.numeroFinca}`);
+                    await set(actividadRef, {
+                        nombre: local.nombre,
+                        direccion: local.direccion,
+                        costo: mesTasa,
+                        factura: local.factura,
+                        numeroFinca: local.numeroFinca,
+                        estado: selectedStatus,
+                        mesTasa: mesTasa,
+                        notas: notas,
+                        fechaModificacion: fechaModificacion,
+                        localActivo: true
+                    });
+
+                    alert(`Estado actualizado:\nEstado: ${selectedStatus}\nMes y Tasa: ${mesTasa}\nNotas: ${notas}`);
+                    location.reload(); // Recargar la página después de guardar
+                } catch (error) {
+                    console.error('Error al guardar cambios:', error);
+                    alert('Hubo un error al guardar los datos. Inténtalo nuevamente.');
+                }
             });
 
             const startRouteBtn = localElement.querySelector('.start-route-btn');
@@ -820,30 +875,27 @@ async function ordenarLocales() {
                 const { coordinates } = local;
                 const [lng, lat] = coordinates;
 
-                // Suponiendo que ya tienes una función `getRoute` definida que toma el punto de inicio y fin
                 getRoute([lng, lat]);
             });
 
-            // Añadir el evento para mostrar la ubicación en el mapa
             const showLocationBtn = localElement.querySelector('.show-location-btn');
             showLocationBtn.addEventListener('click', () => {
                 const { coordinates } = local;
                 const [lng, lat] = coordinates;
 
-                // Mostrar la ubicación en el mapa
-                new mapboxgl.Marker({ color: 'red' })  // Puedes personalizar el color o el estilo del marcador
+                new mapboxgl.Marker({ color: 'red' })
                     .setLngLat([lng, lat])
                     .addTo(map);
 
-                // Centrar el mapa en la ubicación del local
                 map.flyTo({
                     center: [lng, lat],
-                    essential: true // Este parámetro asegura que el vuelo sea esencial
+                    essential: true
                 });
             });
         });
     }
 }
+
 
 
 // Función auxiliar para calcular la distancia entre dos puntos
