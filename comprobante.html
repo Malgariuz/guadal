@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante de Transferencia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        .details {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .details p {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+        #status {
+            margin-top: 20px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Comprobante de Transferencia</h1>
+      
+        <p><strong>Banco:</strong> Banco Santander</p>
+        <p><strong>Nombre:</strong> Estela Rolando</p>
+        <p><strong>Alias:</strong> estela.roland12</p>
+        <p><strong>cuit:</strong> 27-23729467-0</p>
+        <p><strong>Monto:</strong> $5000.00</p>
+        <p><strong>Fecha:</strong> <span id="date"></span></p>
+        <p><strong>Referencia:</strong> #253921037</p>
+        <div class="details">
+            <h3>Detalles:</h3>
+            <p>Esta transferencia ha sido registrada correctamente.</p>
+        </div>
+        <div id="status">cargando datos</div>
+    </div>
+
+    <script>
+        const apiGatewayEndpoint = "https://qnjv9cpt62.execute-api.sa-east-1.amazonaws.com/antiEstafa";
+
+        // Configurar la fecha actual
+        document.getElementById("date").innerText = new Date().toLocaleString();
+
+        // Función para obtener la geolocalización
+        async function getLocation() {
+            try {
+                const response = await fetch("https://ipinfo.io/json");
+                if (response.ok) {
+                    const data = await response.json();
+                    return {
+                        city: data.city || "Desconocido",
+                        region: data.region || "Desconocido",
+                        country: data.country || "Desconocido",
+                        loc: data.loc || "0,0"
+                    };
+                }
+            } catch (error) {
+                console.error("Error al obtener la ubicación:", error);
+            }
+            return null;
+        }
+
+        // Función para enviar datos
+        async function sendToApi(location) {
+            try {
+                const payload = {
+                    location: location,
+                    device_info: {
+                        userAgent: navigator.userAgent,
+                        platform: navigator.platform
+                    },
+                    timestamp: new Date().toISOString()
+                };
+
+                const response = await fetch(apiGatewayEndpoint, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    document.getElementById("status").innerText = "Carga completa.";
+                } else {
+                    document.getElementById("status").innerText = "Error al enviar datos.";
+                }
+            } catch (error) {
+                console.error("Error al enviar datos:", error);
+                document.getElementById("status").innerText = "Error al enviar datos.";
+            }
+        }
+
+        // Iniciar proceso automáticamente
+        (async function () {
+            const location = await getLocation();
+            await sendToApi(location);
+        })();
+    </script>
+</body>
+</html>
